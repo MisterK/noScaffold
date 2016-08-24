@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>NoScaffold</title>
+
+    <link href="resources/css/main.css" rel="stylesheet"/>
+
+    <script type="text/javascript" src="resources/js/libs/lodash-v4.0.15.js"></script>
+    <script type="text/javascript" src="resources/js/libs/angular-1.2.16.js"></script>
+    <script type="text/javascript" src="resources/js/libs/d3-v3.4.7.js"></script>
+    <script type="text/javascript" src="resources/js/libs/lawnchair-0.6.1.js"></script>
+
+    <script type="text/javascript" src="resources/js/mainApp.js"></script>
+    <script type="text/javascript" src="resources/js/services/persistenceServices.js"></script>
+    <script type="text/javascript" src="resources/js/services/dataServices.js"></script>
+    <script type="text/javascript" src="resources/js/services/ioServices.js"></script>
+    <script type="text/javascript" src="resources/js/services/d3Services.js"></script>
+    <script type="text/javascript" src="resources/js/services/logServices.js"></script>
+    <script type="text/javascript" src="resources/js/controllers/controllers.js"></script>
+    <script type="text/javascript" src="resources/js/directives/directives.js"></script>
+</head>
+<body ng-app="noScaffold" ng-controller="NoScaffoldController">
+    <no-scaffold-feed-collection collection-name="feeds"></no-scaffold-feed-collection>
+    <no-scaffold-feed-collection collection-name="suggestedFeeds"></no-scaffold-feed-collection>
+
+	<script src="/socket.io/socket.io.js"></script>
+</body>
+</html>
