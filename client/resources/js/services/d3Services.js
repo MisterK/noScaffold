@@ -54,7 +54,8 @@ angular.module('noScaffold.d3AngularServices', [])
 
             //TODO
 
-            return thisService.updateFeeds(resultingD3Element, callbacks);
+            thisService.updateFeeds(resultingD3Element, callbacks);
+            return thisService.updateFeedItem(d3Elements, feedItemWiringFn);
         };
 
         this.updateFeeds = function(d3Elements, callbacks) {
@@ -70,7 +71,7 @@ angular.module('noScaffold.d3AngularServices', [])
             });
         };
 
-        this.updateFeedItem = function(d3Elements, wiringFn) {
+        this.updateFeedItem = function(d3Elements, wiringFn, callbacks) {
             return d3Elements.each(function(feed) {
                 var thisElement = d3.select(this);
 
@@ -81,11 +82,43 @@ angular.module('noScaffold.d3AngularServices', [])
                         presentationCfg.animations.feeds, presentationCfg.animations.veryLongDuration);
                 }
                 if (angular.isObject(feed.currentItem)) {
+                    if (!angular.isObject(feed.previousItem)) { // To avoid double refresh
+                        feed.previousItem = feed.currentItem; //TODO find a better mechanism
+                    }
                     var feedItemElement = thisElement
                         .append('div')
                         .attr('id', feed.itemIndex)
-                        .attr('class', 'feedItem')
-                        .text(JSON.stringify(feed.currentItem));
+                        .attr('class', 'feedItem');
+                    if (angular.isString(feed.suggestedTemplate)) {
+                        var variablesExtrapolated = feed.suggestedTemplate.replace(/#\{(.*)\}/g, function(match, group) {
+                            return _.get(feed.currentItem, group.split('|||'));
+                        });
+                        var lines = variablesExtrapolated.split(/\n/);
+                        _.forEach(lines, function(line, lineIndex) {
+                            var feedItemLine = feedItemElement
+                                .append('div')
+                                .attr('class', 'feedItemLine');
+                            feedItemLine
+                                .append('div')
+                                .attr('class', 'feedItemLineContent')
+                                .text(line);
+                            feedItemLine
+                                .append('div')
+                                .attr('class', 'feedItemLineButton feedItemLineRemoveButton')
+                                .text('X')
+                                .on('click', function(d) {
+                                    d3TransitionsService.fadeOutAndRemove(feedItemLine,
+                                        presentationCfg.animations.feeds, presentationCfg.animations.shortDuration);
+                                    (callbacks['feedItemLineRemoveButtonClicked'] || _.noop)(d, lineIndex);
+                                });
+                        });
+                        feedItemElement //TODO fix CSS and remove this
+                            .append('div')
+                            .attr('class', 'clearer')
+                            .text(' ');
+                    } else {
+                        feedItemElement.text(JSON.stringify(feed.currentItem));
+                    }
                     if (angular.isFunction(wiringFn)) {
                         feedItemElement = wiringFn(feedItemElement);
                     }

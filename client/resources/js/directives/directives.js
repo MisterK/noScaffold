@@ -11,7 +11,8 @@ angular.module('noScaffold.directives', [])
      * Description: Creates the main noScaffoldFeedCollection with D3
      */
     .directive('noScaffoldFeedCollection', function(presentationCfg, dataCfg, d3Service,
-                                        d3ComponentFactoryService, d3TransitionsService) {
+                                        d3ComponentFactoryService, d3TransitionsService,
+                                                    feedSuggestedTemplateModifier) {
         var getFeedCssSelection = function(feedSelection) {
             var selectionByFeedId = angular.isObject(feedSelection.feed)
                 ? feedSelection.feed.feedId : feedSelection.feedId;
@@ -73,9 +74,19 @@ angular.module('noScaffold.directives', [])
             };
         };
 
-        var drawFeedItem = function(scope, parentElement, cssSelection, feed) {
+        var drawFeedItem = function(scope, isSubscribedFeeds, parentElement, cssSelection, feed) {
             var feedElements = parentElement.selectAll(cssSelection);
-            return d3ComponentFactoryService.updateFeedItem(feedElements, feedItemWiringFn(scope));
+            var callbacks = {
+                'feedItemLineRemoveButtonClicked': isSubscribedFeeds ?
+                    scopeApply(scope, function (feed, lineIndex) {
+                        return scope.updateFeedSuggestedTemplate(
+                            feedSuggestedTemplateModifier.feedItemLineRemoved(feed, lineIndex));
+                    }) :
+                    function (feed, lineIndex) {
+                        return feedSuggestedTemplateModifier.feedItemLineRemoved(feed, lineIndex);
+                    }
+            };
+            return d3ComponentFactoryService.updateFeedItem(feedElements, feedItemWiringFn(scope), callbacks);
         };
 
         var removeFeed = function(scope, parentElement, cssSelection, data) {
@@ -122,7 +133,7 @@ angular.module('noScaffold.directives', [])
                         return;
                     }
                     var cssSelection = getFeedCssSelection({feed: feed});
-                    drawFeedItem(scope, rootElement, cssSelection, feed);
+                    drawFeedItem(scope, isSubscribedFeeds, rootElement, cssSelection, feed);
                 });
 
                 scope.$on('feedRemove', function(event, feed) {

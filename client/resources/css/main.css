@@ -11,6 +11,7 @@
 .feed {
     border: 2px solid black;
     margin-bottom: 5px;
+    clear: both;
 }
 
 .feedTitle {
@@ -41,4 +42,30 @@
 }
 
 .feedNextItemButton {
+}
+
+.feedItemLine {
+    clear: both;
+}
+
+.feedItemLineContent {
+    float: left;
+    width: 25%;
+}
+
+.feedItemLineButton {
+    color: red;
+    font-weight: bold;
+    float: left;
+    border: 1px solid black;
+    padding: 2px 3px;
+    cursor: pointer;
+}
+
+.feedItemLineRemoveButton {
+
+}
+
+.clearer {
+    clear: both;
 }

@@ -128,13 +128,17 @@ io.sockets.on('connection', function (socket) {
     });
 
     addFeed({
-        feedId: 'listingServicesAPI-Listings-Buy',
-        templateUrl: 'http://services.e2e.realestate.com.au/services/listings/search?query={%22channel%22:%22buy%22,%22localities%22:[{%22locality%22:%22#suburb#%22}],%22pageSize%22:%221%22,%22page%22:%22#itemIndex#%22}'
+        feedId: 'resiAgentAPI-Agents',
+        templateUrl: 'http://resi-agent-api.resi-lob-dev.realestate.com.au/agents?location=#suburbId#&page=#itemIndex#&size=1',
+        suggestedTemplate: '==Find an Agent==\n' +
+            'Agent ID: #{_embedded|||http://data.realestate.com.au/doc/relations#tieredResults|||0|||_embedded|||item|||0|||id}\n' +
+            'Agent name: #{_embedded|||http://data.realestate.com.au/doc/relations#tieredResults|||0|||_embedded|||item|||0|||name}\n' +
+            'Agency name: #{_embedded|||http://data.realestate.com.au/doc/relations#tieredResults|||0|||_embedded|||item|||0|||_embedded|||http://data.realestate.com.au/doc/relations#agency|||name}'
     });
 
     addFeed({
-        feedId: 'resiAgentAPI-Agents',
-        templateUrl: 'http://resi-agent-api.resi-lob-dev.realestate.com.au/agents?location=#suburbId#&page=#itemIndex#&size=1'
+        feedId: 'listingServicesAPI-Listings-Buy',
+        templateUrl: 'http://services.e2e.realestate.com.au/services/listings/search?query={%22channel%22:%22buy%22,%22localities%22:[{%22locality%22:%22#suburb#%22}],%22pageSize%22:%221%22,%22page%22:%22#itemIndex#%22}'
     });
 
     var addFeedAndNotify = function(feed) {

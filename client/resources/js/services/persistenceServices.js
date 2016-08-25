@@ -61,7 +61,8 @@ angular.module('noScaffold.persistenceServices', [])
 
         var getFeedCollection = function(feedCollectionKey, callback, mapFn) {
             return lawnchairStorage.get(feedCollectionKey, function(feeds) {
-                callback(angular.isObject(feeds) ? _.map(feeds.feedElements || [], function(el) { return (mapFn || _.identity)(el); }) : []);
+                callback(angular.isObject(feeds) ?
+                    _.map(feeds.feedElements || [], function(el) { return (mapFn || _.identity)(el); }) : []);
             });
         };
 
@@ -74,7 +75,8 @@ angular.module('noScaffold.persistenceServices', [])
         };
 
         this.subscribeToFeed = function(feed, callback) {
-            return addFeedInCollection('subscribedFeeds', _.pick(feed, ['feedId', 'itemIndex']), callback);
+            return addFeedInCollection('subscribedFeeds',
+                _.pick(feed, ['feedId', 'itemIndex', 'suggestedTemplate']), callback);
         };
 
         this.unSubscribeFromFeed = function(feed, callback) {
@@ -85,9 +87,21 @@ angular.module('noScaffold.persistenceServices', [])
             return getFeedCollection('subscribedFeeds', callback);
         };
 
-        this.updateFeedItemIndex = function(feed, callback) {
+        var updateFeed = function(feed, callback, transFn) {
             return updateFeedInCollection('subscribedFeeds', feed.feedId, callback, function(feedElement) {
+                transFn(feed, feedElement);
+            });
+        };
+
+        this.updateFeedItemIndex = function(feed, callback) {
+            return updateFeed(feed, callback, function(feed, feedElement) {
                 feedElement.itemIndex = feed.itemIndex;
+            });
+        };
+
+        this.updateFeedSuggestedTemplate = function(feed, callback) {
+            return updateFeed(feed, callback, function(feed, feedElement) {
+                feedElement.suggestedTemplate = feed.suggestedTemplate;
             });
         };
     })
@@ -177,7 +191,7 @@ angular.module('noScaffold.persistenceServices', [])
                             var subscribedToFeed = _.find(subscribedToFeeds,
                                 _.curry(doFeedsIdsMatch, 2)(feed.feedId));
                             if (angular.isDefined(subscribedToFeed)) {
-                                feed.itemIndex = subscribedToFeed.itemIndex;
+                                _.assign(feed, subscribedToFeed);
                                 result[0].push(feed);
                             } else {
                                 feed.itemIndex = 1;
@@ -344,6 +358,12 @@ angular.module('noScaffold.persistenceServices', [])
                 logService.logDebug('Persistence: Excluding feed ' + feed.feedId + ' from local storage');
                 localStorageService.excludeFeed(feed,
                     feedCallbackWrapper(registerEventHandlerDescriptors['feedExcluded'], feed.feedId));
+            };
+
+            this.updateFeedSuggestedTemplate = function(feed) {
+                logService.logDebug('Persistence: Updating feed ' + feed.feedId + ' suggestedTemplate in local storage');
+                localStorageService.updateFeedSuggestedTemplate(feed,
+                    feedCallbackWrapper(registerEventHandlerDescriptors['feedSuggestedTemplateUpdated'], feed.feedId));
             };
         }
 

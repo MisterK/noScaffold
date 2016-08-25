@@ -38,6 +38,14 @@ angular.module('noScaffold.dataAngularServices', [])
         var feedId2 = angular.isObject(feedOrId2) ? feedOrId2.feedId : feedOrId2;
         return feedId1 === feedId2;
     })
+    .service('feedSuggestedTemplateModifier', function() {
+        this.feedItemLineRemoved = function(feed, lineIndex) {
+            var lines = feed.suggestedTemplate.split('\n');
+            lines.splice(lineIndex, 1);
+            feed.suggestedTemplate = lines.join('\n');
+            return feed;
+        }
+    })
     .service('pageElementsFactory', function(dataCfg) {
         this.createPageElement = function(pageElementType, coordinates, params) {
             switch (pageElementType) {

@@ -67,6 +67,11 @@ angular.module('noScaffold.controllers', [])
                 persistChange);
         };
 
+        $scope.updateFeedSuggestedTemplate = function(feed) {
+            logService.logDebug('Persisting template change for feed ' + feed.feedId);
+            persistence.updateFeedSuggestedTemplate(feed);
+        };
+
         //Setup persistence
         var pageElementSavedEventHandler = function(savedPageElement) {
             pageElementsFactory.augmentPageElement(savedPageElement);
