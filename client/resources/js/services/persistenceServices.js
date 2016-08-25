@@ -143,6 +143,18 @@ angular.module('noScaffold.persistenceServices', [])
                 executeWrappedEventHandlerDescriptor('allPageElementsDeleted', serverResponse);
             };
 
+            var feedSuggestionsEventHandler = function(feeds) {
+                return localStorageService.getExcludedFeeds(function(excludedFeeds) {
+                    var filteredFeeds = _.filter(feeds, function(feed) {
+                        return (excludedFeeds || []).indexOf(feed.feedId) < 0;
+                    });
+                    return feedsDiscovered(_.keyBy(filteredFeeds, _.curryRight(_.get, 2)('feedId')),
+                        function(feedCollections) {
+                            executeWrappedEventHandlerDescriptor('feedsSuggested', feedCollections);
+                        });
+                });
+            };
+
             var connectedToServerEventHandler = function() {
                 logService.logDebug('Persistence: Connected to server, discovering all feeds from server');
                 discoverFeeds(function(feeds) {
@@ -153,34 +165,37 @@ angular.module('noScaffold.persistenceServices', [])
             connection.connectToServerEventsWithListeners(
                 {'pageElementSaved': pageElementSavedEventHandler,
                     'pageElementDeleted': pageElementDeletedEventHandler,
-                    'allPageElementsDeleted': allPageElementsDeletedEventHandler},
+                    'allPageElementsDeleted': allPageElementsDeletedEventHandler,
+                    'feedSuggestions': feedSuggestionsEventHandler},
                 {'connectedToServer': connectedToServerEventHandler});
+
+            var feedsDiscovered = function(feeds, callback) {
+                if (angular.isObject(feeds)) {
+                    logService.logDebug('Persistence: Discovered ' + _.keys(feeds).length + ' feeds from server');
+                    return localStorageService.getSubscribedToFeeds(function(subscribedToFeeds) {
+                        var partition = _.reduce(feeds, function(result, feed) {
+                            var subscribedToFeed = _.find(subscribedToFeeds,
+                                _.curry(doFeedsIdsMatch, 2)(feed.feedId));
+                            if (angular.isDefined(subscribedToFeed)) {
+                                feed.itemIndex = subscribedToFeed.itemIndex;
+                                result[0].push(feed);
+                            } else {
+                                feed.itemIndex = 1;
+                                result[1].push(feed);
+                            }
+                            return result;
+                        }, [[],[]]);
+                        var transform = _.curryRight(_.keyBy, 2)(_.curryRight(_.get, 2)('feedId'));
+                        (callback || _.noop)(
+                            {feeds: transform(partition[0]), suggestedFeeds: transform(partition[1])});
+                    });
+                }
+            };
 
             var discoverFeeds = function(callback) {
                 if (connection.isConnected) {
                     localStorageService.getExcludedFeeds(function(excludedFeeds) {
-                        connection.discoverFeeds(excludedFeeds, function(feeds) {
-                            if (angular.isObject(feeds)) {
-                                logService.logDebug('Persistence: Discovered ' + _.keys(feeds).length + ' feeds from server');
-                                localStorageService.getSubscribedToFeeds(function(subscribedToFeeds) {
-                                    var partition = _.reduce(feeds, function(result, feed) {
-                                        var subscribedToFeed = _.find(subscribedToFeeds,
-                                            _.curry(doFeedsIdsMatch, 2)(feed.feedId));
-                                        if (angular.isDefined(subscribedToFeed)) {
-                                            feed.itemIndex = subscribedToFeed.itemIndex;
-                                            result[0].push(feed);
-                                        } else {
-                                            feed.itemIndex = 1;
-                                            result[1].push(feed);
-                                        }
-                                        return result;
-                                    }, [[],[]]);
-                                    var transform = _.curryRight(_.keyBy, 2)(_.curryRight(_.get, 2)('feedId'));
-                                    (callback || _.noop)(
-                                        {feeds: transform(partition[0]), suggestedFeeds: transform(partition[1])});
-                                })
-                            }
-                        }, function() {
+                        connection.discoverFeeds(excludedFeeds, _.curryRight(feedsDiscovered, 2)(callback), function() {
                             logService.logError('Persistence: error occurred while discovering feeds from server');
                         });
                     });

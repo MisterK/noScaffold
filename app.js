@@ -68,25 +68,10 @@ var fetchFeedItem = function(fetchParams, callback, errorCallback) {
 };
 
 var addFeed = function(feed) {
+    log('Adding feed ' + feed.feedId);
     feeds[feed.feedId] = feed;
     return feed;
 };
-
-addFeed({
-    feedId: 'listingServicesAPI-Listings-Buy',
-    templateUrl: 'http://services.e2e.realestate.com.au/services/listings/search?query={%22channel%22:%22buy%22,%22localities%22:[{%22locality%22:%22#suburb#%22}],%22pageSize%22:%221%22,%22page%22:%22#itemIndex#%22}'
-});
-
-addFeed({
-    feedId: 'listingServicesAPI-Listings-Sold',
-    templateUrl: 'http://services.e2e.realestate.com.au/services/listings/search?query={%22channel%22:%22sold%22,%22localities%22:[{%22locality%22:%22#suburb#%22}],%22pageSize%22:%221%22,%22page%22:%22#itemIndex#%22}'
-});
-
-addFeed({
-   feedId: 'resiAgentAPI-Agents',
-    templateUrl: 'http://resi-agent-api.resi-lob-dev.realestate.com.au/agents?location=#suburbId#&page=#itemIndex#&size=1'
-});
-
 
 /************** Utility functions **************/
 var log = function(message) {
@@ -141,6 +126,27 @@ io.sockets.on('connection', function (socket) {
 	.on('disconnect', function(){
         log(logPrefix + 'Disconnected');
     });
+
+    addFeed({
+        feedId: 'listingServicesAPI-Listings-Buy',
+        templateUrl: 'http://services.e2e.realestate.com.au/services/listings/search?query={%22channel%22:%22buy%22,%22localities%22:[{%22locality%22:%22#suburb#%22}],%22pageSize%22:%221%22,%22page%22:%22#itemIndex#%22}'
+    });
+
+    addFeed({
+        feedId: 'resiAgentAPI-Agents',
+        templateUrl: 'http://resi-agent-api.resi-lob-dev.realestate.com.au/agents?location=#suburbId#&page=#itemIndex#&size=1'
+    });
+
+    var addFeedAndNotify = function(feed) {
+        addFeed(feed);
+        io.sockets.emit('feedSuggestions', [feed]);
+    };
+
+    setTimeout(function() {
+        addFeedAndNotify({
+            feedId: 'listingServicesAPI-Listings-Sold',
+            templateUrl: 'http://services.e2e.realestate.com.au/services/listings/search?query={%22channel%22:%22sold%22,%22localities%22:[{%22locality%22:%22#suburb#%22}],%22pageSize%22:%221%22,%22page%22:%22#itemIndex#%22}'
+        })}, 10000);
 });
 
 server.listen(port);

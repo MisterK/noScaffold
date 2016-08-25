@@ -86,7 +86,7 @@ angular.module('noScaffold.controllers', [])
                 }
             }
         };
-        var allFeedsDiscoveredEventHandler = function(feedCollections) {
+        var feedsDiscoveredEventHandler = function(feedCollections) {
             if (!angular.isObject(feedCollections)
                 || ((!angular.isObject(feedCollections['feeds']) || _.keys(feedCollections['feeds']).length == 0)
                 && (!angular.isObject(feedCollections['suggestedFeeds'])
@@ -94,8 +94,9 @@ angular.module('noScaffold.controllers', [])
                 logService.logDebug('No feeds received from server');
                 return;
             }
-            $scope.feeds = feedCollections['feeds'];
-            $scope.suggestedFeeds = feedCollections['suggestedFeeds'];
+            //TODO merge (and do not refresh) instead of replace if feed already exist, otherwise double item display
+            _.assign($scope.feeds, feedCollections['feeds']);
+            _.assign($scope.suggestedFeeds, feedCollections['suggestedFeeds']);
             logService.logDebug('Fetching first item of each ' + (_.keys(feedCollections['feeds']).length +
                 _.keys(feedCollections['suggestedFeeds']).length) + ' feed received from server');
             _.values(feedCollections).forEach(function(feedCollection) {
@@ -151,7 +152,8 @@ angular.module('noScaffold.controllers', [])
         };
         var persistence = persistenceService.getPersistence(
             {'pageElementSaved': augmentWithScopeApplyWrapper(pageElementSavedEventHandler),
-                'allFeedsDiscovered': augmentWithScopeApplyWrapper(allFeedsDiscoveredEventHandler),
+                'allFeedsDiscovered': augmentWithScopeApplyWrapper(feedsDiscoveredEventHandler),
+                'feedsSuggested': augmentWithScopeApplyWrapper(feedsDiscoveredEventHandler),
                 'feedItemFetched': augmentWithScopeApplyWrapper(feedItemFetchedEventHandler),
                 'feedSubscribed': augmentWithScopeApplyWrapper(feedSubscribedEventHandler),
                 'feedUnsubscribed': augmentWithScopeApplyWrapper(feedUnsubscribedEventHandler),
