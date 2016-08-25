@@ -25,8 +25,8 @@ angular.module('noScaffold.d3AngularServices', [])
     .service('d3ComponentFactoryService', function(presentationCfg, d3TransitionsService) {
         var thisService = this;
 
-        this.appendFeeds = function(d3Elements, callbacks) {
-            var resultingD3Element = d3Elements
+        this.appendFeeds = function(d3Elements, callbacks, feedItemWiringFn) {
+            var resultingD3Element = d3Elements.enter()
                 .append('div')
                     .attr('id', getter('feedId'))
                     .attr('class', 'feed');
@@ -36,13 +36,21 @@ angular.module('noScaffold.d3AngularServices', [])
                     .text(getter('feedId'));
             resultingD3Element
                 .append('div')
-                    .attr('class', 'feedUnsubscribeButton')
+                    .attr('class', 'feedRemoveButton')
                     .text('X')
                     .on('click', (callbacks['feedUnsubscribeButtonClicked'] || _.noop));
+            if (callbacks['feedSubscribeButtonClicked']) {
+                resultingD3Element
+                    .append('div')
+                    .attr('class', 'feedSubscribeButton')
+                    .text('♥')
+                    .on('click', (callbacks['feedSubscribeButtonClicked'] || _.noop));
+            }
 
             //TODO
 
-            return thisService.updateFeeds(resultingD3Element, callbacks);
+            thisService.updateFeeds(resultingD3Element, callbacks);
+            return thisService.updateFeedItem(d3Elements, feedItemWiringFn);
         };
 
         this.updateFeeds = function(d3Elements, callbacks) {
@@ -68,18 +76,19 @@ angular.module('noScaffold.d3AngularServices', [])
                         thisElement.select("[id='" + feed.previousItem.itemIndex + "']"),
                         presentationCfg.animations.feeds, presentationCfg.animations.veryLongDuration);
                 }
-                var feedItemElement = thisElement
-                    .append('div')
-                    .attr('id', feed.itemIndex)
-                    .attr('class', 'feedItem')
-                    .text(JSON.stringify(feed.currentItem));
-                if (angular.isFunction(wiringFn)) {
-                    feedItemElement = wiringFn(feedItemElement);
+                if (angular.isObject(feed.currentItem)) {
+                    var feedItemElement = thisElement
+                        .append('div')
+                        .attr('id', feed.itemIndex)
+                        .attr('class', 'feedItem')
+                        .text(JSON.stringify(feed.currentItem));
+                    if (angular.isFunction(wiringFn)) {
+                        feedItemElement = wiringFn(feedItemElement);
+                    }
+                    d3TransitionsService.fadeIn(
+                        feedItemElement,
+                        presentationCfg.animations.feeds, presentationCfg.animations.veryLongDuration);
                 }
-                d3TransitionsService.fadeIn(
-                    feedItemElement,
-                    presentationCfg.animations.feeds, presentationCfg.animations.veryLongDuration);
-
 
                 return thisElement;
             });

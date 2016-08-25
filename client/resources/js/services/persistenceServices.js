@@ -22,24 +22,57 @@ angular.module('noScaffold.persistenceServices', [])
     .service('localStorageService', function(lawnchairService) {
         var lawnchairStorage = lawnchairService.getLawnchairStorage(_.noop);
 
-        var saveExcludedFeeds = function(excludedFeedIds, callback) {
+        var saveFeedsCollection = function(feedCollectionKey, feedIds, callback) {
             return lawnchairStorage.save({
-                key: 'excludedFeeds',
-                feedIds: excludedFeedIds
+                key: feedCollectionKey,
+                feedIds: feedIds
             }, callback);
         };
 
+        var changeFeedCollection = function(feedCollectionKey, feed, callback, transCallback) {
+            return getFeedCollection(feedCollectionKey, function(feeds) {
+                saveFeedsCollection(feedCollectionKey, transCallback(feeds), callback);
+            });
+        };
+
+        var saveFeedInCollection = function(feedCollectionKey, feed, callback) {
+            return changeFeedCollection(feedCollectionKey, feed, callback, function(feeds) {
+                feeds.push(feed.feedId);
+                return feeds;
+            });
+        };
+
+        var removeFeedFromCollection = function(feedCollectionKey, feed, callback) {
+            return changeFeedCollection(feedCollectionKey, feed, callback, function(feeds) {
+                feeds.splice(feeds.indexOf(feed.feedId), 1);
+                return feeds;
+            });
+        };
+
+        var getFeedCollection = function(feedCollectionKey, callback) {
+            return lawnchairStorage.get(feedCollectionKey, function(feeds) {
+                callback(angular.isObject(feeds) ? feeds.feedIds || [] : []);
+            });
+        };
+
         this.excludeFeed = function(feed, callback) {
-            this.getExcludedFeeds(function(excludedFeeds) {
-                excludedFeeds.push(feed.feedId);
-                saveExcludedFeeds(excludedFeeds, callback);
-            })
+            return saveFeedInCollection('excludedFeeds', feed, callback);
         };
 
         this.getExcludedFeeds = function(callback) {
-            lawnchairStorage.get('excludedFeeds', function(excludedFeeds) {
-                callback(angular.isObject(excludedFeeds) ? excludedFeeds.feedIds || [] : []);
-            });
+            return getFeedCollection('excludedFeeds', callback);
+        };
+
+        this.subscribeToFeed = function(feed, callback) {
+            return saveFeedInCollection('subscribedFeeds', feed, callback);
+        };
+
+        this.unSubscribeFromFeed = function(feed, callback) {
+            return removeFeedFromCollection('subscribedFeeds', feed, callback);
+        };
+
+        this.getSubscribedToFeeds = function(callback) {
+            return getFeedCollection('subscribedFeeds', callback);
         };
     })
     .factory('persistenceService', function(persistenceCfg, serverCommunicationService, localStorageService,
@@ -113,7 +146,14 @@ angular.module('noScaffold.persistenceServices', [])
                         connection.discoverFeeds(excludedFeeds, function(feeds) {
                             if (angular.isObject(feeds)) {
                                 logService.logDebug('Persistence: Discovered ' + _.keys(feeds).length + ' feeds from server');
-                                (callback || _.noop)(feeds);
+                                localStorageService.getSubscribedToFeeds(function(subscribedToFeeds) {
+                                    var partition = _.partition(feeds, function(feed) {
+                                        return subscribedToFeeds.indexOf(feed.feedId) >= 0;
+                                    });
+                                    var transform = _.curryRight(_.keyBy, 2)(_.curryRight(_.get, 2)('feedId'));
+                                    (callback || _.noop)({feeds: transform(partition[0]),
+                                        suggestedFeeds: transform(partition[1])});
+                                })
                             }
                         }, function() {
                             logService.logError('Persistence: error occurred while discovering feeds from server');
@@ -228,18 +268,30 @@ angular.module('noScaffold.persistenceServices', [])
                 }
             };
 
-            var excludeFeedWrapper = function(callback, excludedFeedId) {
+            var feedCallbackWrapper = function(callback, data) {
                 return function() {
                     if (angular.isDefined(callback)) {
-                        callback(excludedFeedId);
+                        callback(data);
                     }
                 }
+            };
+
+            this.subscribeToFeed = function(feed) {
+                logService.logDebug('Persistence: Subscribing to feed ' + feed.feedId + ' in local storage');
+                localStorageService.subscribeToFeed(feed,
+                    feedCallbackWrapper(registerEventHandlerDescriptors['feedSubscribed'], feed));
+            };
+
+            this.unsubscribeFromFeed = function(feed) {
+                logService.logDebug('Persistence: Unsubscribing from feed ' + feed.feedId + ' in local storage');
+                localStorageService.unSubscribeFromFeed(feed,
+                    feedCallbackWrapper(registerEventHandlerDescriptors['feedUnsubscribed'], feed));
             };
 
             this.excludeFeed = function(feed) {
                 logService.logDebug('Persistence: Excluding feed ' + feed.feedId + ' from local storage');
                 localStorageService.excludeFeed(feed,
-                    excludeFeedWrapper(registerEventHandlerDescriptors['feedExcluded'], feed.feedId));
+                    feedCallbackWrapper(registerEventHandlerDescriptors['feedExcluded'], feed.feedId));
             };
         }
 

@@ -36,35 +36,43 @@ angular.module('noScaffold.directives', [])
             }
         };
 
-        var drawFeeds = function (scope, parentElement, cssSelection, data) {
-            var feeds = selectFeeds(parentElement, cssSelection, data).enter();
+        var drawFeeds = function (scope, isSubscribedFeeds, parentElement, cssSelection, data) {
+            var feedElements = selectFeeds(parentElement, cssSelection, data);
 
-            d3TransitionsService.fadeIn(
-                d3ComponentFactoryService.appendFeeds(feeds, {
-                        'isSelected': scope.isFeedSelected,
-                        'feedUnsubscribeButtonClicked': scopeApply(scope, scope.unsubscribeToFeed)
-                    })
+            var callbacks = {
+                'isSelected': scope.isFeedSelected,
+                'feedUnsubscribeButtonClicked': scopeApply(scope,
+                    isSubscribedFeeds ? scope.unsubscribeFromFeed : scope.excludeFeed)
+            };
+            if (!isSubscribedFeeds) {
+                callbacks['feedSubscribeButtonClicked'] = scopeApply(scope, scope.subscribeToFeed)
+            }
+            return d3TransitionsService.fadeIn(
+                d3ComponentFactoryService.appendFeeds(feedElements, callbacks, feedItemWiringFn(scope))
                     .on('click', scopeApply(scope, scope.selectFeedAndRefresh),
                 presentationCfg.animations.feeds, presentationCfg.animations.longDuration));
         };
 
         var reDrawFeeds = function(scope, parentElement, cssSelection, data) {
-            var feeds = selectFeeds(parentElement, cssSelection, data);
+            var feedElements = selectFeeds(parentElement, cssSelection, data);
 
-            d3ComponentFactoryService.updateFeeds(feeds, {'isSelected': scope.isFeedSelected});
+            d3ComponentFactoryService.updateFeeds(feedElements, {'isSelected': scope.isFeedSelected});
+        };
+
+        var feedItemWiringFn = function(scope) {
+            return function(feedItemElement) {
+                return feedItemElement
+                    /*.on('click', function(d) {
+                     scope.$apply(function() {
+                     scope.selectFeedAndRefresh(feed);
+                     });
+                     })*/;
+            };
         };
 
         var drawFeedItem = function(scope, parentElement, cssSelection, feed) {
-            var feeds = parentElement.selectAll(cssSelection);
-
-            d3ComponentFactoryService.updateFeedItem(feeds, function(feedItemElement) {
-                return feedItemElement
-                    /*.on('click', function(d) {
-                        scope.$apply(function() {
-                            scope.selectFeedAndRefresh(feed);
-                        });
-                    })*/;
-            });
+            var feedElements = parentElement.selectAll(cssSelection);
+            return d3ComponentFactoryService.updateFeedItem(feedElements, feedItemWiringFn(scope));
         };
 
         var removeFeed = function(scope, parentElement, cssSelection, data) {
@@ -80,6 +88,7 @@ angular.module('noScaffold.directives', [])
             link: function(scope, element, attributes) {
                 var d3 = d3Service.d3;
                 var collectionName = attributes['collectionName'];
+                var isSubscribedFeeds = collectionName == 'feeds';
                 var rootElement = d3.select(element[0]);
 
                 rootElement
@@ -88,9 +97,12 @@ angular.module('noScaffold.directives', [])
                     .text(collectionName);
 
                 scope.$on('feedAdded', function(event, feed) {
+                    if (angular.isObject(feed) && !angular.isObject(scope[collectionName][feed.feedId])) {
+                        return;
+                    }
                     var cssSelection = getFeedCssSelection({feed: feed});
                     var data = angular.isObject(feed) ? [feed] : _.values(scope[collectionName]);
-                    drawFeeds(scope, rootElement, cssSelection, data);
+                    drawFeeds(scope, isSubscribedFeeds, rootElement, cssSelection, data);
                 });
 
                 scope.$on('feedRefresh', function(event, feed) {

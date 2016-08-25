@@ -24,11 +24,22 @@
     clear: both;
 }
 
-.feedUnsubscribeButton {
+.feedSubscribeButton {
     color: red;
     font-weight: bold;
     float: right;
     border: 1px solid black;
     font-size: 20px;
     padding: 5px 10px;
+    cursor: pointer;
+}
+
+.feedRemoveButton {
+    color: red;
+    font-weight: bold;
+    float: right;
+    border: 1px solid black;
+    font-size: 20px;
+    padding: 5px 10px;
+    cursor: pointer;
 }

@@ -45,7 +45,19 @@ angular.module('noScaffold.controllers', [])
             return isFeedSelectedId(feed.feedId);
         };
 
-        $scope.unsubscribeToFeed = function(feed) {
+        $scope.subscribeToFeed = function(feed) {
+            requireFeedRemoval(feed);
+            delete $scope.suggestedFeeds[feed.feedId];
+            persistence.subscribeToFeed(feed);
+        };
+
+        $scope.unsubscribeFromFeed = function(feed) {
+            requireFeedRemoval(feed);
+            delete $scope.feeds[feed.feedId];
+            persistence.unsubscribeFromFeed(feed);
+        };
+
+        $scope.excludeFeed = function(feed) {
             persistence.excludeFeed(feed);
         };
 
@@ -69,14 +81,19 @@ angular.module('noScaffold.controllers', [])
             }
         };
         var allFeedsDiscoveredEventHandler = function(feeds) {
-            if (!angular.isObject(feeds) || _.keys(feeds).length == 0) {
+            if (!angular.isObject(feeds) ||((!angular.isObject(feeds['feeds']) || _.keys(feeds['feeds']).length == 0)
+                && (!angular.isObject(feeds['suggestedFeeds']) || _.keys(feeds['suggestedFeeds']).length == 0))) {
                 logService.logDebug('No feeds received from server');
                 return;
             }
-            $scope.suggestedFeeds = feeds;
-            logService.logDebug('Fetching first item of each ' + _.keys(feeds).length + ' feed received from server');
-            _.values(feeds).forEach(function(feed) {
-                persistence.fetchFeedItem(_.assign({feedId: feed.feedId, itemIndex: 1}, configFetchParams));
+            $scope.feeds = feeds['feeds'];
+            $scope.suggestedFeeds = feeds['suggestedFeeds'];
+            logService.logDebug('Fetching first item of each ' +
+                (_.keys(feeds['feeds']).length + _.keys(feeds['suggestedFeeds']).length) + ' feed received from server');
+            _.values(feeds).forEach(function(feedCollection) {
+                _.forEach(feedCollection, function(feed) {
+                    persistence.fetchFeedItem(_.assign({feedId: feed.feedId, itemIndex: 1}, configFetchParams));
+                });
             });
             requireAllFeedsDisplayAdding();
         };
@@ -96,6 +113,14 @@ angular.module('noScaffold.controllers', [])
             feed.currentItem = feedItem;
             requireFeedItemRefresh(feed);
             logService.logDebug('Item ' + itemIndex + ' from feed "' + feedId + '" fetched!')
+        };
+        var feedSubscribedEventHandler = function(feed) {
+            $scope.feeds[feed.feedId] = feed;
+            requireFeedDisplayAdding(feed);
+        };
+        var feedUnsubscribedEventHandler = function(feed) {
+            $scope.suggestedFeeds[feed.feedId] = feed;
+            requireFeedDisplayAdding(feed);
         };
         var feedExcludedEventHandler = function(feedId) {
             var feed = findFeed(feedId);
@@ -118,6 +143,8 @@ angular.module('noScaffold.controllers', [])
             {'pageElementSaved': augmentWithScopeApplyWrapper(pageElementSavedEventHandler),
                 'allFeedsDiscovered': augmentWithScopeApplyWrapper(allFeedsDiscoveredEventHandler),
                 'feedItemFetched': augmentWithScopeApplyWrapper(feedItemFetchedEventHandler),
+                'feedSubscribed': augmentWithScopeApplyWrapper(feedSubscribedEventHandler),
+                'feedUnsubscribed': augmentWithScopeApplyWrapper(feedUnsubscribedEventHandler),
                 'feedExcluded': augmentWithScopeApplyWrapper(feedExcludedEventHandler)});
 
         var requireFeedDisplayAdding = function(feedToAdd) {
