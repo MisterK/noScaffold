@@ -79,7 +79,7 @@ angular.module('noScaffold.d3AngularServices', [])
                 if (angular.isObject(feed.previousItem)) {
                     d3TransitionsService.fadeOutAndRemove(
                         thisElement.select("[id='" + feed.previousItem.itemIndex + "']"),
-                        presentationCfg.animations.feeds, presentationCfg.animations.veryLongDuration);
+                        presentationCfg.animations.feeds, presentationCfg.animations.longDuration);
                 }
                 if (angular.isObject(feed.currentItem)) {
                     if (!angular.isObject(feed.previousItem)) { // To avoid double refresh
@@ -89,28 +89,36 @@ angular.module('noScaffold.d3AngularServices', [])
                         .append('div')
                         .attr('id', feed.itemIndex)
                         .attr('class', 'feedItem');
+                    feedItemElement
+                        .append('div')
+                        .attr('class', 'feedItemTitle')
+                        .text(function(feed) {
+                           return 'Item ' + feed.itemIndex;
+                        });
                     if (angular.isString(feed.suggestedTemplate)) {
-                        var variablesExtrapolated = feed.suggestedTemplate.replace(/#\{(.*)\}/g, function(match, group) {
-                            return _.get(feed.currentItem, group.split('|||'));
+                        var variablesExtrapolated = feed.suggestedTemplate.replace(/#\{([^\{]*)\}/g, function(match, group) {
+                            return _.get(feed.currentItem, group.split('|||'), ' ');
                         });
                         var lines = variablesExtrapolated.split(/\n/);
                         _.forEach(lines, function(line, lineIndex) {
-                            var feedItemLine = feedItemElement
-                                .append('div')
-                                .attr('class', 'feedItemLine');
-                            feedItemLine
-                                .append('div')
-                                .attr('class', 'feedItemLineContent')
-                                .text(line);
-                            feedItemLine
-                                .append('div')
-                                .attr('class', 'feedItemLineButton feedItemLineRemoveButton')
-                                .text('X')
-                                .on('click', function(d) {
-                                    d3TransitionsService.fadeOutAndRemove(feedItemLine,
-                                        presentationCfg.animations.feeds, presentationCfg.animations.shortDuration);
-                                    (callbacks['feedItemLineRemoveButtonClicked'] || _.noop)(d, lineIndex);
-                                });
+                            if (line.trim().length > 0) {
+                                var feedItemLine = feedItemElement
+                                    .append('div')
+                                    .attr('class', 'feedItemLine');
+                                feedItemLine
+                                    .append('div')
+                                    .attr('class', 'feedItemLineContent')
+                                    .text(line);
+                                feedItemLine
+                                    .append('div')
+                                    .attr('class', 'feedItemLineButton feedItemLineRemoveButton')
+                                    .text('X')
+                                    .on('click', function (d) {
+                                        d3TransitionsService.fadeOutAndRemove(feedItemLine,
+                                            presentationCfg.animations.feeds, presentationCfg.animations.shortDuration);
+                                        (callbacks['feedItemLineRemoveButtonClicked'] || _.noop)(d, lineIndex);
+                                    });
+                            }
                         });
                         feedItemElement //TODO fix CSS and remove this
                             .append('div')

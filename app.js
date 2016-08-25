@@ -133,12 +133,23 @@ io.sockets.on('connection', function (socket) {
         suggestedTemplate: '==Find an Agent==\n' +
             'Agent ID: #{_embedded|||http://data.realestate.com.au/doc/relations#tieredResults|||0|||_embedded|||item|||0|||id}\n' +
             'Agent name: #{_embedded|||http://data.realestate.com.au/doc/relations#tieredResults|||0|||_embedded|||item|||0|||name}\n' +
+            'Job title: #{_embedded|||http://data.realestate.com.au/doc/relations#tieredResults|||0|||_embedded|||item|||0|||jobTitle}\n' +
             'Agency name: #{_embedded|||http://data.realestate.com.au/doc/relations#tieredResults|||0|||_embedded|||item|||0|||_embedded|||http://data.realestate.com.au/doc/relations#agency|||name}'
     });
 
     addFeed({
         feedId: 'listingServicesAPI-Listings-Buy',
-        templateUrl: 'http://services.e2e.realestate.com.au/services/listings/search?query={%22channel%22:%22buy%22,%22localities%22:[{%22locality%22:%22#suburb#%22}],%22pageSize%22:%221%22,%22page%22:%22#itemIndex#%22}'
+        templateUrl: 'http://services.e2e.realestate.com.au/services/listings/search?query={%22channel%22:%22buy%22,%22localities%22:[{%22locality%22:%22#suburb#%22}],%22pageSize%22:%221%22,%22page%22:%22#itemIndex#%22}',
+        suggestedTemplate: '==Buy section==\n' +
+            'Listing ID: #{tieredResults|||0|||results|||0|||listingId}\n' +
+            'Listing Address: #{tieredResults|||0|||results|||0|||address|||streetAddress} #{tieredResults|||0|||results|||0|||address|||suburb} #{tieredResults|||0|||results|||0|||address|||postCode} #{tieredResults|||0|||results|||0|||address|||state}\n' +
+            'Property type: #{tieredResults|||0|||results|||0|||propertyType}\n' +
+            'Agent name: #{tieredResults|||0|||results|||0|||lister|||name}\n' +
+            'Agency name: #{tieredResults|||0|||results|||0|||agency|||name}\n' +
+            'Price: #{tieredResults|||0|||results|||0|||price|||display}\n' +
+            '#{tieredResults|||0|||results|||0|||generalFeatures|||bedrooms|||label}\n' +
+            '#{tieredResults|||0|||results|||0|||generalFeatures|||bathrooms|||label}\n' +
+            '#{tieredResults|||0|||results|||0|||generalFeatures|||parkingSpaces|||label}'
     });
 
     var addFeedAndNotify = function(feed) {
@@ -149,7 +160,18 @@ io.sockets.on('connection', function (socket) {
     setTimeout(function() {
         addFeedAndNotify({
             feedId: 'listingServicesAPI-Listings-Sold',
-            templateUrl: 'http://services.e2e.realestate.com.au/services/listings/search?query={%22channel%22:%22sold%22,%22localities%22:[{%22locality%22:%22#suburb#%22}],%22pageSize%22:%221%22,%22page%22:%22#itemIndex#%22}'
+            templateUrl: 'http://services.e2e.realestate.com.au/services/listings/search?query={%22channel%22:%22sold%22,%22localities%22:[{%22locality%22:%22#suburb#%22}],%22pageSize%22:%221%22,%22page%22:%22#itemIndex#%22}',
+            suggestedTemplate: '==Sold section==\n' +
+            'Listing ID: #{tieredResults|||0|||results|||0|||listingId}\n' +
+            'Listing Address: #{tieredResults|||0|||results|||0|||address|||streetAddress} #{tieredResults|||0|||results|||0|||address|||suburb} #{tieredResults|||0|||results|||0|||address|||postCode} #{tieredResults|||0|||results|||0|||address|||state}\n' +
+            'Property type: #{tieredResults|||0|||results|||0|||propertyType}\n' +
+            'Agent name: #{tieredResults|||0|||results|||0|||lister|||name}\n' +
+            'Agency name: #{tieredResults|||0|||results|||0|||agency|||name}\n' +
+            'Price: #{tieredResults|||0|||results|||0|||price|||display}\n' +
+            'Sold date: #{tieredResults|||0|||results|||0|||dateSold|||display}\n' +
+            '#{tieredResults|||0|||results|||0|||generalFeatures|||bedrooms|||label}\n' +
+            '#{tieredResults|||0|||results|||0|||generalFeatures|||bathrooms|||label}\n' +
+            '#{tieredResults|||0|||results|||0|||generalFeatures|||parkingSpaces|||label}'
         })}, 10000);
 });
 
