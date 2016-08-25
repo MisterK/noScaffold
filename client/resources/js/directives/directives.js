@@ -42,7 +42,10 @@ angular.module('noScaffold.directives', [])
             var callbacks = {
                 'isSelected': scope.isFeedSelected,
                 'feedUnsubscribeButtonClicked': scopeApply(scope,
-                    isSubscribedFeeds ? scope.unsubscribeFromFeed : scope.excludeFeed)
+                    isSubscribedFeeds ? scope.unsubscribeFromFeed : scope.excludeFeed),
+                'feedNextItemButtonClicked': scopeApply(scope, function(feed) {
+                    return scope.nextFeedItem(feed, isSubscribedFeeds);
+                })
             };
             if (!isSubscribedFeeds) {
                 callbacks['feedSubscribeButtonClicked'] = scopeApply(scope, scope.subscribeToFeed)

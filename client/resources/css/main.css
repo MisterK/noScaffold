@@ -24,7 +24,7 @@
     clear: both;
 }
 
-.feedSubscribeButton {
+.feedButton {
     color: red;
     font-weight: bold;
     float: right;
@@ -34,12 +34,11 @@
     cursor: pointer;
 }
 
+.feedSubscribeButton {
+}
+
 .feedRemoveButton {
-    color: red;
-    font-weight: bold;
-    float: right;
-    border: 1px solid black;
-    font-size: 20px;
-    padding: 5px 10px;
-    cursor: pointer;
+}
+
+.feedNextItemButton {
 }

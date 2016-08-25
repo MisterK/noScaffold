@@ -61,6 +61,12 @@ angular.module('noScaffold.controllers', [])
             persistence.excludeFeed(feed);
         };
 
+        $scope.nextFeedItem = function(feed, persistChange) {
+            persistence.fetchFeedItem(feed,
+                _.assign({feedId: feed.feedId, itemIndex: feed.itemIndex + 1}, configFetchParams),
+                persistChange);
+        };
+
         //Setup persistence
         var pageElementSavedEventHandler = function(savedPageElement) {
             pageElementsFactory.augmentPageElement(savedPageElement);
@@ -80,19 +86,23 @@ angular.module('noScaffold.controllers', [])
                 }
             }
         };
-        var allFeedsDiscoveredEventHandler = function(feeds) {
-            if (!angular.isObject(feeds) ||((!angular.isObject(feeds['feeds']) || _.keys(feeds['feeds']).length == 0)
-                && (!angular.isObject(feeds['suggestedFeeds']) || _.keys(feeds['suggestedFeeds']).length == 0))) {
+        var allFeedsDiscoveredEventHandler = function(feedCollections) {
+            if (!angular.isObject(feedCollections)
+                || ((!angular.isObject(feedCollections['feeds']) || _.keys(feedCollections['feeds']).length == 0)
+                && (!angular.isObject(feedCollections['suggestedFeeds'])
+                    || _.keys(feedCollections['suggestedFeeds']).length == 0))) {
                 logService.logDebug('No feeds received from server');
                 return;
             }
-            $scope.feeds = feeds['feeds'];
-            $scope.suggestedFeeds = feeds['suggestedFeeds'];
-            logService.logDebug('Fetching first item of each ' +
-                (_.keys(feeds['feeds']).length + _.keys(feeds['suggestedFeeds']).length) + ' feed received from server');
-            _.values(feeds).forEach(function(feedCollection) {
+            $scope.feeds = feedCollections['feeds'];
+            $scope.suggestedFeeds = feedCollections['suggestedFeeds'];
+            logService.logDebug('Fetching first item of each ' + (_.keys(feedCollections['feeds']).length +
+                _.keys(feedCollections['suggestedFeeds']).length) + ' feed received from server');
+            _.values(feedCollections).forEach(function(feedCollection) {
                 _.forEach(feedCollection, function(feed) {
-                    persistence.fetchFeedItem(_.assign({feedId: feed.feedId, itemIndex: 1}, configFetchParams));
+                    persistence.fetchFeedItem(feed,
+                        _.assign({feedId: feed.feedId, itemIndex: feed.itemIndex || 1}, configFetchParams),
+                        false);
                 });
             });
             requireAllFeedsDisplayAdding();

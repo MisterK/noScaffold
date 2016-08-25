@@ -36,16 +36,21 @@ angular.module('noScaffold.d3AngularServices', [])
                     .text(getter('feedId'));
             resultingD3Element
                 .append('div')
-                    .attr('class', 'feedRemoveButton')
+                    .attr('class', 'feedButton feedRemoveButton')
                     .text('X')
                     .on('click', (callbacks['feedUnsubscribeButtonClicked'] || _.noop));
             if (callbacks['feedSubscribeButtonClicked']) {
                 resultingD3Element
                     .append('div')
-                    .attr('class', 'feedSubscribeButton')
+                    .attr('class', 'feedButton feedSubscribeButton')
                     .text('♥')
                     .on('click', (callbacks['feedSubscribeButtonClicked'] || _.noop));
             }
+            resultingD3Element
+                .append('div')
+                .attr('class', 'feedButton feedNextItemButton')
+                .text('⇒')
+                .on('click', (callbacks['feedNextItemButtonClicked'] || _.noop));
 
             //TODO
 

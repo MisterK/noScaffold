@@ -19,64 +19,80 @@ angular.module('noScaffold.persistenceServices', [])
             }
         };
     })
-    .service('localStorageService', function(lawnchairService) {
+    .service('localStorageService', function(lawnchairService, doFeedsIdsMatch) {
         var lawnchairStorage = lawnchairService.getLawnchairStorage(_.noop);
 
-        var saveFeedsCollection = function(feedCollectionKey, feedIds, callback) {
+        var saveFeedsCollection = function(feedCollectionKey, feedElements, callback) {
             return lawnchairStorage.save({
                 key: feedCollectionKey,
-                feedIds: feedIds
+                feedElements: feedElements
             }, callback);
         };
 
-        var changeFeedCollection = function(feedCollectionKey, feed, callback, transCallback) {
+        var changeFeedCollection = function(feedCollectionKey, callback, transCallback) {
             return getFeedCollection(feedCollectionKey, function(feeds) {
                 saveFeedsCollection(feedCollectionKey, transCallback(feeds), callback);
             });
         };
 
-        var saveFeedInCollection = function(feedCollectionKey, feed, callback) {
-            return changeFeedCollection(feedCollectionKey, feed, callback, function(feeds) {
-                feeds.push(feed.feedId);
+        var addFeedInCollection = function(feedCollectionKey, feedElement, callback) {
+            return changeFeedCollection(feedCollectionKey, callback, function(feeds) {
+                feeds.push(feedElement);
                 return feeds;
             });
         };
 
-        var removeFeedFromCollection = function(feedCollectionKey, feed, callback) {
-            return changeFeedCollection(feedCollectionKey, feed, callback, function(feeds) {
-                feeds.splice(feeds.indexOf(feed.feedId), 1);
+        var updateFeedInCollection = function(feedCollectionKey, feedId, callback, transFn) {
+            return changeFeedCollection(feedCollectionKey, callback, function(feeds) {
+                var feedElement = _.find(feeds, _.curry(doFeedsIdsMatch, 2)(feedId));
+                if (angular.isObject(feedElement)) {
+                    (transFn || _.identity)(feedElement);
+                }
                 return feeds;
             });
         };
 
-        var getFeedCollection = function(feedCollectionKey, callback) {
+        var removeFeedFromCollection = function(feedCollectionKey, feedId, callback) {
+            return changeFeedCollection(feedCollectionKey, callback, function(feeds) {
+                _.remove(feeds, _.curry(doFeedsIdsMatch, 2)(feedId));
+                return feeds;
+            });
+        };
+
+        var getFeedCollection = function(feedCollectionKey, callback, mapFn) {
             return lawnchairStorage.get(feedCollectionKey, function(feeds) {
-                callback(angular.isObject(feeds) ? feeds.feedIds || [] : []);
+                callback(angular.isObject(feeds) ? _.map(feeds.feedElements || [], function(el) { return (mapFn || _.identity)(el); }) : []);
             });
         };
 
         this.excludeFeed = function(feed, callback) {
-            return saveFeedInCollection('excludedFeeds', feed, callback);
+            return addFeedInCollection('excludedFeeds', _.pick(feed, ['feedId']), callback);
         };
 
         this.getExcludedFeeds = function(callback) {
-            return getFeedCollection('excludedFeeds', callback);
+            return getFeedCollection('excludedFeeds', callback, _.curryRight(_.get, 2)('feedId'));
         };
 
         this.subscribeToFeed = function(feed, callback) {
-            return saveFeedInCollection('subscribedFeeds', feed, callback);
+            return addFeedInCollection('subscribedFeeds', _.pick(feed, ['feedId', 'itemIndex']), callback);
         };
 
         this.unSubscribeFromFeed = function(feed, callback) {
-            return removeFeedFromCollection('subscribedFeeds', feed, callback);
+            return removeFeedFromCollection('subscribedFeeds', feed.feedId, callback);
         };
 
         this.getSubscribedToFeeds = function(callback) {
             return getFeedCollection('subscribedFeeds', callback);
         };
+
+        this.updateFeedItemIndex = function(feed, callback) {
+            return updateFeedInCollection('subscribedFeeds', feed.feedId, callback, function(feedElement) {
+                feedElement.itemIndex = feed.itemIndex;
+            });
+        };
     })
     .factory('persistenceService', function(persistenceCfg, serverCommunicationService, localStorageService,
-                                            logService, doPageElementsIdsMatch) {
+                                            logService, doPageElementsIdsMatch, doFeedsIdsMatch) {
         function Persistence(registerEventHandlerDescriptors) {
             var connection = serverCommunicationService.getServerConnection();
             var localElementsToBePersistedIds = [],
@@ -147,12 +163,21 @@ angular.module('noScaffold.persistenceServices', [])
                             if (angular.isObject(feeds)) {
                                 logService.logDebug('Persistence: Discovered ' + _.keys(feeds).length + ' feeds from server');
                                 localStorageService.getSubscribedToFeeds(function(subscribedToFeeds) {
-                                    var partition = _.partition(feeds, function(feed) {
-                                        return subscribedToFeeds.indexOf(feed.feedId) >= 0;
-                                    });
+                                    var partition = _.reduce(feeds, function(result, feed) {
+                                        var subscribedToFeed = _.find(subscribedToFeeds,
+                                            _.curry(doFeedsIdsMatch, 2)(feed.feedId));
+                                        if (angular.isDefined(subscribedToFeed)) {
+                                            feed.itemIndex = subscribedToFeed.itemIndex;
+                                            result[0].push(feed);
+                                        } else {
+                                            feed.itemIndex = 1;
+                                            result[1].push(feed);
+                                        }
+                                        return result;
+                                    }, [[],[]]);
                                     var transform = _.curryRight(_.keyBy, 2)(_.curryRight(_.get, 2)('feedId'));
-                                    (callback || _.noop)({feeds: transform(partition[0]),
-                                        suggestedFeeds: transform(partition[1])});
+                                    (callback || _.noop)(
+                                        {feeds: transform(partition[0]), suggestedFeeds: transform(partition[1])});
                                 })
                             }
                         }, function() {
@@ -258,12 +283,24 @@ angular.module('noScaffold.persistenceServices', [])
                 }
             };
 
-            this.fetchFeedItem = function(fetchParams) {
+            this.fetchFeedItem = function(feed, fetchParams, persistChange) {
                 if (connection.isConnected) {
-                    connection.fetchFeedItem(fetchParams, registerEventHandlerDescriptors['feedItemFetched'],
+                    connection.fetchFeedItem(fetchParams,
+                        function(feedId, itemIndex, feedItem) {
+                            if (persistChange) {
+                                logService.logDebug('Persistence: Fetched "' + fetchParams.itemIndex +
+                                    ' item from feed "' + fetchParams.feedId + ' -> persisting in local storage');
+                                localStorageService.updateFeedItemIndex({feedId: feedId, itemIndex: itemIndex},
+                                    function() {
+                                        registerEventHandlerDescriptors['feedItemFetched'](feedId, itemIndex, feedItem);
+                                    });
+                            } else {
+                                registerEventHandlerDescriptors['feedItemFetched'](feedId, itemIndex, feedItem);
+                            }
+                        },
                         function (status, message) {
                             logService.logDebug('Persistence: Fetching "' + fetchParams.itemIndex +
-                                ' item from feed "' + fetchParams.feedId + '  has failed: ' + message);
+                                ' item from feed "' + fetchParams.feedId + ' has failed: ' + message);
                         });
                 }
             };
