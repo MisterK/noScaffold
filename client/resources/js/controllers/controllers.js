@@ -45,6 +45,10 @@ angular.module('noScaffold.controllers', [])
             return isFeedSelectedId(feed.feedId);
         };
 
+        $scope.unsubscribeToFeed = function(feed) {
+            persistence.excludeFeed(feed);
+        };
+
         //Setup persistence
         var pageElementSavedEventHandler = function(savedPageElement) {
             pageElementsFactory.augmentPageElement(savedPageElement);
@@ -93,6 +97,14 @@ angular.module('noScaffold.controllers', [])
             requireFeedItemRefresh(feed);
             logService.logDebug('Item ' + itemIndex + ' from feed "' + feedId + '" fetched!')
         };
+        var feedExcludedEventHandler = function(feedId) {
+            var feed = findFeed(feedId);
+            if (_.isUndefined(feed)) {
+                logService.logDebug('Feed ' + feedId + ' not found!');
+                return;
+            }
+            requireFeedRemoval(feed);
+        };
         var augmentWithScopeApplyWrapper = function(eventHandlerCallback) {
           eventHandlerCallback.scopeApplyWrapper = function() {
               var passedArguments = arguments;
@@ -105,7 +117,8 @@ angular.module('noScaffold.controllers', [])
         var persistence = persistenceService.getPersistence(
             {'pageElementSaved': augmentWithScopeApplyWrapper(pageElementSavedEventHandler),
                 'allFeedsDiscovered': augmentWithScopeApplyWrapper(allFeedsDiscoveredEventHandler),
-                'feedItemFetched': augmentWithScopeApplyWrapper(feedItemFetchedEventHandler)});
+                'feedItemFetched': augmentWithScopeApplyWrapper(feedItemFetchedEventHandler),
+                'feedExcluded': augmentWithScopeApplyWrapper(feedExcludedEventHandler)});
 
         var requireFeedDisplayAdding = function(feedToAdd) {
             $scope.$broadcast('feedAdded', feedToAdd);
@@ -121,5 +134,9 @@ angular.module('noScaffold.controllers', [])
 
         var requireFeedDisplayRefresh = function(feedToRefresh) {
             $scope.$broadcast('feedRefresh', feedToRefresh);
+        };
+
+        var requireFeedRemoval = function(feedToRemove) {
+            $scope.$broadcast('feedRemove', feedToRemove);
         };
     });

@@ -27,23 +27,31 @@ angular.module('noScaffold.directives', [])
                 .data(data, function(d) { return d.feedId; });
         }
 
-        var drawFeeds = function(scope, parentElement, cssSelection, data) {
+        var scopeApply = function(scope, fn) {
+            return function() {
+                var args = arguments;
+                scope.$apply(function() {
+                    fn.apply(this, args);
+                });
+            }
+        };
+
+        var drawFeeds = function (scope, parentElement, cssSelection, data) {
             var feeds = selectFeeds(parentElement, cssSelection, data).enter();
 
             d3TransitionsService.fadeIn(
-                d3ComponentFactoryService.appendFeeds(feeds, scope.isFeedSelected)
-                    .on('click', function(d) {
-                        scope.$apply(function() {
-                            scope.selectFeedAndRefresh(d);
-                        });
-                    }),
-                presentationCfg.animations.feeds, presentationCfg.animations.longDuration);
+                d3ComponentFactoryService.appendFeeds(feeds, {
+                        'isSelected': scope.isFeedSelected,
+                        'feedUnsubscribeButtonClicked': scopeApply(scope, scope.unsubscribeToFeed)
+                    })
+                    .on('click', scopeApply(scope, scope.selectFeedAndRefresh),
+                presentationCfg.animations.feeds, presentationCfg.animations.longDuration));
         };
 
         var reDrawFeeds = function(scope, parentElement, cssSelection, data) {
             var feeds = selectFeeds(parentElement, cssSelection, data);
 
-            d3ComponentFactoryService.updateFeeds(feeds, scope.isFeedSelected);
+            d3ComponentFactoryService.updateFeeds(feeds, {'isSelected': scope.isFeedSelected});
         };
 
         var drawFeedItem = function(scope, parentElement, cssSelection, feed) {
@@ -57,6 +65,12 @@ angular.module('noScaffold.directives', [])
                         });
                     })*/;
             });
+        };
+
+        var removeFeed = function(scope, parentElement, cssSelection, data) {
+            var feeds = selectFeeds(parentElement, cssSelection, data).exit();
+            d3TransitionsService.fadeOutAndRemove(feeds, presentationCfg.animations.feeds,
+                presentationCfg.animations.veryLongDuration);
         };
 
         return {
@@ -94,6 +108,14 @@ angular.module('noScaffold.directives', [])
                     }
                     var cssSelection = getFeedCssSelection({feed: feed});
                     drawFeedItem(scope, rootElement, cssSelection, feed);
+                });
+
+                scope.$on('feedRemove', function(event, feed) {
+                    if (angular.isObject(feed) && !angular.isObject(scope[collectionName][feed.feedId])) {
+                        return;
+                    }
+                    var cssSelection = getFeedCssSelection({feed: feed});
+                    removeFeed(scope, rootElement, cssSelection, feed);
                 });
             }
         }

@@ -22,7 +22,7 @@ angular.module('noScaffold.persistenceServices', [])
     .service('localStorageService', function(lawnchairService) {
         var lawnchairStorage = lawnchairService.getLawnchairStorage(_.noop);
 
-        this.saveExcludedFeeds = function(excludedFeedIds, callback) {
+        var saveExcludedFeeds = function(excludedFeedIds, callback) {
             return lawnchairStorage.save({
                 key: 'excludedFeeds',
                 feedIds: excludedFeedIds
@@ -31,17 +31,16 @@ angular.module('noScaffold.persistenceServices', [])
 
         this.excludeFeed = function(feed, callback) {
             this.getExcludedFeeds(function(excludedFeeds) {
-                this.saveExcludedFeeds(excludedFeeds.append(feed.feedId), callback);
+                excludedFeeds.push(feed.feedId);
+                saveExcludedFeeds(excludedFeeds, callback);
             })
         };
 
         this.getExcludedFeeds = function(callback) {
             lawnchairStorage.get('excludedFeeds', function(excludedFeeds) {
-                callback(excludedFeeds.feedIds);
+                callback(angular.isObject(excludedFeeds) ? excludedFeeds.feedIds || [] : []);
             });
         };
-
-        this.saveExcludedFeeds([]);
     })
     .factory('persistenceService', function(persistenceCfg, serverCommunicationService, localStorageService,
                                             logService, doPageElementsIdsMatch) {
@@ -227,6 +226,20 @@ angular.module('noScaffold.persistenceServices', [])
                                 ' item from feed "' + fetchParams.feedId + '  has failed: ' + message);
                         });
                 }
+            };
+
+            var excludeFeedWrapper = function(callback, excludedFeedId) {
+                return function() {
+                    if (angular.isDefined(callback)) {
+                        callback(excludedFeedId);
+                    }
+                }
+            };
+
+            this.excludeFeed = function(feed) {
+                logService.logDebug('Persistence: Excluding feed ' + feed.feedId + ' from local storage');
+                localStorageService.excludeFeed(feed,
+                    excludeFeedWrapper(registerEventHandlerDescriptors['feedExcluded'], feed.feedId));
             };
         }
 

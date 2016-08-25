@@ -16,9 +16,19 @@
 .feedTitle {
     font-weight: bold;
     border: 1px solid black;
+    float: left;
+    padding: 5px 10px;
 }
 
 .feedItem {
-
+    clear: both;
 }
 
+.feedUnsubscribeButton {
+    color: red;
+    font-weight: bold;
+    float: right;
+    border: 1px solid black;
+    font-size: 20px;
+    padding: 5px 10px;
+}

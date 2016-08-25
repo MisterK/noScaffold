@@ -25,7 +25,7 @@ angular.module('noScaffold.d3AngularServices', [])
     .service('d3ComponentFactoryService', function(presentationCfg, d3TransitionsService) {
         var thisService = this;
 
-        this.appendFeeds = function(d3Elements, isSelectedCallback) {
+        this.appendFeeds = function(d3Elements, callbacks) {
             var resultingD3Element = d3Elements
                 .append('div')
                     .attr('id', getter('feedId'))
@@ -34,20 +34,25 @@ angular.module('noScaffold.d3AngularServices', [])
                 .append('div')
                     .attr('class', 'feedTitle')
                     .text(getter('feedId'));
+            resultingD3Element
+                .append('div')
+                    .attr('class', 'feedUnsubscribeButton')
+                    .text('X')
+                    .on('click', (callbacks['feedUnsubscribeButtonClicked'] || _.noop));
 
             //TODO
 
-            return thisService.updateFeeds(resultingD3Element, isSelectedCallback);
+            return thisService.updateFeeds(resultingD3Element, callbacks);
         };
 
-        this.updateFeeds = function(d3Elements, isSelectedCallback) {
+        this.updateFeeds = function(d3Elements, callbacks) {
             return d3Elements.each(function(feed) {
                 var thisElement = d3.select(this);
 
                 //TODO
 
                 return thisElement.style('background-color', function(feed) {
-                    return isSelectedCallback(feed) ?
+                    return (callbacks['isSelected'] || _.noop)(feed) ?
                         presentationCfg.selectedFeedBgColor : presentationCfg.defaultFeedBgColor;
                 });
             });
