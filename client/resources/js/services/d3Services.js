@@ -55,7 +55,7 @@ angular.module('noScaffold.d3AngularServices', [])
             //TODO
 
             thisService.updateFeeds(resultingD3Element, callbacks);
-            return thisService.updateFeedItem(d3Elements, feedItemWiringFn);
+            return thisService.updateFeedItem(d3Elements, feedItemWiringFn, callbacks);
         };
 
         this.updateFeeds = function(d3Elements, callbacks) {

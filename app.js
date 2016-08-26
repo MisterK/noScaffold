@@ -128,7 +128,7 @@ io.sockets.on('connection', function (socket) {
     });
 
     addFeed({
-        feedId: 'resiAgentAPI-Agents',
+        feedId: 'resiAgentAPI: Agents',
         templateUrl: 'http://resi-agent-api.resi-lob-dev.realestate.com.au/agents?location=#suburbId#&page=#itemIndex#&size=1',
         suggestedTemplate: '==Find an Agent==\n' +
             'Agent ID: #{_embedded|||http://data.realestate.com.au/doc/relations#tieredResults|||0|||_embedded|||item|||0|||id}\n' +
@@ -138,7 +138,7 @@ io.sockets.on('connection', function (socket) {
     });
 
     addFeed({
-        feedId: 'listingServicesAPI-Listings-Buy',
+        feedId: 'listingServicesAPI: Listings - Buy',
         templateUrl: 'http://services.e2e.realestate.com.au/services/listings/search?query={%22channel%22:%22buy%22,%22localities%22:[{%22locality%22:%22#suburb#%22}],%22pageSize%22:%221%22,%22page%22:%22#itemIndex#%22}',
         suggestedTemplate: '==Buy section==\n' +
             'Listing ID: #{tieredResults|||0|||results|||0|||listingId}\n' +
@@ -159,7 +159,7 @@ io.sockets.on('connection', function (socket) {
 
     setTimeout(function() {
         addFeedAndNotify({
-            feedId: 'listingServicesAPI-Listings-Sold',
+            feedId: 'listingServicesAPI: Listings - Sold',
             templateUrl: 'http://services.e2e.realestate.com.au/services/listings/search?query={%22channel%22:%22sold%22,%22localities%22:[{%22locality%22:%22#suburb#%22}],%22pageSize%22:%221%22,%22page%22:%22#itemIndex#%22}',
             suggestedTemplate: '==Sold section==\n' +
             'Listing ID: #{tieredResults|||0|||results|||0|||listingId}\n' +
