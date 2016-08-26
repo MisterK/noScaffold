@@ -53,6 +53,7 @@ body {
     border: 1px solid grey;
     clear: both;
     width: 25%;
+    background-color: #f4f5f7;
 }
 
 .feedItemTitle {

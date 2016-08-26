@@ -85,6 +85,8 @@ angular.module('noScaffold.d3AngularServices', [])
                     d3TransitionsService.fadeOutAndRemove(
                         thisElement.select("[id='" + feed.feedId + '-feedItem' + feed.previousItem.itemIndex + "-title']"),
                         presentationCfg.animations.feeds, presentationCfg.animations.longDuration);
+                    thisElement.select("[id='" + feed.feedId + '-feedItem' + feed.previousItem.itemIndex + "-style']")
+                        .remove();
                 }
                 if (angular.isObject(feed.currentItem)) {
                     if (!angular.isObject(feed.previousItem)) { // To avoid double refresh
@@ -93,6 +95,7 @@ angular.module('noScaffold.d3AngularServices', [])
                     if (angular.isString(feed.suggestedCSSStyle)) {
                         thisElement
                             .append('style')
+                            .attr('id', feed.feedId + '-feedItem' + feed.itemIndex + '-style')
                             .attr('type', 'text/css')
                             .text(feedSuggestedTemplateModifier.extrapolateTemplateStringVariables(
                                 feed.suggestedCSSStyle, feed.currentItem));
