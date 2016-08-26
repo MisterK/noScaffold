@@ -52,6 +52,11 @@ angular.module('noScaffold.d3AngularServices', [])
                 .attr('class', 'feedButton feedNextItemButton')
                 .text('⇒')
                 .on('click', (callbacks['feedNextItemButtonClicked'] || _.noop));
+            resultingD3Element
+                .append('div')
+                .attr('class', 'feedButton feedPreviousItemButton')
+                .text('⇐')
+                .on('click', (callbacks['feedPreviousItemButtonClicked'] || _.noop));
 
             //TODO
 

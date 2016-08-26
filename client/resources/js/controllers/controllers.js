@@ -61,10 +61,18 @@ angular.module('noScaffold.controllers', [])
             persistence.excludeFeed(feed);
         };
 
-        $scope.nextFeedItem = function(feed, persistChange) {
+        var fetchFeedItem = function(feed, persistChange, itemIndexFn) {
             persistence.fetchFeedItem(feed,
-                _.assign({feedId: feed.feedId, itemIndex: feed.itemIndex + 1}, configFetchParams),
+                _.assign({feedId: feed.feedId, itemIndex: itemIndexFn(feed)}, configFetchParams),
                 persistChange);
+        };
+
+        $scope.nextFeedItem = function(feed, persistChange) {
+            return fetchFeedItem(feed, persistChange, function(feed) { return feed.itemIndex + 1; });
+        };
+
+        $scope.previousFeedItem = function(feed, persistChange) {
+            return fetchFeedItem(feed, persistChange, function(feed) { return feed.itemIndex - 1; });
         };
 
         $scope.updateFeedSuggestedTemplate = function(feed) {
