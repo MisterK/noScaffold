@@ -132,7 +132,7 @@ angular.module('noScaffold.d3AngularServices', [])
                             .attr('class', 'feedItemLine');
                         var tag = feedSuggestedTemplateModifier.extractTagFromTemplateString(line);
                         var tagElement = feedItemLine
-                            .append('div')
+                            .append(tag.tagName)
                             .text(tag.tagContents || '');
                         _.each(tag.tagAttributes, function(attrValue, attrName) {
                             tagElement.attr(attrName, attrValue);

@@ -6,7 +6,7 @@ angular.module('noScaffold.dataAngularServices', [])
     /* Return the data management configuration */
     .constant('dataCfg', {
         'feedItems': {
-            'templateStringTagExtractionRegexp': '^\s*([a-z]+)?(#[a-zA-Z0-9]+)?(\\.[a-zA-Z0-9]+)?\s?(.*)$',
+            'templateStringTagExtractionRegexp': '^\s*([a-z]+)?(#[a-zA-Z0-9]+)?(\\.[a-zA-Z0-9]+)?(\\([^\)]*\\))?\s?(.*)$',
             'templateStringVarExtractionRegexp': '#\{([^\{\}]*)\}',
             'templateStringVarSeparator': '|||',
             'templateStringVarElseValue': ' '
@@ -80,10 +80,17 @@ angular.module('noScaffold.dataAngularServices', [])
             if (angular.isString(groups[3])) {
                 tagAttributes['class'] = tagAttributes['class'] + ' ' + groups[3].substring(1, groups[3].length);
             }
+            if (angular.isString(groups[4])) {
+                var attrGroups = new RegExp('([a-z-]+)\s*=\s*\'([^\']+)+\'').exec(groups[4]);
+                if (angular.isArray(attrGroups) && attrGroups.length == 3
+                    && angular.isString(attrGroups[1]) && angular.isString(attrGroups[2])) {
+                    tagAttributes[attrGroups[1]] = attrGroups[2];
+                }
+            }
             return {
                 tagName: groups[1] || 'div',
                 tagAttributes: tagAttributes,
-                tagContents: groups[4]
+                tagContents: groups[5]
             }
         };
     })

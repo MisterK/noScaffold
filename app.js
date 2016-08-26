@@ -131,10 +131,12 @@ io.sockets.on('connection', function (socket) {
         feedId: 'resiAgentAPI: Agents',
         templateUrl: 'http://resi-agent-api.resi-lob-dev.realestate.com.au/agents?location=#suburbId#&page=#itemIndex#&size=1',
         suggestedTemplate: 'div.agentsId Agent ID: #{_embedded|||http://data.realestate.com.au/doc/relations#tieredResults|||0|||_embedded|||item|||0|||id}\n' +
+            'img.agentsImage(src=\'https://i1.au.reastatic.net/120x160/#{_embedded|||http://data.realestate.com.au/doc/relations#tieredResults|||0|||_embedded|||item|||0|||image|||uri}\')\n' +
             'div.agentsName #{_embedded|||http://data.realestate.com.au/doc/relations#tieredResults|||0|||_embedded|||item|||0|||name}\n' +
             '.agentsJobTitle #{_embedded|||http://data.realestate.com.au/doc/relations#tieredResults|||0|||_embedded|||item|||0|||jobTitle}\n' +
             'div.agentsAgencyName #{_embedded|||http://data.realestate.com.au/doc/relations#tieredResults|||0|||_embedded|||item|||0|||_embedded|||http://data.realestate.com.au/doc/relations#agency|||name}',
         suggestedCSSStyle: '.agentsId {font-size: 12px; color: grey; } ' +
+            '.agentsImage { width: 100px; height: 120px; margin-left: 250px; border-radius: 99999px; border: .125em solid #F0F1F2; } ' +
             '.agentsName {font-size: 20px; font-weight: bold; text-align: center; } ' +
             '.agentsJobTitle {font-size: 14px; color: grey; text-align: center; } ' +
             '.agentsAgencyName {font-size: 18px; text-align: center; background-color: #{_embedded|||http://data.realestate.com.au/doc/relations#tieredResults|||0|||_embedded|||item|||0|||_embedded|||http://data.realestate.com.au/doc/relations#agency|||branding|||primaryColor}; color: #{_embedded|||http://data.realestate.com.au/doc/relations#tieredResults|||0|||_embedded|||item|||0|||_embedded|||http://data.realestate.com.au/doc/relations#agency|||branding|||textColor}; }'
@@ -144,7 +146,9 @@ io.sockets.on('connection', function (socket) {
         feedId: 'listingServicesAPI: Listings - Buy',
         templateUrl: 'http://services.e2e.realestate.com.au/services/listings/search?query={%22channel%22:%22buy%22,%22localities%22:[{%22locality%22:%22#suburb#%22}],%22pageSize%22:%221%22,%22page%22:%22#itemIndex#%22}',
         suggestedTemplate: '.buyListingsId #{tieredResults|||0|||results|||0|||listingId}\n' +
+            'img.buyListingsAgencyLogo(src=\'#{tieredResults|||0|||results|||0|||agency|||logo|||images|||0|||server}#{tieredResults|||0|||results|||0|||agency|||logo|||images|||0|||uri}\')\n' +
             '.buyListingsAgencyName #{tieredResults|||0|||results|||0|||agency|||name}\n' +
+            'img.buyListingsImage(src=\'#{tieredResults|||0|||results|||0|||mainImage|||server}/120x160/#{tieredResults|||0|||results|||0|||mainImage|||uri}\')\n' +
             '.buyListingsPrice #{tieredResults|||0|||results|||0|||price|||display}\n' +
             '.buyListingsAgent #{tieredResults|||0|||results|||0|||lister|||name}\n' +
             '.buyListingsAddress #{tieredResults|||0|||results|||0|||address|||streetAddress} #{tieredResults|||0|||results|||0|||address|||suburb} #{tieredResults|||0|||results|||0|||address|||postCode} #{tieredResults|||0|||results|||0|||address|||state}\n' +
@@ -152,7 +156,9 @@ io.sockets.on('connection', function (socket) {
             '.buyListingsFeatures #{tieredResults|||0|||results|||0|||generalFeatures|||bathrooms|||label}\n' +
             '.buyListingsFeatures #{tieredResults|||0|||results|||0|||generalFeatures|||parkingSpaces|||label}',
         suggestedCSSStyle: '.buyListingsId {font-size: 12px; color: grey; } ' +
+            '.buyListingsAgencyLogo { width: inherit; float: right; margin-right: 25px; } ' +
             '.buyListingsAgencyName { font-size: 18px; text-align: center; background-color: #{tieredResults|||0|||results|||0|||agency|||brandingColors|||primary}; color: #{tieredResults|||0|||results|||0|||agency|||brandingColors|||text}; }' +
+            '.buyListingsImage { width: 100px; margin-left: 250px; } ' +
             '.buyListingsPrice { font-size: 20px; font-weight: bold; text-align: left; }' +
             '.buyListingsAgent { font-size: 16px; text-align: right; }' +
             '.buyListingsAddress { font-size: 16px; text-align: left; }' +
@@ -168,7 +174,9 @@ io.sockets.on('connection', function (socket) {
         feedId: 'listingServicesAPI: Listings - Sold',
         templateUrl: 'http://services.e2e.realestate.com.au/services/listings/search?query={%22channel%22:%22sold%22,%22localities%22:[{%22locality%22:%22#suburb#%22}],%22pageSize%22:%221%22,%22page%22:%22#itemIndex#%22}',
         suggestedTemplate: '.soldListingsId #{tieredResults|||0|||results|||0|||listingId}\n' +
+            'img.soldListingsAgencyLogo(src=\'#{tieredResults|||0|||results|||0|||agency|||logo|||images|||0|||server}#{tieredResults|||0|||results|||0|||agency|||logo|||images|||0|||uri}\')\n' +
             '.soldListingsAgencyName #{tieredResults|||0|||results|||0|||agency|||name}\n' +
+            'img.soldListingsImage(src=\'#{tieredResults|||0|||results|||0|||mainImage|||server}/120x160/#{tieredResults|||0|||results|||0|||mainImage|||uri}\')\n' +
             '.soldListingsPrice #{tieredResults|||0|||results|||0|||price|||display}\n' +
             '.soldListingsSoldDate Sold #{tieredResults|||0|||results|||0|||dateSold|||display}\n' +
             '.soldListingsAgent #{tieredResults|||0|||results|||0|||lister|||name}\n' +
@@ -177,7 +185,9 @@ io.sockets.on('connection', function (socket) {
             '.soldListingsFeatures #{tieredResults|||0|||results|||0|||generalFeatures|||bathrooms|||label}\n' +
             '.soldListingsFeatures #{tieredResults|||0|||results|||0|||generalFeatures|||parkingSpaces|||label}',
         suggestedCSSStyle: '.soldListingsId {font-size: 12px; color: grey; } ' +
+            '.soldListingsAgencyLogo { width: inherit; float: right; margin-right: 25px; } ' +
             '.soldListingsAgencyName { font-size: 18px; text-align: center; background-color: #{tieredResults|||0|||results|||0|||agency|||brandingColors|||primary}; color: #{tieredResults|||0|||results|||0|||agency|||brandingColors|||text}; }' +
+            '.soldListingsImage { width: 100px; margin-left: 250px; } ' +
             '.soldListingsPrice { font-size: 20px; font-weight: bold; text-align: left; }' +
             '.soldListingsSoldDate { font-size: 16px; text-align: left; }' +
             '.soldListingsAgent { font-size: 16px; text-align: right; }' +
