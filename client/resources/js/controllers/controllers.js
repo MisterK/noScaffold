@@ -62,9 +62,12 @@ angular.module('noScaffold.controllers', [])
         };
 
         var fetchFeedItem = function(feed, persistChange, itemIndexFn) {
-            persistence.fetchFeedItem(feed,
-                _.assign({feedId: feed.feedId, itemIndex: itemIndexFn(feed)}, configFetchParams),
-                persistChange);
+            var itemIndex = itemIndexFn(feed);
+            if (angular.isNumber(itemIndex)) {
+                persistence.fetchFeedItem(feed,
+                    _.assign({feedId: feed.feedId, itemIndex: itemIndex}, configFetchParams),
+                    persistChange);
+            }
         };
 
         $scope.nextFeedItem = function(feed, persistChange) {
@@ -72,7 +75,8 @@ angular.module('noScaffold.controllers', [])
         };
 
         $scope.previousFeedItem = function(feed, persistChange) {
-            return fetchFeedItem(feed, persistChange, function(feed) { return feed.itemIndex - 1; });
+            return fetchFeedItem(feed, persistChange,
+                function(feed) { return feed.itemIndex > 1 ? feed.itemIndex - 1 : undefined; });
         };
 
         $scope.updateFeedSuggestedTemplate = function(feed) {
