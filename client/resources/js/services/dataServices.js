@@ -7,7 +7,7 @@ angular.module('noScaffold.dataAngularServices', [])
     .constant('dataCfg', {
         'feedItems': {
             'templateStringTagExtractionRegexp': '^\s*([a-z]+)?(#[a-zA-Z0-9]+)?(\\.[a-zA-Z0-9]+)?\s?(.*)$',
-            'templateStringVarExtractionRegexp': '#\{([^\{]*)\}',
+            'templateStringVarExtractionRegexp': '#\{([^\{\}]*)\}',
             'templateStringVarSeparator': '|||',
             'templateStringVarElseValue': ' '
         },

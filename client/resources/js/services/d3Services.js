@@ -65,7 +65,7 @@ angular.module('noScaffold.d3AngularServices', [])
 
                 //TODO
 
-                return thisElement.style('background-color', function(feed) {
+                return thisElement.select('.feedTitle').style('background-color', function(feed) {
                     return (callbacks['isSelected'] || _.noop)(feed) ?
                         presentationCfg.selectedFeedBgColor : presentationCfg.defaultFeedBgColor;
                 });
@@ -91,7 +91,8 @@ angular.module('noScaffold.d3AngularServices', [])
                         thisElement
                             .append('style')
                             .attr('type', 'text/css')
-                            .text(feed.suggestedCSSStyle);
+                            .text(feedSuggestedTemplateModifier.extrapolateTemplateStringVariables(
+                                feed.suggestedCSSStyle, feed.currentItem));
                     }
                     var feedItemElement = thisElement
                         .append('div')
@@ -132,15 +133,17 @@ angular.module('noScaffold.d3AngularServices', [])
                         _.each(tag.tagAttributes, function(attrValue, attrName) {
                             tagElement.attr(attrName, attrValue);
                         });
-                        feedItemLine
-                            .append('div')
-                            .attr('class', 'feedItemLineButton feedItemLineRemoveButton')
-                            .text('X')
-                            .on('click', function (d) {
-                                d3TransitionsService.fadeOutAndRemove(feedItemLine,
-                                    presentationCfg.animations.feeds, presentationCfg.animations.shortDuration);
-                                (callbacks['feedItemLineRemoveButtonClicked'] || _.noop)(d, lineIndex);
-                            });
+                        if (tag.tagContents.trim().length > 0) {
+                            feedItemLine
+                                .append('div')
+                                .attr('class', 'feedItemLineButton feedItemLineRemoveButton')
+                                .text('X')
+                                .on('click', function (d) {
+                                    d3TransitionsService.fadeOutAndRemove(feedItemLine,
+                                        presentationCfg.animations.feeds, presentationCfg.animations.shortDuration);
+                                    (callbacks['feedItemLineRemoveButtonClicked'] || _.noop)(d, lineIndex);
+                                });
+                        }
                     }
                 });
                 feedItemElement //TODO fix CSS and remove this

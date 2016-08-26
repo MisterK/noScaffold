@@ -130,12 +130,14 @@ io.sockets.on('connection', function (socket) {
     addFeed({
         feedId: 'resiAgentAPI: Agents',
         templateUrl: 'http://resi-agent-api.resi-lob-dev.realestate.com.au/agents?location=#suburbId#&page=#itemIndex#&size=1',
-        suggestedTemplate: 'div#id1.class1 ==Find an Agent==\n' +
-            'div.class2 Agent ID: #{_embedded|||http://data.realestate.com.au/doc/relations#tieredResults|||0|||_embedded|||item|||0|||id}\n' +
-            'div#id3 Agent name: #{_embedded|||http://data.realestate.com.au/doc/relations#tieredResults|||0|||_embedded|||item|||0|||name}\n' +
-            '#id4.class4 Job title: #{_embedded|||http://data.realestate.com.au/doc/relations#tieredResults|||0|||_embedded|||item|||0|||jobTitle}\n' +
-            'div#id5.class5 Agency name: #{_embedded|||http://data.realestate.com.au/doc/relations#tieredResults|||0|||_embedded|||item|||0|||_embedded|||http://data.realestate.com.au/doc/relations#agency|||name}',
-        suggestedCSSStyle: '.class1 { color: green; }'
+        suggestedTemplate: 'div.agentsId Agent ID: #{_embedded|||http://data.realestate.com.au/doc/relations#tieredResults|||0|||_embedded|||item|||0|||id}\n' +
+            'div.agentsName #{_embedded|||http://data.realestate.com.au/doc/relations#tieredResults|||0|||_embedded|||item|||0|||name}\n' +
+            '.agentsJobTitle #{_embedded|||http://data.realestate.com.au/doc/relations#tieredResults|||0|||_embedded|||item|||0|||jobTitle}\n' +
+            'div.agentsAgencyName #{_embedded|||http://data.realestate.com.au/doc/relations#tieredResults|||0|||_embedded|||item|||0|||_embedded|||http://data.realestate.com.au/doc/relations#agency|||name}',
+        suggestedCSSStyle: '.agentsId {font-size: 12px; color: grey; } ' +
+            '.agentsName {font-size: 20px; font-weigth: bold; text-align: center; } ' +
+            '.agentsJobTitle {font-size: 14px; color: grey; text-align: center; } ' +
+            '.agentsAgencyName {font-size: 18px; text-align: center; background-color: #{_embedded|||http://data.realestate.com.au/doc/relations#tieredResults|||0|||_embedded|||item|||0|||_embedded|||http://data.realestate.com.au/doc/relations#agency|||branding|||primaryColor}; color: #{_embedded|||http://data.realestate.com.au/doc/relations#tieredResults|||0|||_embedded|||item|||0|||_embedded|||http://data.realestate.com.au/doc/relations#agency|||branding|||textColor}; }'
     });
 
     addFeed({
