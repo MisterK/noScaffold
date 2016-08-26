@@ -76,7 +76,7 @@ angular.module('noScaffold.persistenceServices', [])
 
         this.subscribeToFeed = function(feed, callback) {
             return addFeedInCollection('subscribedFeeds',
-                _.pick(feed, ['feedId', 'itemIndex', 'suggestedTemplate']), callback);
+                _.pick(feed, ['feedId', 'itemIndex', 'suggestedTemplate', 'suggestedCSSStyle']), callback);
         };
 
         this.unSubscribeFromFeed = function(feed, callback) {

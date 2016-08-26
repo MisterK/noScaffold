@@ -87,6 +87,12 @@ angular.module('noScaffold.d3AngularServices', [])
                     if (!angular.isObject(feed.previousItem)) { // To avoid double refresh
                         feed.previousItem = feed.currentItem; //TODO find a better mechanism
                     }
+                    if (angular.isString(feed.suggestedCSSStyle)) {
+                        thisElement
+                            .append('style')
+                            .attr('type', 'text/css')
+                            .text(feed.suggestedCSSStyle);
+                    }
                     var feedItemElement = thisElement
                         .append('div')
                         .attr('id', feed.itemIndex)

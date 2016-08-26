@@ -130,11 +130,12 @@ io.sockets.on('connection', function (socket) {
     addFeed({
         feedId: 'resiAgentAPI: Agents',
         templateUrl: 'http://resi-agent-api.resi-lob-dev.realestate.com.au/agents?location=#suburbId#&page=#itemIndex#&size=1',
-        suggestedTemplate: '==Find an Agent==\n' +
-            'Agent ID: #{_embedded|||http://data.realestate.com.au/doc/relations#tieredResults|||0|||_embedded|||item|||0|||id}\n' +
-            'Agent name: #{_embedded|||http://data.realestate.com.au/doc/relations#tieredResults|||0|||_embedded|||item|||0|||name}\n' +
-            'Job title: #{_embedded|||http://data.realestate.com.au/doc/relations#tieredResults|||0|||_embedded|||item|||0|||jobTitle}\n' +
-            'Agency name: #{_embedded|||http://data.realestate.com.au/doc/relations#tieredResults|||0|||_embedded|||item|||0|||_embedded|||http://data.realestate.com.au/doc/relations#agency|||name}'
+        suggestedTemplate: 'div#id1.class1 ==Find an Agent==\n' +
+            'div.class2 Agent ID: #{_embedded|||http://data.realestate.com.au/doc/relations#tieredResults|||0|||_embedded|||item|||0|||id}\n' +
+            'div#id3 Agent name: #{_embedded|||http://data.realestate.com.au/doc/relations#tieredResults|||0|||_embedded|||item|||0|||name}\n' +
+            '#id4.class4 Job title: #{_embedded|||http://data.realestate.com.au/doc/relations#tieredResults|||0|||_embedded|||item|||0|||jobTitle}\n' +
+            'div#id5.class5 Agency name: #{_embedded|||http://data.realestate.com.au/doc/relations#tieredResults|||0|||_embedded|||item|||0|||_embedded|||http://data.realestate.com.au/doc/relations#agency|||name}',
+        suggestedCSSStyle: '.class1 { color: green; }'
     });
 
     addFeed({
