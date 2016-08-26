@@ -22,7 +22,8 @@ angular.module('noScaffold.d3AngularServices', [])
         return {d3: $window.d3};
     })
     /* Service to build and append D3 elements */
-    .service('d3ComponentFactoryService', function(presentationCfg, d3TransitionsService) {
+    .service('d3ComponentFactoryService', function(presentationCfg, d3TransitionsService,
+                                                   feedSuggestedTemplateModifier) {
         var thisService = this;
 
         this.appendFeeds = function(d3Elements, callbacks, feedItemWiringFn) {
@@ -71,7 +72,8 @@ angular.module('noScaffold.d3AngularServices', [])
             });
         };
 
-        this.updateFeedItem = function(d3Elements, wiringFn, callbacks) {
+        this.updateFeedItem = function(d3Elements, wiringFn, callbacks) { //TODO make callbacks part of wiringFn instead?
+            var thisService = this;
             return d3Elements.each(function(feed) {
                 var thisElement = d3.select(this);
 
@@ -95,38 +97,7 @@ angular.module('noScaffold.d3AngularServices', [])
                         .text(function(feed) {
                            return 'Item ' + feed.itemIndex;
                         });
-                    if (angular.isString(feed.suggestedTemplate)) {
-                        var variablesExtrapolated = feed.suggestedTemplate.replace(/#\{([^\{]*)\}/g, function(match, group) {
-                            return _.get(feed.currentItem, group.split('|||'), ' ');
-                        });
-                        var lines = variablesExtrapolated.split(/\n/);
-                        _.forEach(lines, function(line, lineIndex) {
-                            if (line.trim().length > 0) {
-                                var feedItemLine = feedItemElement
-                                    .append('div')
-                                    .attr('class', 'feedItemLine');
-                                feedItemLine
-                                    .append('div')
-                                    .attr('class', 'feedItemLineContent')
-                                    .text(line);
-                                feedItemLine
-                                    .append('div')
-                                    .attr('class', 'feedItemLineButton feedItemLineRemoveButton')
-                                    .text('X')
-                                    .on('click', function (d) {
-                                        d3TransitionsService.fadeOutAndRemove(feedItemLine,
-                                            presentationCfg.animations.feeds, presentationCfg.animations.shortDuration);
-                                        (callbacks['feedItemLineRemoveButtonClicked'] || _.noop)(d, lineIndex);
-                                    });
-                            }
-                        });
-                        feedItemElement //TODO fix CSS and remove this
-                            .append('div')
-                            .attr('class', 'clearer')
-                            .text(' ');
-                    } else {
-                        feedItemElement.text(JSON.stringify(feed.currentItem));
-                    }
+                    thisService.displayFeedItemContents(feedItemElement, feed, callbacks);
                     if (angular.isFunction(wiringFn)) {
                         feedItemElement = wiringFn(feedItemElement);
                     }
@@ -138,6 +109,43 @@ angular.module('noScaffold.d3AngularServices', [])
                 return thisElement;
             });
         };
+
+        this.displayFeedItemContents = function(feedItemElement, feed, callbacks) {
+            if (angular.isString(feed.suggestedTemplate)) {
+                var lines = feedSuggestedTemplateModifier
+                    .extrapolateTemplateStringVariables(feed.suggestedTemplate, feed.currentItem).split(/\n/);
+                _.forEach(lines, function(line, lineIndex) {
+                    if (line.trim().length > 0) {
+                        var feedItemLine = feedItemElement
+                            .append('div')
+                            .attr('class', 'feedItemLine');
+                        var tag = feedSuggestedTemplateModifier.extractTagFromTemplateString(line);
+                        var tagElement = feedItemLine
+                            .append('div')
+                            .text(tag.tagContents || '');
+                        _.each(tag.tagAttributes, function(attrValue, attrName) {
+                            tagElement.attr(attrName, attrValue);
+                        });
+                        feedItemLine
+                            .append('div')
+                            .attr('class', 'feedItemLineButton feedItemLineRemoveButton')
+                            .text('X')
+                            .on('click', function (d) {
+                                d3TransitionsService.fadeOutAndRemove(feedItemLine,
+                                    presentationCfg.animations.feeds, presentationCfg.animations.shortDuration);
+                                (callbacks['feedItemLineRemoveButtonClicked'] || _.noop)(d, lineIndex);
+                            });
+                    }
+                });
+                feedItemElement //TODO fix CSS and remove this
+                    .append('div')
+                    .attr('class', 'clearer')
+                    .text(' ');
+            } else {
+                feedItemElement.text(JSON.stringify(feed.currentItem));
+            }
+        };
+
         var getter = function(propertyName) {
             return function(element) { return element[propertyName]; }
         };

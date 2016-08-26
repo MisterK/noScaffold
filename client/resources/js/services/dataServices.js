@@ -5,6 +5,12 @@
 angular.module('noScaffold.dataAngularServices', [])
     /* Return the data management configuration */
     .constant('dataCfg', {
+        'feedItems': {
+            'templateStringTagExtractionRegexp': '^\s*([a-z]+)?(#[a-zA-Z0-9]+)?(\\.[a-zA-Z0-9]+)?\s?(.*)$',
+            'templateStringVarExtractionRegexp': '#\{([^\{]*)\}',
+            'templateStringVarSeparator': '|||',
+            'templateStringVarElseValue': ' '
+        },
         'pageElements': {
             'defaultFill': 'black',
             'propertiesEnums': {
@@ -38,13 +44,48 @@ angular.module('noScaffold.dataAngularServices', [])
         var feedId2 = angular.isObject(feedOrId2) ? feedOrId2.feedId : feedOrId2;
         return feedId1 === feedId2;
     })
-    .service('feedSuggestedTemplateModifier', function() {
+    .service('feedSuggestedTemplateModifier', function(dataCfg) {
         this.feedItemLineRemoved = function(feed, lineIndex) {
             var lines = feed.suggestedTemplate.split('\n');
             lines.splice(lineIndex, 1);
             feed.suggestedTemplate = lines.join('\n');
             return feed;
-        }
+        };
+
+        this.extrapolateTemplateStringVariables = function(templateString, dataItem) {
+            return templateString.replace(new RegExp(dataCfg.feedItems.templateStringVarExtractionRegexp, 'g'),
+                function(match, group) {
+                    return _.get(dataItem,
+                        group.split(dataCfg.feedItems.templateStringVarSeparator),
+                        dataCfg.feedItems.templateStringVarElseValue);
+                });
+        };
+
+        this.extractTagFromTemplateString = function(templateString) {
+            var groups = new RegExp(dataCfg.feedItems.templateStringTagExtractionRegexp, 'g').exec(templateString);
+            var tagAttributes = {
+                'class': 'feedItemLineContent'
+            };
+            if (!angular.isArray(groups) || groups.length < 5) {
+                console.error('Groups pb for templateString |' + templateString + '|');
+                return {
+                    tagName: 'div',
+                    tagAttributes: tagAttributes,
+                    tagContents: templateString
+                };
+            }
+            if (angular.isString(groups[2])) {
+                tagAttributes['id'] = groups[2].substring(1, groups[2].length);
+            }
+            if (angular.isString(groups[3])) {
+                tagAttributes['class'] = tagAttributes['class'] + ' ' + groups[3].substring(1, groups[3].length);
+            }
+            return {
+                tagName: groups[1] || 'div',
+                tagAttributes: tagAttributes,
+                tagContents: groups[4]
+            }
+        };
     })
     .service('pageElementsFactory', function(dataCfg) {
         this.createPageElement = function(pageElementType, coordinates, params) {
