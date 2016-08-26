@@ -1,3 +1,10 @@
+@font-face{
+    font-family:Museo-Sans-300;src:url(//s1.rui.au.reastatic.net/rui-static/font/museo-sans-300-v1.eot);src:url(//s1.rui.au.reastatic.net/rui-static/font/museo-sans-300-v1.eot?#iefix) format("embedded-opentype"),url(//s1.rui.au.reastatic.net/rui-static/font/museo-sans-300-v1.woff) format("woff"),url(//s1.rui.au.reastatic.net/rui-static/font/museo-sans-300-v1.ttf) format("truetype"),url(//s1.rui.au.reastatic.net/rui-static/font/museo-sans-300-v1.svg#Museo-Sans-300) format("svg");font-weight:400;font-style:normal}
+
+body {
+    font-family: 'Museo-Sans-300';
+}
+
 .noScaffoldFeedCollection {
     border: 4px solid black;
     margin-bottom: 20px;
@@ -6,6 +13,7 @@
 .noScaffoldFeedCollectionTitle {
     font-size: 20px;
     font-weight: bolder;
+    padding: 3px 5px;
 }
 
 .feed {
@@ -38,15 +46,19 @@
 }
 
 .feedNextItemButton {
+    padding: 1px 10px;
 }
 
 .feedItem {
+    border: 1px solid grey;
     clear: both;
+    width: 25%;
 }
 
 .feedItemTitle {
     border: 1px solid black;
     padding: 2px 3px;
+    float: left;
 }
 
 .feedItemLine {
@@ -55,7 +67,7 @@
 
 .feedItemLineContent {
     float: left;
-    width: 25%;
+    width: 96%;
 }
 
 .feedItemLineButton {
@@ -68,7 +80,8 @@
 }
 
 .feedItemLineRemoveButton {
-
+    padding: 1px 5px;
+    margin-left: 5px;
 }
 
 .clearer {

@@ -80,7 +80,10 @@ angular.module('noScaffold.d3AngularServices', [])
                 //TODO
                 if (angular.isObject(feed.previousItem)) {
                     d3TransitionsService.fadeOutAndRemove(
-                        thisElement.select("[id='" + feed.previousItem.itemIndex + "']"),
+                        thisElement.select("[id='" + feed.feedId + '-feedItem' + feed.previousItem.itemIndex + "']"),
+                        presentationCfg.animations.feeds, presentationCfg.animations.longDuration);
+                    d3TransitionsService.fadeOutAndRemove(
+                        thisElement.select("[id='" + feed.feedId + '-feedItem' + feed.previousItem.itemIndex + "-title']"),
                         presentationCfg.animations.feeds, presentationCfg.animations.longDuration);
                 }
                 if (angular.isObject(feed.currentItem)) {
@@ -94,16 +97,17 @@ angular.module('noScaffold.d3AngularServices', [])
                             .text(feedSuggestedTemplateModifier.extrapolateTemplateStringVariables(
                                 feed.suggestedCSSStyle, feed.currentItem));
                     }
-                    var feedItemElement = thisElement
+                    thisElement
                         .append('div')
-                        .attr('id', feed.itemIndex)
-                        .attr('class', 'feedItem');
-                    feedItemElement
-                        .append('div')
+                        .attr('id', feed.feedId + '-feedItem' + feed.itemIndex + '-title')
                         .attr('class', 'feedItemTitle')
                         .text(function(feed) {
-                           return 'Item ' + feed.itemIndex;
+                            return 'Item ' + feed.itemIndex;
                         });
+                    var feedItemElement = thisElement
+                        .append('div')
+                        .attr('id', feed.feedId + '-feedItem' + feed.itemIndex)
+                        .attr('class', 'feedItem');
                     thisService.displayFeedItemContents(feedItemElement, feed, callbacks);
                     if (angular.isFunction(wiringFn)) {
                         feedItemElement = wiringFn(feedItemElement);
@@ -137,7 +141,7 @@ angular.module('noScaffold.d3AngularServices', [])
                             feedItemLine
                                 .append('div')
                                 .attr('class', 'feedItemLineButton feedItemLineRemoveButton')
-                                .text('X')
+                                .text('x')
                                 .on('click', function (d) {
                                     d3TransitionsService.fadeOutAndRemove(feedItemLine,
                                         presentationCfg.animations.feeds, presentationCfg.animations.shortDuration);
