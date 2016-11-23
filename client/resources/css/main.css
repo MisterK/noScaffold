@@ -74,9 +74,16 @@ h1 {
     clear: both;
 }
 
-.feedItemLineContent {
+.feedItemLineContents {
     float: left;
     width: 96%;
+}
+
+.feedItemLineContent {
+}
+
+.feedItemLineActions {
+    float: left;
 }
 
 .feedItemLineButton {

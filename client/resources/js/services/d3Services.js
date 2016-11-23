@@ -58,7 +58,7 @@ angular.module('noScaffold.d3AngularServices', [])
                 .text('⇐')
                 .on('click', (callbacks['feedPreviousItemButtonClicked'] || _.noop));
 
-            //TODO
+            //TODO Other feed buttons?
 
             thisService.updateFeeds(resultingD3Element, callbacks);
             return thisService.updateFeedItem(d3Elements, feedItemWiringFn, callbacks);
@@ -68,7 +68,7 @@ angular.module('noScaffold.d3AngularServices', [])
             return d3Elements.each(function(feed) {
                 var thisElement = d3.select(this);
 
-                //TODO
+                //TODO Other refresh action?
 
                 return thisElement.select('.feedTitle').style('background-color', function(feed) {
                     return (callbacks['isSelected'] || _.noop)(feed) ?
@@ -82,7 +82,7 @@ angular.module('noScaffold.d3AngularServices', [])
             return d3Elements.each(function(feed) {
                 var thisElement = d3.select(this);
 
-                //TODO
+                //TODO Other display actions?
                 if (angular.isObject(feed.previousItem)) {
                     d3TransitionsService.fadeOutAndRemove(
                         thisElement.select("[id='" + feed.feedId + '-feedItem' + feed.previousItem.itemIndex + "']"),
@@ -95,7 +95,7 @@ angular.module('noScaffold.d3AngularServices', [])
                 }
                 if (angular.isObject(feed.currentItem)) {
                     if (!angular.isObject(feed.previousItem)) { // To avoid double refresh
-                        feed.previousItem = feed.currentItem; //TODO find a better mechanism
+                        feed.previousItem = feed.currentItem; //TODO find a better mechanism to avoid double refresh
                     }
                     if (angular.isString(feed.suggestedCSSStyle)) {
                         thisElement
@@ -130,14 +130,17 @@ angular.module('noScaffold.d3AngularServices', [])
         };
 
         this.displayFeedItemContents = function(feedItemElement, feed, callbacks) {
-            if (angular.isString(feed.suggestedTemplate) && angular.isArray(feed.tagArray)) {
+            if (angular.isArray(feed.tagArray)) {
                 _.forEach(feed.tagArray, function(tag, tagIndex) {
                     var feedItemLine = feedItemElement
                         .append('div')
                         .attr('class', 'feedItemLine');
+                    var feedItemLineContents = feedItemLine
+                        .append('div')
+                        .attr('class', 'feedItemLineContents');
                     var tagContents = feedSuggestedTemplateModifier.extrapolateTemplateStringVariables(
                             feed.dataSchema, tag.tagContents, feed.currentItem);
-                    var tagElement = feedItemLine
+                    var tagElement = feedItemLineContents
                         .append(tag.tagName)
                         .text(tagContents);
                     _.each(tag.tagAttributes, function(attrValue, attrName) {
@@ -148,17 +151,31 @@ angular.module('noScaffold.d3AngularServices', [])
                         }
                         tagElement.attr(attrName, attributeValue);
                     });
-                    if (tagContents.trim().length > 0) {
-                        feedItemLine
-                            .append('div')
-                            .attr('class', 'feedItemLineButton feedItemLineRemoveButton')
-                            .text('x')
-                            .on('click', function (d) {
-                                d3TransitionsService.fadeOutAndRemove(feedItemLine,
-                                    presentationCfg.animations.feeds, presentationCfg.animations.shortDuration);
-                                (callbacks['feedItemLineRemoveButtonClicked'] || _.noop)(d, tagIndex);
-                            });
-                    }
+
+
+                    var feedItemLineActions = feedItemLine
+                        .append('div')
+                        .attr('class', 'feedItemLineActions');
+                    var removeButton = feedItemLineActions
+                        .append('div')
+                        .attr('class', 'feedItemLineButton feedItemLineRemoveButton')
+                        .style("opacity", 0)
+                        .text('x')
+                        .on('click', function (d) {
+                            d3TransitionsService.fadeOutAndRemove(feedItemLine,
+                                presentationCfg.animations.feeds, presentationCfg.animations.shortDuration);
+                            (callbacks['feedItemLineRemoveButtonClicked'] || _.noop)(d, tagIndex);
+                        });
+                    feedItemLine.on('mouseover', function(d) {
+                            d3TransitionsService.fadeIn(
+                                removeButton,
+                                presentationCfg.animations.feeds, presentationCfg.animations.shortDuration);
+                        })
+                        .on("mouseout", function(d) {
+                            d3TransitionsService.fadeOutAndRemove(removeButton,
+                                presentationCfg.animations.feeds, presentationCfg.animations.shortDuration,
+                                undefined, false);
+                        });
                 });
                 feedItemElement //TODO fix CSS and remove this
                     .append('div')
