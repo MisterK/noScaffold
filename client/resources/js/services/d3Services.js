@@ -34,7 +34,7 @@ angular.module('noScaffold.d3AngularServices', [])
             resultingD3Element
                 .append('div')
                     .attr('class', 'feedTitle')
-                    .text(getter('feedId'));
+                    .text(getter('feedName'));
             resultingD3Element
                 .append('div')
                     .attr('class', 'feedButton feedRemoveButton')
@@ -103,7 +103,7 @@ angular.module('noScaffold.d3AngularServices', [])
                             .attr('id', feed.feedId + '-feedItem' + feed.itemIndex + '-style')
                             .attr('type', 'text/css')
                             .text(feedSuggestedTemplateModifier.extrapolateTemplateStringVariables(
-                                feed.suggestedCSSStyle, feed.currentItem));
+                                feed.dataSchema, feed.suggestedCSSStyle, feed.currentItem));
                     }
                     thisElement
                         .append('div')
@@ -136,13 +136,13 @@ angular.module('noScaffold.d3AngularServices', [])
                         .append('div')
                         .attr('class', 'feedItemLine');
                     var tagContents = feedSuggestedTemplateModifier.extrapolateTemplateStringVariables(
-                            tag.tagContents, feed.currentItem) || '';
+                            feed.dataSchema, tag.tagContents, feed.currentItem);
                     var tagElement = feedItemLine
                         .append(tag.tagName)
                         .text(tagContents);
                     _.each(tag.tagAttributes, function(attrValue, attrName) {
                         var attributeValue = feedSuggestedTemplateModifier.extrapolateTemplateStringVariables(
-                            attrValue, feed.currentItem);
+                            feed.dataSchema, attrValue, feed.currentItem);
                         if (attrName == 'class') {
                             attributeValue = 'feedItemLineContent ' + attributeValue;
                         }

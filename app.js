@@ -70,8 +70,16 @@ var fetchFeedItem = function(fetchParams, callback, errorCallback) {
 
 var addFeed = function(feed) {
     log('Adding feed ' + feed.feedId);
+    feed.suggestedTemplate = readFeedSuggestedTemplate(feed.feedId);
+    feed.suggestedCSSStyle = readFeedSuggestedCSSStyle(feed.feedId);
+    feed.dataSchema = readFeedDataSchema(feed.feedId);
     feeds[feed.feedId] = feed;
     return feed;
+};
+
+var addFeedAndNotify = function(feed) {
+    addFeed(feed);
+    io.sockets.emit('feedSuggestions', [feed]);
 };
 
 /************** Utility functions **************/
@@ -112,6 +120,10 @@ var readFeedSuggestedCSSStyle = function(feedId) {
     return readFile('./feedTemplates/' + feedId + '/suggestedCSSStyle.css');
 };
 
+var readFeedDataSchema = function(feedId) {
+    return JSON.parse(readFile('./feedTemplates/' + feedId + '/dataSchema.json'));
+};
+
 /*********** SocketIO part **************/
 
 io.sockets.on('connection', function (socket) {
@@ -139,39 +151,29 @@ io.sockets.on('connection', function (socket) {
 	.on('disconnect', function(){
         log(logPrefix + 'Disconnected');
     });
-
-    addFeed({
-        feedId: 'resiAgentApi_Agents',
-        feedName: 'resiAgentAPI: Agents',
-        templateUrl: 'http://resi-agent-api.resi-lob-dev.realestate.com.au/agents?location=#suburbId#&page=#itemIndex#&size=1',
-        suggestedTemplate: readFeedSuggestedTemplate('resiAgentApi_Agents'),
-        suggestedCSSStyle: readFeedSuggestedCSSStyle('resiAgentApi_Agents')
-    });
-
-    addFeed({
-        feedId: 'listingServicesAPI_Listings_Buy',
-        feedName: 'listingServicesAPI: Listings - Buy',
-        templateUrl: 'http://services.realestate.com.au/services/listings/search?query={%22channel%22:%22buy%22,%22localities%22:[{%22locality%22:%22#suburb#%22}],%22pageSize%22:%221%22,%22page%22:%22#itemIndex#%22}',
-        suggestedTemplate: readFeedSuggestedTemplate('listingServicesAPI_Listings_Buy'),
-        suggestedCSSStyle: readFeedSuggestedCSSStyle('listingServicesAPI_Listings_Buy')
-    });
-
-    var addFeedAndNotify = function(feed) {
-        addFeed(feed);
-        io.sockets.emit('feedSuggestions', [feed]);
-    };
-
-    var soldListingsFeed = {
-        feedId: 'listingServicesAPI_Listings_Sold',
-        feedName: 'listingServicesAPI: Listings - Sold',
-        templateUrl: 'http://services.realestate.com.au/services/listings/search?query={%22channel%22:%22sold%22,%22localities%22:[{%22locality%22:%22#suburb#%22}],%22pageSize%22:%221%22,%22page%22:%22#itemIndex#%22}',
-        suggestedTemplate: readFeedSuggestedTemplate('listingServicesAPI_Listings_Sold'),
-        suggestedCSSStyle: readFeedSuggestedCSSStyle('listingServicesAPI_Listings_Sold')
-    };
-
-    //setTimeout(function() { addFeedAndNotify(soldListingsFeed)}, 10000);
-
-    addFeed(soldListingsFeed);
 });
+
+/**** Adding feeds part *****/
+addFeed({
+    feedId: 'resiAgentApi_Agents',
+    feedName: 'resiAgentAPI: Agents',
+    templateUrl: 'http://resi-agent-api.resi-lob-dev.realestate.com.au/agents?location=#suburbId#&page=#itemIndex#&size=1'
+});
+
+addFeed({
+    feedId: 'listingServicesAPI_Listings_Buy',
+    feedName: 'listingServicesAPI: Listings - Buy',
+    templateUrl: 'http://services.realestate.com.au/services/listings/search?query={%22channel%22:%22buy%22,%22localities%22:[{%22locality%22:%22#suburb#%22}],%22pageSize%22:%221%22,%22page%22:%22#itemIndex#%22}'
+});
+
+var soldListingsFeed = {
+    feedId: 'listingServicesAPI_Listings_Sold',
+    feedName: 'listingServicesAPI: Listings - Sold',
+    templateUrl: 'http://services.realestate.com.au/services/listings/search?query={%22channel%22:%22sold%22,%22localities%22:[{%22locality%22:%22#suburb#%22}],%22pageSize%22:%221%22,%22page%22:%22#itemIndex#%22}'
+};
+
+//setTimeout(function() { addFeedAndNotify(soldListingsFeed)}, 10000);
+
+addFeed(soldListingsFeed);
 
 server.listen(port);

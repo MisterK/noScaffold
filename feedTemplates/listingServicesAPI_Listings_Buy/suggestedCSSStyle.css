@@ -12,8 +12,8 @@
 .buyListingsAgencyName {
     font-size: 18px;
     text-align: center;
-    background-color: #{tieredResults|||0|||results|||0|||agency|||brandingColors|||primary};
-    color: #{tieredResults|||0|||results|||0|||agency|||brandingColors|||text};
+    background-color: #{agencyBrandingColorsPrimary};
+    color: #{agencyBrandingColorsText};
 }
 
 .buyListingsImage {

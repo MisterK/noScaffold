@@ -26,6 +26,6 @@
 .agentsAgencyName {
     font-size: 18px;
     text-align: center;
-    background-color: #{_embedded|||http://data.realestate.com.au/doc/relations#tieredResults|||0|||_embedded|||item|||0|||_embedded|||http://data.realestate.com.au/doc/relations#agency|||branding|||primaryColor};
-    color: #{_embedded|||http://data.realestate.com.au/doc/relations#tieredResults|||0|||_embedded|||item|||0|||_embedded|||http://data.realestate.com.au/doc/relations#agency|||branding|||textColor};
+    background-color: #{agencyBrandingColorsPrimary};
+    color: #{agencyBrandingColorsText};
 }

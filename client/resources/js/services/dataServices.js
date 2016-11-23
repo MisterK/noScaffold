@@ -9,7 +9,7 @@ angular.module('noScaffold.dataAngularServices', [])
             'templateStringTagExtractionRegexp': '^\s*([a-z]+)?(#[a-zA-Z0-9]+)?(\\.[a-zA-Z0-9]+)?(\\([^\)]*\\))?\s?(.*)$',
             'templateStringVarExtractionRegexp': '#\{([^\{\}]*)\}',
             'templateStringVarSeparator': '|||',
-            'templateStringVarElseValue': ' '
+            "templateStringVarFallbackValue": ' '
         },
         'pageElements': {
             'defaultFill': 'black',
@@ -73,12 +73,12 @@ angular.module('noScaffold.dataAngularServices', [])
             }).join('\n');
         };
 
-        this.extrapolateTemplateStringVariables = function(templateString, dataItem) {
+        this.extrapolateTemplateStringVariables = function(dataSchema, templateString, dataItem) {
             return templateString.replace(new RegExp(dataCfg.feedItems.templateStringVarExtractionRegexp, 'g'),
                 function(match, group) {
                     return _.get(dataItem,
-                        group.split(dataCfg.feedItems.templateStringVarSeparator),
-                        dataCfg.feedItems.templateStringVarElseValue);
+                        (dataSchema[group] || '').split(dataCfg.feedItems.templateStringVarSeparator),
+                        dataCfg.feedItems.templateStringVarFallbackValue);
                 });
         };
 
