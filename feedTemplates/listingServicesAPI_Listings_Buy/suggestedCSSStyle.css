@@ -1,0 +1,44 @@
+.buyListingsId {
+    font-size: 12px;
+    color: grey;
+}
+
+.buyListingsAgencyLogo {
+    width: inherit;
+    float: right;
+    margin-right: 25px;
+}
+
+.buyListingsAgencyName {
+    font-size: 18px;
+    text-align: center;
+    background-color: #{tieredResults|||0|||results|||0|||agency|||brandingColors|||primary};
+    color: #{tieredResults|||0|||results|||0|||agency|||brandingColors|||text};
+}
+
+.buyListingsImage {
+    width: 100px;
+    margin-left: 250px;
+}
+
+.buyListingsPrice {
+    font-size: 20px;
+    font-weight: bold;
+    text-align: left;
+}
+
+.buyListingsAgent {
+    font-size: 16px;
+    text-align: right;
+}
+
+.buyListingsAddress {
+    font-size: 16px;
+    text-align: left;
+}
+
+.buyListingsFeatures {
+    font-size: 12px;
+    text-align: left;
+    color: #697684;
+}

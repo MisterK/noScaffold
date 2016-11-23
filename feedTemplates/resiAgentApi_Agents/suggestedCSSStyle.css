@@ -1,0 +1,31 @@
+.agentsId {
+    font-size: 12px;
+    color: grey;
+}
+
+.agentsImage {
+    width: 100px;
+    height: 120px;
+    margin-left: 250px;
+    border-radius: 99999px;
+    border: .125em solid #F0F1F2;
+}
+
+.agentsName {
+    font-size: 20px;
+    font-weight: bold;
+    text-align: center;
+}
+
+.agentsJobTitle {
+    font-size: 14px;
+    color: grey;
+    text-align: center;
+}
+
+.agentsAgencyName {
+    font-size: 18px;
+    text-align: center;
+    background-color: #{_embedded|||http://data.realestate.com.au/doc/relations#tieredResults|||0|||_embedded|||item|||0|||_embedded|||http://data.realestate.com.au/doc/relations#agency|||branding|||primaryColor};
+    color: #{_embedded|||http://data.realestate.com.au/doc/relations#tieredResults|||0|||_embedded|||item|||0|||_embedded|||http://data.realestate.com.au/doc/relations#agency|||branding|||textColor};
+}

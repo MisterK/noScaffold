@@ -1,0 +1,9 @@
+== IN PROGRESS ==
+
+== NEW FUNCTIONALITIES ==
+- Aliases for JSON fields, through JSON path (loDash or JMESPath?)
+
+== FIXES / IMPROVEMENTS ==
+
+
+== BUGS ==

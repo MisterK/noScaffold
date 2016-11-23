@@ -1,0 +1,49 @@
+.soldListingsId {
+    font-size: 12px;
+    color: grey;
+}
+
+.soldListingsAgencyLogo {
+    width: inherit;
+    float: right;
+    margin-right: 25px;
+}
+
+.soldListingsAgencyName {
+    font-size: 18px;
+    text-align: center;
+    background-color: #{tieredResults|||0|||results|||0|||agency|||brandingColors|||primary};
+    color: #{tieredResults|||0|||results|||0|||agency|||brandingColors|||text};
+}
+
+.soldListingsImage {
+    width: 100px;
+    margin-left: 250px;
+}
+
+.soldListingsPrice {
+    font-size: 20px;
+    font-weight: bold;
+    text-align: left;
+}
+
+.soldListingsSoldDate {
+    font-size: 16px;
+    text-align: left;
+}
+
+.soldListingsAgent {
+    font-size: 16px;
+    text-align: right;
+}
+
+.soldListingsAddress {
+    font-size: 16px;
+    text-align: left;
+}
+
+.soldListingsFeatures {
+    font-size: 12px;
+    text-align: left;
+    color: #697684;
+}
