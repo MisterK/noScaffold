@@ -106,7 +106,8 @@ angular.module('noScaffold.persistenceServices', [])
         };
     })
     .factory('persistenceService', function(persistenceCfg, serverCommunicationService, localStorageService,
-                                            logService, doPageElementsIdsMatch, doFeedsIdsMatch) {
+                                            logService, doPageElementsIdsMatch, doFeedsIdsMatch,
+                                            feedSuggestedTemplateModifier) {
         function Persistence(registerEventHandlerDescriptors) {
             var connection = serverCommunicationService.getServerConnection();
             var localElementsToBePersistedIds = [],
@@ -188,14 +189,17 @@ angular.module('noScaffold.persistenceServices', [])
                     logService.logDebug('Persistence: Discovered ' + _.keys(feeds).length + ' feeds from server');
                     return localStorageService.getSubscribedToFeeds(function(subscribedToFeeds) {
                         var partition = _.reduce(feeds, function(result, feed) {
-                            var subscribedToFeed = _.find(subscribedToFeeds,
-                                _.curry(doFeedsIdsMatch, 2)(feed.feedId));
+                            var subscribedToFeed = _.find(subscribedToFeeds, _.curry(doFeedsIdsMatch, 2)(feed.feedId));
                             if (angular.isDefined(subscribedToFeed)) {
                                 _.assign(feed, subscribedToFeed);
                                 result[0].push(feed);
                             } else {
                                 feed.itemIndex = 1;
                                 result[1].push(feed);
+                            }
+                            if (angular.isString(feed.suggestedTemplate) && !angular.isArray(feed.tagArray)) {
+                                feed.tagArray =
+                                    feedSuggestedTemplateModifier.extractTagsFromTemplateString(feed.suggestedTemplate);
                             }
                             return result;
                         }, [[],[]]);

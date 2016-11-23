@@ -5,6 +5,10 @@ body {
     font-family: 'Museo-Sans-300';
 }
 
+h1 {
+    text-align: center;
+}
+
 .noScaffoldFeedCollection {
     border: 4px solid black;
     margin-bottom: 20px;
@@ -56,7 +60,7 @@ body {
 .feedItem {
     border: 1px solid grey;
     clear: both;
-    width: 25%;
+    width: 45%;
     background-color: #f4f5f7;
 }
 

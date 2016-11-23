@@ -130,32 +130,34 @@ angular.module('noScaffold.d3AngularServices', [])
         };
 
         this.displayFeedItemContents = function(feedItemElement, feed, callbacks) {
-            if (angular.isString(feed.suggestedTemplate)) {
-                var lines = feedSuggestedTemplateModifier
-                    .extrapolateTemplateStringVariables(feed.suggestedTemplate, feed.currentItem).split(/\n/);
-                _.forEach(lines, function(line, lineIndex) {
-                    if (line.trim().length > 0) {
-                        var feedItemLine = feedItemElement
-                            .append('div')
-                            .attr('class', 'feedItemLine');
-                        var tag = feedSuggestedTemplateModifier.extractTagFromTemplateString(line);
-                        var tagElement = feedItemLine
-                            .append(tag.tagName)
-                            .text(tag.tagContents || '');
-                        _.each(tag.tagAttributes, function(attrValue, attrName) {
-                            tagElement.attr(attrName, attrValue);
-                        });
-                        if (tag.tagContents.trim().length > 0) {
-                            feedItemLine
-                                .append('div')
-                                .attr('class', 'feedItemLineButton feedItemLineRemoveButton')
-                                .text('x')
-                                .on('click', function (d) {
-                                    d3TransitionsService.fadeOutAndRemove(feedItemLine,
-                                        presentationCfg.animations.feeds, presentationCfg.animations.shortDuration);
-                                    (callbacks['feedItemLineRemoveButtonClicked'] || _.noop)(d, lineIndex);
-                                });
+            if (angular.isString(feed.suggestedTemplate) && angular.isArray(feed.tagArray)) {
+                _.forEach(feed.tagArray, function(tag, tagIndex) {
+                    var feedItemLine = feedItemElement
+                        .append('div')
+                        .attr('class', 'feedItemLine');
+                    var tagContents = feedSuggestedTemplateModifier.extrapolateTemplateStringVariables(
+                            tag.tagContents, feed.currentItem) || '';
+                    var tagElement = feedItemLine
+                        .append(tag.tagName)
+                        .text(tagContents);
+                    _.each(tag.tagAttributes, function(attrValue, attrName) {
+                        var attributeValue = feedSuggestedTemplateModifier.extrapolateTemplateStringVariables(
+                            attrValue, feed.currentItem);
+                        if (attrName == 'class') {
+                            attributeValue = 'feedItemLineContent ' + attributeValue;
                         }
+                        tagElement.attr(attrName, attributeValue);
+                    });
+                    if (tagContents.trim().length > 0) {
+                        feedItemLine
+                            .append('div')
+                            .attr('class', 'feedItemLineButton feedItemLineRemoveButton')
+                            .text('x')
+                            .on('click', function (d) {
+                                d3TransitionsService.fadeOutAndRemove(feedItemLine,
+                                    presentationCfg.animations.feeds, presentationCfg.animations.shortDuration);
+                                (callbacks['feedItemLineRemoveButtonClicked'] || _.noop)(d, tagIndex);
+                            });
                     }
                 });
                 feedItemElement //TODO fix CSS and remove this

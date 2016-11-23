@@ -46,10 +46,31 @@ angular.module('noScaffold.dataAngularServices', [])
     })
     .service('feedSuggestedTemplateModifier', function(dataCfg) {
         this.feedItemLineRemoved = function(feed, lineIndex) {
-            var lines = feed.suggestedTemplate.split('\n');
-            lines.splice(lineIndex, 1);
-            feed.suggestedTemplate = lines.join('\n');
+            if (angular.isArray(feed.tagArray)) {
+                feed.tagArray.splice(lineIndex, 1);
+                feed.suggestedTemplate = this.convertTagArrayToTemplateString(feed.tagArray);
+            }
             return feed;
+        };
+
+        this.convertTagArrayToTemplateString = function(tagArray) {
+            return _.map(tagArray, function(tag) {
+                var tagTemplateString = tag.tagName +
+                    (tag.tagAttributes['id'] ? '#' + tag.tagAttributes['id'] : '') +
+                    (tag.tagAttributes['class'] ? '.' + tag.tagAttributes['class'] : '');
+                var attributesString =_(tag.tagAttributes).map(function(value, key) {
+                    if (['id', 'class'].indexOf(key) < 0) {
+                        return key + '=' + '\'' + value + '\'';
+                    }
+                }).filter(angular.isString).value().join(', ');
+                if (attributesString.length > 0) {
+                    tagTemplateString += '(' + attributesString + ')';
+                }
+                if (tag.tagContents.length > 0) {
+                    tagTemplateString += ' ' + tag.tagContents;
+                }
+                return tagTemplateString;
+            }).join('\n');
         };
 
         this.extrapolateTemplateStringVariables = function(templateString, dataItem) {
@@ -61,24 +82,28 @@ angular.module('noScaffold.dataAngularServices', [])
                 });
         };
 
-        this.extractTagFromTemplateString = function(templateString) {
-            var groups = new RegExp(dataCfg.feedItems.templateStringTagExtractionRegexp, 'g').exec(templateString);
+        this.extractTagsFromTemplateString = function(templateString) {
+            return _.map(templateString.split(/\n/), extractTagFromTemplateStringLine);
+        };
+
+        var extractTagFromTemplateStringLine = function(templateStringLine) {
+            var groups = new RegExp(dataCfg.feedItems.templateStringTagExtractionRegexp, 'g').exec(templateStringLine);
             var tagAttributes = {
-                'class': 'feedItemLineContent'
+                'class': ''
             };
-            if (!angular.isArray(groups) || groups.length < 5) {
-                console.error('Groups pb for templateString |' + templateString + '|');
+            if (!angular.isArray(groups) || groups.length < 6) {
+                console.error('Groups pb for templateStringLine |' + templateStringLine + '|');
                 return {
                     tagName: 'div',
                     tagAttributes: tagAttributes,
-                    tagContents: templateString
+                    tagContents: templateStringLine
                 };
             }
             if (angular.isString(groups[2])) {
                 tagAttributes['id'] = groups[2].substring(1, groups[2].length);
             }
             if (angular.isString(groups[3])) {
-                tagAttributes['class'] = tagAttributes['class'] + ' ' + groups[3].substring(1, groups[3].length);
+                tagAttributes['class'] = groups[3].substring(1, groups[3].length);
             }
             if (angular.isString(groups[4])) {
                 var attrGroups = new RegExp('([a-z-]+)\s*=\s*\'([^\']+)+\'').exec(groups[4]);
@@ -87,10 +112,14 @@ angular.module('noScaffold.dataAngularServices', [])
                     tagAttributes[attrGroups[1]] = attrGroups[2];
                 }
             }
+            var tagContents = '';
+            if (angular.isString(groups[5])) {
+                tagContents = groups[5].substring(1, groups[5].length);
+            }
             return {
                 tagName: groups[1] || 'div',
                 tagAttributes: tagAttributes,
-                tagContents: groups[5]
+                tagContents: tagContents
             }
         };
     })

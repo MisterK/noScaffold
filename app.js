@@ -144,7 +144,7 @@ io.sockets.on('connection', function (socket) {
 
     addFeed({
         feedId: 'listingServicesAPI: Listings - Buy',
-        templateUrl: 'http://services.e2e.realestate.com.au/services/listings/search?query={%22channel%22:%22buy%22,%22localities%22:[{%22locality%22:%22#suburb#%22}],%22pageSize%22:%221%22,%22page%22:%22#itemIndex#%22}',
+        templateUrl: 'http://services.realestate.com.au/services/listings/search?query={%22channel%22:%22buy%22,%22localities%22:[{%22locality%22:%22#suburb#%22}],%22pageSize%22:%221%22,%22page%22:%22#itemIndex#%22}',
         suggestedTemplate: '.buyListingsId #{tieredResults|||0|||results|||0|||listingId}\n' +
             'img.buyListingsAgencyLogo(src=\'#{tieredResults|||0|||results|||0|||agency|||logo|||images|||0|||server}#{tieredResults|||0|||results|||0|||agency|||logo|||images|||0|||uri}\')\n' +
             '.buyListingsAgencyName #{tieredResults|||0|||results|||0|||agency|||name}\n' +
@@ -172,7 +172,7 @@ io.sockets.on('connection', function (socket) {
 
     var soldListingsFeed = {
         feedId: 'listingServicesAPI: Listings - Sold',
-        templateUrl: 'http://services.e2e.realestate.com.au/services/listings/search?query={%22channel%22:%22sold%22,%22localities%22:[{%22locality%22:%22#suburb#%22}],%22pageSize%22:%221%22,%22page%22:%22#itemIndex#%22}',
+        templateUrl: 'http://services.realestate.com.au/services/listings/search?query={%22channel%22:%22sold%22,%22localities%22:[{%22locality%22:%22#suburb#%22}],%22pageSize%22:%221%22,%22page%22:%22#itemIndex#%22}',
         suggestedTemplate: '.soldListingsId #{tieredResults|||0|||results|||0|||listingId}\n' +
             'img.soldListingsAgencyLogo(src=\'#{tieredResults|||0|||results|||0|||agency|||logo|||images|||0|||server}#{tieredResults|||0|||results|||0|||agency|||logo|||images|||0|||uri}\')\n' +
             '.soldListingsAgencyName #{tieredResults|||0|||results|||0|||agency|||name}\n' +
