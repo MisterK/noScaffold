@@ -3,7 +3,8 @@
 /**** Angular controllers ****/
 
 angular.module('noScaffold.controllers', [])
-    .controller('NoScaffoldController', function($scope, persistenceService, logService, doFeedsIdsMatch) {
+    .controller('NoScaffoldController', function($scope, persistenceService, logService, doFeedsIdsMatch,
+                                                 feedSuggestedTemplateModifier) {
         $scope.feeds = {};
         $scope.suggestedFeeds = {};
         $scope.selectedFeed = undefined;
@@ -77,6 +78,13 @@ angular.module('noScaffold.controllers', [])
         $scope.previousFeedItem = function(feed, persistChange) {
             return fetchFeedItem(feed, persistChange,
                 function(feed) { return feed.itemIndex > 1 ? feed.itemIndex - 1 : undefined; });
+        };
+
+        $scope.resetFeedTemplate = function(feed) {
+            logService.logDebug('Resetting template for feed ' + feed.feedId);
+            persistence.updateFeedSuggestedTemplate(feedSuggestedTemplateModifier.resetFeedTemplate(feed));
+            feed.previousItem = feed.currentItem;
+            requireFeedItemRefresh(feed);
         };
 
         $scope.updateFeedSuggestedTemplate = function(feed) {

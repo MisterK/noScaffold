@@ -76,7 +76,7 @@ angular.module('noScaffold.persistenceServices', [])
 
         this.subscribeToFeed = function(feed, callback) {
             return addFeedInCollection('subscribedFeeds',
-                _.pick(feed, ['feedId', 'itemIndex', 'suggestedTemplate', 'suggestedCSSStyle']), callback);
+                _.pick(feed, ['feedId', 'itemIndex', 'suggestedTemplate', 'suggestedCSSStyle', 'originalSuggestedTemplate']), callback);
         };
 
         this.unSubscribeFromFeed = function(feed, callback) {
@@ -197,10 +197,7 @@ angular.module('noScaffold.persistenceServices', [])
                                 feed.itemIndex = 1;
                                 result[1].push(feed);
                             }
-                            if (angular.isString(feed.suggestedTemplate) && !angular.isArray(feed.tagArray)) {
-                                feed.tagArray =
-                                    feedSuggestedTemplateModifier.extractTagsFromTemplateString(feed.suggestedTemplate);
-                            }
+                            feedSuggestedTemplateModifier.initFeedWithTemplate(feed);
                             return result;
                         }, [[],[]]);
                         var transform = _.curryRight(_.keyBy, 2)(_.curryRight(_.get, 2)('feedId'));

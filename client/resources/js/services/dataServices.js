@@ -82,7 +82,7 @@ angular.module('noScaffold.dataAngularServices', [])
                 });
         };
 
-        this.extractTagsFromTemplateString = function(templateString) {
+        var extractTagsFromTemplateString = function(templateString) {
             return _.map(templateString.split(/\n/), extractTagFromTemplateStringLine);
         };
 
@@ -121,6 +121,21 @@ angular.module('noScaffold.dataAngularServices', [])
                 tagAttributes: tagAttributes,
                 tagContents: tagContents
             }
+        };
+
+        this.initFeedWithTemplate = function(feed) {
+            if (angular.isString(feed.suggestedTemplate) && !angular.isArray(feed.tagArray)) {
+                feed.tagArray = extractTagsFromTemplateString(feed.suggestedTemplate);
+            }
+            if (!angular.isString(feed.originalSuggestedTemplate)) {
+                feed.originalSuggestedTemplate = feed.suggestedTemplate;
+            }
+        };
+
+        this.resetFeedTemplate = function(feed) {
+            feed.suggestedTemplate = feed.originalSuggestedTemplate;
+            feed.tagArray = extractTagsFromTemplateString(feed.suggestedTemplate);
+            return feed;
         };
     })
     .service('pageElementsFactory', function(dataCfg) {

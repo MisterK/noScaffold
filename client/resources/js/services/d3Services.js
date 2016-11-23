@@ -57,6 +57,11 @@ angular.module('noScaffold.d3AngularServices', [])
                 .attr('class', 'feedButton feedPreviousItemButton')
                 .text('⇐')
                 .on('click', (callbacks['feedPreviousItemButtonClicked'] || _.noop));
+            resultingD3Element
+                .append('div')
+                .attr('class', 'feedButton feedResetTemplateButton')
+                .text('↻')
+                .on('click', (callbacks['feedResetTemplateButtonClicked'] || _.noop));
 
             //TODO Other feed buttons?
 
