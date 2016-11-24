@@ -9,6 +9,13 @@ h1 {
     text-align: center;
 }
 
+.generalActions {
+    float: right;
+}
+
+.generalAction {
+}
+
 .noScaffoldFeedCollection {
     border: 4px solid black;
     margin-bottom: 20px;
@@ -41,23 +48,7 @@ h1 {
     font-size: 20px;
     padding: 5px 10px;
     cursor: pointer;
-}
-
-.feedSubscribeButton {
-}
-
-.feedRemoveButton {
-}
-
-.feedNextItemButton {
-    padding: 1px 10px;
-}
-
-.feedPreviousItemButton {
-    padding: 1px 10px;
-}
-
-.feedResetSuggestedPresentationButton {
+    line-height: 20px;
 }
 
 .feedItem {

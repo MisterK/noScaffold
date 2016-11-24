@@ -59,6 +59,11 @@ angular.module('noScaffold.d3AngularServices', [])
                 .on('click', (callbacks['feedPreviousItemButtonClicked'] || _.noop));
             resultingD3Element
                 .append('div')
+                .attr('class', 'feedButton feedFirstItemButton')
+                .text('⇐⇐')
+                .on('click', (callbacks['feedFirstItemButtonClicked'] || _.noop));
+            resultingD3Element
+                .append('div')
                 .attr('class', 'feedButton feedResetSuggestedPresentationButton')
                 .text('↻')
                 .on('click', (callbacks['feedResetSuggestedPresentationButtonClicked'] || _.noop));

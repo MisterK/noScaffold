@@ -22,6 +22,8 @@
 </head>
 <body ng-app="noScaffold" ng-controller="NoScaffoldController">
     <h1>No Scaffold!</h1>
+    <div class="generalActions"><button class="generalAction clearAllAction" ng-click="clearAllFeeds()">Clear all</button></div>
+    <div class="clearer">&nbsp;</div>
     <no-scaffold-feed-collection collection-name="feeds" collection-title="Subscribed feeds"></no-scaffold-feed-collection>
     <no-scaffold-feed-collection collection-name="suggestedFeeds" collection-title="Suggested feeds"></no-scaffold-feed-collection>
     <no-scaffold-feed-suggested-presentation-edition-dialog selected-feed="selectedFeedForSuggestedPresentationEdit" update-callback="updateFeedSuggestedPresentation(feedSuggestedPresentation)"></no-scaffold-feed-suggested-presentation-edition-dialog>

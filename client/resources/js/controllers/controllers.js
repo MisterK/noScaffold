@@ -81,12 +81,18 @@ angular.module('noScaffold.controllers', [])
                 function(feed) { return feed.itemIndex > 1 ? feed.itemIndex - 1 : undefined; });
         };
 
-        $scope.resetFeedSuggestedPresentation = function(feed) {
+        $scope.firstFeedItem = function(feed, persistChange) {
+            return fetchFeedItem(feed, persistChange, function() { return 1; });
+        };
+
+        $scope.resetFeedSuggestedPresentation = function(feed, skipVisualRefresh) {
             logService.logDebug('Resetting template for feed ' + feed.feedId);
             persistence.updateFeedSuggestedPresentation(
                 feedSuggestedTemplateModifier.resetFeedSuggestedPresentation(feed));
-            feed.previousItem = feed.currentItem;
-            requireFeedItemRefresh(feed);
+            if (skipVisualRefresh != true) {
+                feed.previousItem = feed.currentItem;
+                requireFeedItemRefresh(feed);
+            }
         };
 
         $scope.editFeedSuggestedPresentation = function(feed) {
@@ -109,6 +115,14 @@ angular.module('noScaffold.controllers', [])
         $scope.updateFeedSuggestedTemplate = function(feed) {
             logService.logDebug('Persisting template change for feed ' + feed.feedId);
             persistence.updateFeedSuggestedPresentation(feed);
+        };
+
+        $scope.clearAllFeeds = function() {
+            _.values($scope.feeds).forEach(function(feed) {
+                $scope.unsubscribeFromFeed(feed);
+                $scope.resetFeedSuggestedPresentation(feed, true);
+                $scope.firstFeedItem(feed, true);
+            });
         };
 
         //Setup persistence

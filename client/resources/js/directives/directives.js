@@ -50,6 +50,9 @@ angular.module('noScaffold.directives', [])
                 'feedPreviousItemButtonClicked': scopeApply(scope, function(feed) {
                     return scope.previousFeedItem(feed, collection.isSubscribedFeeds);
                 }),
+                'feedFirstItemButtonClicked': scopeApply(scope, function(feed) {
+                    return scope.firstFeedItem(feed, collection.isSubscribedFeeds);
+                }),
                 'feedResetSuggestedPresentationButtonClicked': scopeApply(scope, scope.resetFeedSuggestedPresentation),
                 'feedEditSuggestedPresentationButtonClicked': scopeApply(scope, scope.editFeedSuggestedPresentation),
                 'feedItemLineRemoveButtonClicked': collection.isSubscribedFeeds ?
