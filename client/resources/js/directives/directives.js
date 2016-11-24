@@ -50,8 +50,8 @@ angular.module('noScaffold.directives', [])
                 'feedPreviousItemButtonClicked': scopeApply(scope, function(feed) {
                     return scope.previousFeedItem(feed, collection.isSubscribedFeeds);
                 }),
-                'feedResetTemplateButtonClicked': scopeApply(scope, scope.resetFeedTemplate),
-                'feedEditSourceButtonClicked': scopeApply(scope, scope.editFeedSource),
+                'feedResetSuggestedPresentationButtonClicked': scopeApply(scope, scope.resetFeedSuggestedPresentation),
+                'feedEditSuggestedPresentationButtonClicked': scopeApply(scope, scope.editFeedSuggestedPresentation),
                 'feedItemLineRemoveButtonClicked': collection.isSubscribedFeeds ?
                     scopeApply(scope, function (feed, lineIndex) {
                         return scope.updateFeedSuggestedTemplate(
@@ -153,30 +153,30 @@ angular.module('noScaffold.directives', [])
             }
         }
     })
-    /* Directive: noScaffoldFeedSourceEditionDialog
+    /* Directive: noScaffoldFeedSuggestedPresentationEditionDialog
      * Goal: Creates the noScaffold feed edition dialog
-     * Usage: <no-scaffold-feed-source-edition-dialog selected-feed="selectedFeed" update-callback="updateFeed(feed)"></no-scaffold-feed-source-edition-dialog>
+     * Usage: <no-scaffold-feed-suggested-presentation-edition-dialog selected-feed="selectedFeed" update-callback="updateFeed(feed)"></no-scaffold-feed-suggested-presentation-edition-dialog>
      * Params:
      * 		- selected-feed (required): the selectedFeed to update.
      * 		- update-callback (required): the callback to call when the selectedFeed is to be updated.
      * Description: Creates the noScaffold feed edition dialog
      */
-    .directive('noScaffoldFeedSourceEditionDialog', function() {
+    .directive('noScaffoldFeedSuggestedPresentationEditionDialog', function() {
         return {
             restrict: 'E',
-            templateUrl: 'feedSourceEditionDialogTemplate',
+            templateUrl: 'feedSuggestedPresentationEditionDialogTemplate',
             replace: true,
             scope: {
                 'selectedFeed': '=',
                 'updateCallback': '&'
             },
             link: function(scope) {
-                scope.feedSource = {};
+                scope.feedSuggestedPresentation = {};
 
                 scope.$watch('selectedFeed', function(newValue, oldValue) {
                     if (angular.isObject(newValue) && newValue !== oldValue) {
-                        _.assignWith(scope.feedSource,
-                            _.pick(newValue, ['suggestedTemplate', 'suggestedCSSStyle', 'dataSchema']),
+                        _.assignWith(scope.feedSuggestedPresentation,
+                            _.pick(newValue, ['suggestedPresentation']).suggestedPresentation,
                             function(objValue, srcValue) { return angular.isObject(srcValue) ? JSON.stringify(srcValue).replace(/","/g, '",\n"') : srcValue; });
                     }
                 });
@@ -187,7 +187,7 @@ angular.module('noScaffold.directives', [])
 
                 scope.saveChanges = function() {
                     if (angular.isFunction(scope.updateCallback)) {
-                        scope.updateCallback({feedSource: scope.feedSource});
+                        scope.updateCallback({feedSuggestedPresentation: scope.feedSuggestedPresentation});
                         scope.closeDialog();
                     }
                 };

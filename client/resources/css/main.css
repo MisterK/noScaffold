@@ -57,7 +57,7 @@ h1 {
     padding: 1px 10px;
 }
 
-.feedResetTemplateButton {
+.feedResetSuggestedPresentationButton {
 }
 
 .feedItem {
@@ -107,7 +107,7 @@ h1 {
     clear: both;
 }
 
-.feedSourceEditionDialog {
+.feedSuggestedPresentationEditionDialog {
     position: absolute;
     z-index: 1000;
     border: 1px solid black;

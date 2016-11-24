@@ -47,7 +47,7 @@ angular.module('noScaffold.dataAngularServices', [])
         this.feedItemLineRemoved = function(feed, lineIndex) {
             if (angular.isArray(feed.tagArray)) {
                 feed.tagArray.splice(lineIndex, 1);
-                feed.suggestedTemplate = this.convertTagArrayToTemplateString(feed.tagArray);
+                feed.suggestedPresentation.template = this.convertTagArrayToTemplateString(feed.tagArray);
             }
             return feed;
         };
@@ -123,25 +123,36 @@ angular.module('noScaffold.dataAngularServices', [])
         };
 
         this.initFeedWithTemplate = function(feed) {
-            if (angular.isString(feed.suggestedTemplate) && !angular.isArray(feed.tagArray)) {
-                feed.tagArray = extractTagsFromTemplateString(feed.suggestedTemplate);
+            if (angular.isString(feed.suggestedPresentation.template) && !angular.isArray(feed.tagArray)) {
+                feed.tagArray = extractTagsFromTemplateString(feed.suggestedPresentation.template);
             }
-            if (!angular.isString(feed.originalSuggestedTemplate)) {
-                feed.originalSuggestedTemplate = feed.suggestedTemplate;
+            if (!angular.isObject(feed.originalSuggestedPresentation)) {
+                feed.originalSuggestedPresentation = {};
+            }
+            if (!angular.isString(feed.originalSuggestedPresentation.template)) {
+                feed.originalSuggestedPresentation.template = feed.suggestedPresentation.template;
+            }
+            if (!angular.isString(feed.originalSuggestedPresentation.cssStyle)) {
+                feed.originalSuggestedPresentation.cssStyle = feed.suggestedPresentation.cssStyle;
+            }
+            if (!angular.isObject(feed.originalSuggestedPresentation.dataSchema)) {
+                feed.originalSuggestedPresentation.dataSchema = feed.suggestedPresentation.dataSchema;
             }
         };
 
-        this.resetFeedTemplate = function(feed) {
-            feed.suggestedTemplate = feed.originalSuggestedTemplate;
-            feed.tagArray = extractTagsFromTemplateString(feed.suggestedTemplate);
+        this.resetFeedSuggestedPresentation = function(feed) {
+            feed.suggestedPresentation.template = feed.originalSuggestedPresentation.template;
+            feed.tagArray = extractTagsFromTemplateString(feed.suggestedPresentation.template);
+            feed.suggestedPresentation.cssStyle = feed.originalSuggestedPresentation.cssStyle;
+            feed.suggestedPresentation.dataSchema = feed.originalSuggestedPresentation.dataSchema;
             return feed;
         };
 
-        this.updateFeedSource = function(feed, feedSource) {
-            feed.suggestedTemplate = feedSource.suggestedTemplate;
-            feed.tagArray = extractTagsFromTemplateString(feed.suggestedTemplate);
-            feed.suggestedCSSStyle = feedSource.suggestedCSSStyle;
-            feed.dataSchema = JSON.parse(feedSource.dataSchema);
+        this.updateFeedSuggestedPresentation = function(feed, feedSuggestedPresentation) {
+            feed.suggestedPresentation.template = feedSuggestedPresentation.template;
+            feed.tagArray = extractTagsFromTemplateString(feed.suggestedPresentation.template);
+            feed.suggestedPresentation.cssStyle = feedSuggestedPresentation.cssStyle;
+            feed.suggestedPresentation.dataSchema = JSON.parse(feedSuggestedPresentation.dataSchema);
             return feed;
         };
     })

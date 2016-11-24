@@ -70,9 +70,11 @@ var fetchFeedItem = function(fetchParams, callback, errorCallback) {
 
 var addFeed = function(feed) {
     log('Adding feed ' + feed.feedId);
-    feed.suggestedTemplate = readFeedSuggestedTemplate(feed.feedId);
-    feed.suggestedCSSStyle = readFeedSuggestedCSSStyle(feed.feedId);
-    feed.dataSchema = readFeedDataSchema(feed.feedId);
+    feed.suggestedPresentation = {
+        'template': readFeedSuggestedTemplate(feed.feedId),
+        'cssStyle': readFeedSuggestedCSSStyle(feed.feedId),
+        'dataSchema': readFeedDataSchema(feed.feedId)
+    };
     feeds[feed.feedId] = feed;
     return feed;
 };
@@ -113,15 +115,15 @@ var readFile = function(filePath) {
 };
 
 var readFeedSuggestedTemplate = function(feedId) {
-    return readFile('./feedTemplates/' + feedId + '/suggestedTemplate.pug');
+    return readFile('./feedSuggestedPresentations/' + feedId + '/template.pug');
 };
 
 var readFeedSuggestedCSSStyle = function(feedId) {
-    return readFile('./feedTemplates/' + feedId + '/suggestedCSSStyle.css');
+    return readFile('./feedSuggestedPresentations/' + feedId + '/cssStyle.css');
 };
 
 var readFeedDataSchema = function(feedId) {
-    return JSON.parse(readFile('./feedTemplates/' + feedId + '/dataSchema.json'));
+    return JSON.parse(readFile('./feedSuggestedPresentations/' + feedId + '/dataSchema.json'));
 };
 
 /*********** SocketIO part **************/

@@ -8,7 +8,7 @@ angular.module('noScaffold.controllers', [])
         $scope.feeds = {};
         $scope.suggestedFeeds = {};
         $scope.selectedFeed = undefined;
-        $scope.selectedFeedForSourceEdit = undefined;
+        $scope.selectedFeedForSuggestedPresentationEdit = undefined;
         var configFetchParams = {
             'suburb': 'Richmond',
             'suburbId': '8ece3e33-d411-4ae8-b479-f6bd6c0f403f'
@@ -81,30 +81,34 @@ angular.module('noScaffold.controllers', [])
                 function(feed) { return feed.itemIndex > 1 ? feed.itemIndex - 1 : undefined; });
         };
 
-        $scope.resetFeedTemplate = function(feed) {
+        $scope.resetFeedSuggestedPresentation = function(feed) {
             logService.logDebug('Resetting template for feed ' + feed.feedId);
-            persistence.updateFeedSuggestedTemplate(feedSuggestedTemplateModifier.resetFeedTemplate(feed));
+            persistence.updateFeedSuggestedPresentation(
+                feedSuggestedTemplateModifier.resetFeedSuggestedPresentation(feed));
             feed.previousItem = feed.currentItem;
             requireFeedItemRefresh(feed);
         };
 
-        $scope.editFeedSource = function(feed) {
-            $scope.selectedFeedForSourceEdit = feed;
+        $scope.editFeedSuggestedPresentation = function(feed) {
+            $scope.selectedFeedForSuggestedPresentationEdit = feed;
         };
 
-        $scope.updateFeedSource = function(feedSource) {
-            if (angular.isObject($scope.selectedFeedForSourceEdit)) {
-                logService.logDebug('Setting source for feed ' + $scope.selectedFeedForSourceEdit.feedId);
-                persistence.updateFeedSource(
-                    feedSuggestedTemplateModifier.updateFeedSource($scope.selectedFeedForSourceEdit, feedSource));
-                $scope.selectedFeedForSourceEdit.previousItem = $scope.selectedFeedForSourceEdit.currentItem;
-                requireFeedItemRefresh($scope.selectedFeedForSourceEdit);
+        $scope.updateFeedSuggestedPresentation = function(feedSuggestedPresentation) {
+            if (angular.isObject($scope.selectedFeedForSuggestedPresentationEdit)) {
+                logService.logDebug('Setting suggestedPresentation for feed ' +
+                    $scope.selectedFeedForSuggestedPresentationEdit.feedId);
+                persistence.updateFeedSuggestedPresentation(
+                    feedSuggestedTemplateModifier.updateFeedSuggestedPresentation(
+                        $scope.selectedFeedForSuggestedPresentationEdit, feedSuggestedPresentation));
+                $scope.selectedFeedForSuggestedPresentationEdit.previousItem =
+                    $scope.selectedFeedForSuggestedPresentationEdit.currentItem;
+                requireFeedItemRefresh($scope.selectedFeedForSuggestedPresentationEdit);
             }
         };
 
         $scope.updateFeedSuggestedTemplate = function(feed) {
             logService.logDebug('Persisting template change for feed ' + feed.feedId);
-            persistence.updateFeedSuggestedTemplate(feed);
+            persistence.updateFeedSuggestedPresentation(feed);
         };
 
         //Setup persistence

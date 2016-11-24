@@ -76,7 +76,9 @@ angular.module('noScaffold.persistenceServices', [])
 
         this.subscribeToFeed = function(feed, callback) {
             return addFeedInCollection('subscribedFeeds',
-                _.pick(feed, ['feedId', 'itemIndex', 'suggestedTemplate', 'suggestedCSSStyle', 'originalSuggestedTemplate']), callback);
+                _.pick(feed,
+                    ['feedId', 'itemIndex', 'suggestedPresentation', 'originalSuggestedPresentation']),
+                    callback);
         };
 
         this.unSubscribeFromFeed = function(feed, callback) {
@@ -99,17 +101,9 @@ angular.module('noScaffold.persistenceServices', [])
             });
         };
 
-        this.updateFeedSuggestedTemplate = function(feed, callback) {
+        this.updateFeedSuggestedPresentation = function(feed, callback) {
             return updateFeed(feed, callback, function(feed, feedElement) {
-                feedElement.suggestedTemplate = feed.suggestedTemplate;
-            });
-        };
-
-        this.updateFeedSource = function(feed, callback) {
-            return updateFeed(feed, callback, function(feed, feedElement) {
-                feedElement.suggestedTemplate = feed.suggestedTemplate;
-                feedElement.suggestedCSSStyle = feed.suggestedCSSStyle;
-                feedElement.dataSchema = feed.dataSchema;
+                feedElement.suggestedPresentation = feed.suggestedPresentation;
             });
         };
     })
@@ -369,16 +363,11 @@ angular.module('noScaffold.persistenceServices', [])
                     feedCallbackWrapper(registerEventHandlerDescriptors['feedExcluded'], feed.feedId));
             };
 
-            this.updateFeedSuggestedTemplate = function(feed) {
-                logService.logDebug('Persistence: Updating feed ' + feed.feedId + ' suggestedTemplate in local storage');
-                localStorageService.updateFeedSuggestedTemplate(feed,
-                    feedCallbackWrapper(registerEventHandlerDescriptors['feedSuggestedTemplateUpdated'], feed.feedId));
-            };
-
-            this.updateFeedSource = function(feed) {
-                logService.logDebug('Persistence: Updating feed ' + feed.feedId + ' source in local storage');
-                localStorageService.updateFeedSource(feed,
-                    feedCallbackWrapper(registerEventHandlerDescriptors['feedSourceUpdated'], feed));
+            this.updateFeedSuggestedPresentation = function(feed) {
+                logService.logDebug('Persistence: Updating feed ' + feed.feedId +
+                    ' suggestedPresentation in local storage');
+                localStorageService.updateFeedSuggestedPresentation(feed,
+                    feedCallbackWrapper(registerEventHandlerDescriptors['feedSuggestedPresentationUpdated'], feed));
             };
         }
 

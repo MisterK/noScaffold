@@ -59,14 +59,14 @@ angular.module('noScaffold.d3AngularServices', [])
                 .on('click', (callbacks['feedPreviousItemButtonClicked'] || _.noop));
             resultingD3Element
                 .append('div')
-                .attr('class', 'feedButton feedResetTemplateButton')
+                .attr('class', 'feedButton feedResetSuggestedPresentationButton')
                 .text('↻')
-                .on('click', (callbacks['feedResetTemplateButtonClicked'] || _.noop));
+                .on('click', (callbacks['feedResetSuggestedPresentationButtonClicked'] || _.noop));
             resultingD3Element
                 .append('div')
-                .attr('class', 'feedButton feedEditSourceButton')
+                .attr('class', 'feedButton feedEditSuggestedPresentationButton')
                 .text('Ⓢ')
-                .on('click', (callbacks['feedEditSourceButtonClicked'] || _.noop));
+                .on('click', (callbacks['feedEditSuggestedPresentationButtonClicked'] || _.noop));
 
             //TODO Other feed buttons?
 
@@ -107,13 +107,14 @@ angular.module('noScaffold.d3AngularServices', [])
                     if (!angular.isObject(feed.previousItem)) { // To avoid double refresh
                         feed.previousItem = feed.currentItem; //TODO find a better mechanism to avoid double refresh
                     }
-                    if (angular.isString(feed.suggestedCSSStyle)) {
+                    if (angular.isString(feed.suggestedPresentation.cssStyle)) {
                         thisElement
                             .append('style')
                             .attr('id', feed.feedId + '-feedItem' + feed.itemIndex + '-style')
                             .attr('type', 'text/css')
                             .text(feedSuggestedTemplateModifier.extrapolateTemplateStringVariables(
-                                feed.dataSchema, feed.suggestedCSSStyle, feed.currentItem));
+                                feed.suggestedPresentation.dataSchema, feed.suggestedPresentation.cssStyle,
+                                feed.currentItem));
                     }
                     thisElement
                         .append('div')
@@ -149,13 +150,13 @@ angular.module('noScaffold.d3AngularServices', [])
                         .append('div')
                         .attr('class', 'feedItemLineContents');
                     var tagContents = feedSuggestedTemplateModifier.extrapolateTemplateStringVariables(
-                            feed.dataSchema, tag.tagContents, feed.currentItem);
+                            feed.suggestedPresentation.dataSchema, tag.tagContents, feed.currentItem);
                     var tagElement = feedItemLineContents
                         .append(tag.tagName)
                         .text(tagContents);
                     _.each(tag.tagAttributes, function(attrValue, attrName) {
                         var attributeValue = feedSuggestedTemplateModifier.extrapolateTemplateStringVariables(
-                            feed.dataSchema, attrValue, feed.currentItem);
+                            feed.suggestedPresentation.dataSchema, attrValue, feed.currentItem);
                         if (attrName == 'class') {
                             attributeValue = 'feedItemLineContent ' + attributeValue;
                         }
