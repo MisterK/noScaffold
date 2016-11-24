@@ -123,6 +123,7 @@ angular.module('noScaffold.controllers', [])
                 $scope.resetFeedSuggestedPresentation(feed, true);
                 $scope.firstFeedItem(feed, true);
             });
+            persistence.clearExcludedFeeds();
         };
 
         //Setup persistence
@@ -199,6 +200,9 @@ angular.module('noScaffold.controllers', [])
             }
             requireFeedRemoval(feed);
         };
+        var excludedFeedsClearedEventHandler = function(clearedFeedIds) {
+            persistence.discoverSpecificFeeds(clearedFeedIds);
+        };
         var augmentWithScopeApplyWrapper = function(eventHandlerCallback) {
           eventHandlerCallback.scopeApplyWrapper = function() {
               var passedArguments = arguments;
@@ -215,7 +219,8 @@ angular.module('noScaffold.controllers', [])
                 'feedItemFetched': augmentWithScopeApplyWrapper(feedItemFetchedEventHandler),
                 'feedSubscribed': augmentWithScopeApplyWrapper(feedSubscribedEventHandler),
                 'feedUnsubscribed': augmentWithScopeApplyWrapper(feedUnsubscribedEventHandler),
-                'feedExcluded': augmentWithScopeApplyWrapper(feedExcludedEventHandler)});
+                'feedExcluded': augmentWithScopeApplyWrapper(feedExcludedEventHandler),
+                'excludedFeedsCleared': augmentWithScopeApplyWrapper(excludedFeedsClearedEventHandler)});
 
         var requireFeedDisplayAdding = function(feedToAdd) {
             $scope.$broadcast('feedAdded', feedToAdd);

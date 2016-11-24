@@ -66,12 +66,25 @@ angular.module('noScaffold.persistenceServices', [])
             });
         };
 
+        var clearCollection = function(feedCollectionKey, callback, mapFn) {
+            getFeedCollection(feedCollectionKey, function(clearedElements) {
+               saveFeedsCollection(feedCollectionKey, [], function() {
+                   (callback || _.noop)(clearedElements);
+               });
+            }, mapFn);
+        };
+
         this.excludeFeed = function(feed, callback) {
             return addFeedInCollection('excludedFeeds', _.pick(feed, ['feedId']), callback);
         };
 
+        var excludedFeedMapFn = _.curryRight(_.get, 2)('feedId');
         this.getExcludedFeeds = function(callback) {
-            return getFeedCollection('excludedFeeds', callback, _.curryRight(_.get, 2)('feedId'));
+            return getFeedCollection('excludedFeeds', callback, excludedFeedMapFn);
+        };
+
+        this.clearExcludedFeeds = function(callback) {
+            return clearCollection('excludedFeeds', callback, excludedFeedMapFn);
         };
 
         this.subscribeToFeed = function(feed, callback) {
@@ -316,6 +329,15 @@ angular.module('noScaffold.persistenceServices', [])
                 }
             };
 
+            this.discoverSpecificFeeds = function(feedIds) {
+                logService.logDebug('Persistence: Discovering specific feeds ' + feedIds + ' from server');
+                connection.discoverSpecificFeeds(feedIds, _.curryRight(feedsDiscovered, 2)(function(feeds) {
+                    executeWrappedEventHandlerDescriptor('allFeedsDiscovered', feeds);
+                }), function() {
+                    logService.logError('Persistence: error occurred while discovering feed ' + feedIds + ' from server');
+                });
+            };
+
             this.fetchFeedItem = function(feed, fetchParams, persistChange) {
                 connection.fetchFeedItem(feed, fetchParams,
                     function(feedId, itemIndex, feedItem) {
@@ -360,6 +382,11 @@ angular.module('noScaffold.persistenceServices', [])
                 logService.logDebug('Persistence: Excluding feed ' + feed.feedId + ' from local storage');
                 localStorageService.excludeFeed(feed,
                     feedCallbackWrapper(registerEventHandlerDescriptors['feedExcluded'], feed.feedId));
+            };
+
+            this.clearExcludedFeeds = function() {
+                logService.logDebug('Persistence: Clearing excluded feeds from local storage');
+                localStorageService.clearExcludedFeeds(registerEventHandlerDescriptors['excludedFeedsCleared']);
             };
 
             this.updateFeedSuggestedPresentation = function(feed) {

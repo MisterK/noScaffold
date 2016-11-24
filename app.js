@@ -139,7 +139,11 @@ io.sockets.on('connection', function (socket) {
             log(logPrefix + 'Discovered ' + _.keys(feeds).length + ' feeds, with ' + feedsExclusions.length + ' exclusions');
             callback({status: 200, feeds: feeds});
         }
-	}).on('fetchFeedItem', function (fetchParams, callback) {
+	}).on('discoverSpecificFeeds', function (feedIds, callback) {
+        if (callback) {
+            callback({status: 200, feeds: _.pick(feeds, feedIds)});
+        }
+    }).on('fetchFeedItem', function (fetchParams, callback) {
         log(logPrefix + 'Fetching ' + fetchParams.itemIndex + ' item from feed "' + fetchParams.feedId + '"');
         fetchFeedItem(fetchParams, function(feedItem) {
             if (callback) {

@@ -86,6 +86,16 @@ angular.module('noScaffold.ioAngularServices', [])
                 });
             };
 
+            this.discoverSpecificFeeds = function(feedIds, successCallback, errorCallback) {
+                emitEvent('discoverSpecificFeeds', feedIds, function(response) {
+                    if (response.status == 200) {
+                        (successCallback || _.noop)(response.feeds);
+                    } else {
+                        (errorCallback || _.noop)(response.status, response.message);
+                    }
+                });
+            };
+
             this.fetchFeedItem = function(feed, fetchParams, successCallback, errorCallback) {
                 if (thisConnection.isConnected) {
                     emitEvent('fetchFeedItem', fetchParams, function(response) {
