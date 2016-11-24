@@ -137,6 +137,14 @@ angular.module('noScaffold.dataAngularServices', [])
             feed.tagArray = extractTagsFromTemplateString(feed.suggestedTemplate);
             return feed;
         };
+
+        this.updateFeedSource = function(feed, feedSource) {
+            feed.suggestedTemplate = feedSource.suggestedTemplate;
+            feed.tagArray = extractTagsFromTemplateString(feed.suggestedTemplate);
+            feed.suggestedCSSStyle = feedSource.suggestedCSSStyle;
+            feed.dataSchema = JSON.parse(feedSource.dataSchema);
+            return feed;
+        };
     })
     .service('pageElementsFactory', function(dataCfg) {
         this.createPageElement = function(pageElementType, coordinates, params) {

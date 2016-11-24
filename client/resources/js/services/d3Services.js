@@ -62,6 +62,11 @@ angular.module('noScaffold.d3AngularServices', [])
                 .attr('class', 'feedButton feedResetTemplateButton')
                 .text('↻')
                 .on('click', (callbacks['feedResetTemplateButtonClicked'] || _.noop));
+            resultingD3Element
+                .append('div')
+                .attr('class', 'feedButton feedEditSourceButton')
+                .text('Ⓢ')
+                .on('click', (callbacks['feedEditSourceButtonClicked'] || _.noop));
 
             //TODO Other feed buttons?
 

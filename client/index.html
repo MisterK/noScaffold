@@ -24,6 +24,31 @@
     <h1>No Scaffold!</h1>
     <no-scaffold-feed-collection collection-name="feeds" collection-title="Subscribed feeds"></no-scaffold-feed-collection>
     <no-scaffold-feed-collection collection-name="suggestedFeeds" collection-title="Suggested feeds"></no-scaffold-feed-collection>
+    <no-scaffold-feed-source-edition-dialog selected-feed="selectedFeedForSourceEdit" update-callback="updateFeedSource(feedSource)"></no-scaffold-feed-source-edition-dialog>
+
+    <script type="text/ng-template" id="feedSourceEditionDialogTemplate">
+        <div class="feedSourceEditionDialog" ng-show="selectedFeed">
+            Modify selected feed's source:
+            <div class="updateControls">
+                <div class="editTemplateTab">
+                    <label for="editTemplateTextArea">Feed's template:</label><br/>
+                    <textarea id="editTemplateTextArea" name="editTemplateTextArea" ng-model="feedSource.suggestedTemplate" rows="20" cols="100"></textarea>
+                </div>
+                <div class="editCSSTab">
+                    <label for="editCSSTextArea">Feed's Style:</label><br/>
+                    <textarea id="editCSSTextArea" name="editCSSTextArea" ng-model="feedSource.suggestedCSSStyle" rows="20" cols="100"></textarea>
+                </div>
+                <div class="editDataSchemaTab">
+                    <label for="editDataSchemaTextArea">Feed's data schema:</label><br/>
+                    <textarea id="editDataSchemaTextArea" name="editDataSchemaTextArea" ng-model="feedSource.dataSchema" rows="20" cols="100"></textarea>
+                </div>
+                <div class="generalUpdateControls">
+                    <button class="feedSourceEditionDialogCancelButton" ng-click="closeDialog()">Cancel</button>
+                    <button class="feedSourceEditionDialogSaveButton" ng-click="saveChanges()">Save</button>
+                </div>
+            </div>
+        </div>
+    </script>
 
 	<script src="/socket.io/socket.io.js"></script>
 </body>

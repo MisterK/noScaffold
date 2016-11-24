@@ -51,6 +51,7 @@ angular.module('noScaffold.directives', [])
                     return scope.previousFeedItem(feed, collection.isSubscribedFeeds);
                 }),
                 'feedResetTemplateButtonClicked': scopeApply(scope, scope.resetFeedTemplate),
+                'feedEditSourceButtonClicked': scopeApply(scope, scope.editFeedSource),
                 'feedItemLineRemoveButtonClicked': collection.isSubscribedFeeds ?
                     scopeApply(scope, function (feed, lineIndex) {
                         return scope.updateFeedSuggestedTemplate(
@@ -151,4 +152,45 @@ angular.module('noScaffold.directives', [])
                 });
             }
         }
+    })
+    /* Directive: noScaffoldFeedSourceEditionDialog
+     * Goal: Creates the noScaffold feed edition dialog
+     * Usage: <no-scaffold-feed-source-edition-dialog selected-feed="selectedFeed" update-callback="updateFeed(feed)"></no-scaffold-feed-source-edition-dialog>
+     * Params:
+     * 		- selected-feed (required): the selectedFeed to update.
+     * 		- update-callback (required): the callback to call when the selectedFeed is to be updated.
+     * Description: Creates the noScaffold feed edition dialog
+     */
+    .directive('noScaffoldFeedSourceEditionDialog', function() {
+        return {
+            restrict: 'E',
+            templateUrl: 'feedSourceEditionDialogTemplate',
+            replace: true,
+            scope: {
+                'selectedFeed': '=',
+                'updateCallback': '&'
+            },
+            link: function(scope) {
+                scope.feedSource = {};
+
+                scope.$watch('selectedFeed', function(newValue, oldValue) {
+                    if (angular.isObject(newValue) && newValue !== oldValue) {
+                        _.assignWith(scope.feedSource,
+                            _.pick(newValue, ['suggestedTemplate', 'suggestedCSSStyle', 'dataSchema']),
+                            function(objValue, srcValue) { return angular.isObject(srcValue) ? JSON.stringify(srcValue).replace(/","/g, '",\n"') : srcValue; });
+                    }
+                });
+
+                scope.closeDialog = function() {
+                    scope.selectedFeed = undefined;
+                };
+
+                scope.saveChanges = function() {
+                    if (angular.isFunction(scope.updateCallback)) {
+                        scope.updateCallback({feedSource: scope.feedSource});
+                        scope.closeDialog();
+                    }
+                };
+            }
+        };
     });

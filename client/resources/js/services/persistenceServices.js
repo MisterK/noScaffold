@@ -104,6 +104,14 @@ angular.module('noScaffold.persistenceServices', [])
                 feedElement.suggestedTemplate = feed.suggestedTemplate;
             });
         };
+
+        this.updateFeedSource = function(feed, callback) {
+            return updateFeed(feed, callback, function(feed, feedElement) {
+                feedElement.suggestedTemplate = feed.suggestedTemplate;
+                feedElement.suggestedCSSStyle = feed.suggestedCSSStyle;
+                feedElement.dataSchema = feed.dataSchema;
+            });
+        };
     })
     .factory('persistenceService', function(persistenceCfg, serverCommunicationService, localStorageService,
                                             logService, doPageElementsIdsMatch, doFeedsIdsMatch,
@@ -365,6 +373,12 @@ angular.module('noScaffold.persistenceServices', [])
                 logService.logDebug('Persistence: Updating feed ' + feed.feedId + ' suggestedTemplate in local storage');
                 localStorageService.updateFeedSuggestedTemplate(feed,
                     feedCallbackWrapper(registerEventHandlerDescriptors['feedSuggestedTemplateUpdated'], feed.feedId));
+            };
+
+            this.updateFeedSource = function(feed) {
+                logService.logDebug('Persistence: Updating feed ' + feed.feedId + ' source in local storage');
+                localStorageService.updateFeedSource(feed,
+                    feedCallbackWrapper(registerEventHandlerDescriptors['feedSourceUpdated'], feed));
             };
         }
 

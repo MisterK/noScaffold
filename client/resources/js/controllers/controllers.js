@@ -8,6 +8,7 @@ angular.module('noScaffold.controllers', [])
         $scope.feeds = {};
         $scope.suggestedFeeds = {};
         $scope.selectedFeed = undefined;
+        $scope.selectedFeedForSourceEdit = undefined;
         var configFetchParams = {
             'suburb': 'Richmond',
             'suburbId': '8ece3e33-d411-4ae8-b479-f6bd6c0f403f'
@@ -85,6 +86,20 @@ angular.module('noScaffold.controllers', [])
             persistence.updateFeedSuggestedTemplate(feedSuggestedTemplateModifier.resetFeedTemplate(feed));
             feed.previousItem = feed.currentItem;
             requireFeedItemRefresh(feed);
+        };
+
+        $scope.editFeedSource = function(feed) {
+            $scope.selectedFeedForSourceEdit = feed;
+        };
+
+        $scope.updateFeedSource = function(feedSource) {
+            if (angular.isObject($scope.selectedFeedForSourceEdit)) {
+                logService.logDebug('Setting source for feed ' + $scope.selectedFeedForSourceEdit.feedId);
+                persistence.updateFeedSource(
+                    feedSuggestedTemplateModifier.updateFeedSource($scope.selectedFeedForSourceEdit, feedSource));
+                $scope.selectedFeedForSourceEdit.previousItem = $scope.selectedFeedForSourceEdit.currentItem;
+                requireFeedItemRefresh($scope.selectedFeedForSourceEdit);
+            }
         };
 
         $scope.updateFeedSuggestedTemplate = function(feed) {

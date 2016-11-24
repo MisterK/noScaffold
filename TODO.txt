@@ -3,6 +3,15 @@
 == NEW FUNCTIONALITIES ==
 
 == FIXES / IMPROVEMENTS ==
-
+- Move data schema's values to JSON arrays?
+- Regroup 3 feed source fields into a over-arching source object?
+- Single floating edition box for feed contents?
+- tagArray should be a tree structure
+    - assign unique Id to each node
+        - prefix to given node Ids, to avoid conflicts
+        - prefix to given node CSS classes, to avoid conflicts
+    - delete by index should then be by node unique Id
+    - will allow children nodes in Pug template
 
 == BUGS ==
+- Double rendering
