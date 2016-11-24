@@ -8,7 +8,6 @@ angular.module('noScaffold.dataAngularServices', [])
         'feedItems': {
             'templateStringTagExtractionRegexp': '^\s*([a-z]+)?(#[a-zA-Z0-9]+)?(\\.[a-zA-Z0-9]+)?(\\([^\)]*\\))?\s?(.*)$',
             'templateStringVarExtractionRegexp': '#\{([^\{\}]*)\}',
-            'templateStringVarSeparator': '|||',
             "templateStringVarFallbackValue": ' '
         },
         'pageElements': {
@@ -77,7 +76,7 @@ angular.module('noScaffold.dataAngularServices', [])
             return templateString.replace(new RegExp(dataCfg.feedItems.templateStringVarExtractionRegexp, 'g'),
                 function(match, group) {
                     return _.get(dataItem,
-                        (dataSchema[group] || '').split(dataCfg.feedItems.templateStringVarSeparator),
+                        dataSchema[group] || [],
                         dataCfg.feedItems.templateStringVarFallbackValue);
                 });
         };
