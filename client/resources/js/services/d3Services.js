@@ -198,7 +198,7 @@ angular.module('noScaffold.d3AngularServices', [])
                     .attr('class', 'clearer')
                     .text(' ');
             } else {
-                feedItemElement.text(JSON.stringify(feed.currentItem));
+                feedItemElement.text(JSON.stringify(feed.currentItem, null, 2));
             }
         };
 

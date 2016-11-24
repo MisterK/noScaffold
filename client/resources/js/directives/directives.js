@@ -180,7 +180,9 @@ angular.module('noScaffold.directives', [])
                     if (angular.isObject(newValue) && newValue !== oldValue) {
                         _.assignWith(scope.feedSuggestedPresentation,
                             _.pick(newValue, ['suggestedPresentation']).suggestedPresentation,
-                            function(objValue, srcValue) { return angular.isObject(srcValue) ? JSON.stringify(srcValue).replace(/","/g, '",\n"') : srcValue; });
+                            function(objValue, srcValue) {
+                                return angular.isObject(srcValue) ?
+                                    JSON.stringify(srcValue, null, 2) : srcValue; });
                     }
                 });
 
