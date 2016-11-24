@@ -196,4 +196,46 @@ angular.module('noScaffold.directives', [])
                 };
             }
         };
+    })
+    /* Directive: noScaffoldFeedAddDialog
+     * Goal: Creates the noScaffold add feed dialog
+     * Usage: <no-scaffold-feed-add-dialog add-callback="addFeed(feed)"></no-scaffold-feed-add-dialog>
+     * Params:
+     * 		- selected-feed (required): the selectedFeed to update.
+     * 		- update-callback (required): the callback to call when the selectedFeed is to be updated.
+     * Description: Creates the noScaffold feed edition dialog
+     */
+    .directive('noScaffoldFeedAddDialog', function() {
+        return {
+            restrict: 'E',
+            templateUrl: 'addFeedDialogTemplate',
+            replace: true,
+            scope: {
+                'displayDialog': '=',
+                'addCallback': '&'
+            },
+            link: function(scope) {
+                scope.initFeed = function() {
+                    scope.feed = {
+                        feedId: '',
+                        feedName: '',
+                        templateUrl: '',
+                        fetchParams: ''
+                    };
+                };
+                scope.initFeed();
+
+                scope.closeDialog = function() {
+                    scope.initFeed();
+                    scope.displayDialog = false;
+                };
+
+                scope.saveChanges = function() {
+                    if (angular.isFunction(scope.addCallback)) {
+                        scope.addCallback({feed: scope.feed});
+                        scope.closeDialog();
+                    }
+                };
+            }
+        };
     });

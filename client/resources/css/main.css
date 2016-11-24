@@ -108,3 +108,14 @@ h1 {
     top: 25%;
     left: 40%;
 }
+
+.addFeedDialog {
+    position: absolute;
+    z-index: 1000;
+    border: 1px solid black;
+    background-color: white;
+    text-align: center;
+    padding: 3px;
+    top: 25%;
+    left: 40%;
+}

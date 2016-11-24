@@ -90,7 +90,7 @@ angular.module('noScaffold.persistenceServices', [])
         this.subscribeToFeed = function(feed, callback) {
             return addFeedInCollection('subscribedFeeds',
                 _.pick(feed,
-                    ['feedId', 'feedName', 'templateUrl', 'itemIndex',
+                    ['feedId', 'feedName', 'templateUrl', 'itemIndex', 'directFetchMode',
                         'suggestedPresentation', 'originalSuggestedPresentation']),
                     callback);
         };
@@ -213,9 +213,13 @@ angular.module('noScaffold.persistenceServices', [])
                                 feed.itemIndex = 1;
                                 result[1].push(feed);
                             }
+                            if (!_.isBoolean(feed.directFetchMode)) {
+                                feed.directFetchMode = false;
+                            }
                             feedSuggestedTemplateModifier.initFeedWithTemplate(feed);
                             return result;
                         }, [[],[]]);
+                        //TODO add manual subscribed feeds to collection
                         var transform = _.curryRight(_.keyBy, 2)(_.curryRight(_.get, 2)('feedId'));
                         (callback || _.noop)(
                             {feeds: transform(partition[0]), suggestedFeeds: transform(partition[1])});

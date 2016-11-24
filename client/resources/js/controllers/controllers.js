@@ -9,6 +9,7 @@ angular.module('noScaffold.controllers', [])
         $scope.suggestedFeeds = {};
         $scope.selectedFeed = undefined;
         $scope.selectedFeedForSuggestedPresentationEdit = undefined;
+        $scope.showAddFeedDialog = false;
         var configFetchParams = {
             'suburb': 'Richmond',
             'suburbId': '8ece3e33-d411-4ae8-b479-f6bd6c0f403f'
@@ -124,6 +125,37 @@ angular.module('noScaffold.controllers', [])
                 $scope.firstFeedItem(feed, true);
             });
             persistence.clearExcludedFeeds();
+        };
+
+        $scope.displayAddFeedDialog = function() {
+            $scope.showAddFeedDialog = true;
+        };
+
+        $scope.addFeed = function(feedTemplate) {
+            if (findFeed(feedTemplate.feedId)) {
+                logService.logError('Feed with id ' + feedTemplate.feedId + ' already exists...');
+                return;
+            }
+
+            var feed = {};
+            _.assign(feed, feedTemplate);
+            feed.fetchParams = JSON.parse(feed.fetchParams || '{}');
+            feed.itemIndex = 1;
+            feed.suggestedPresentation = {};
+            feed.directFetchMode = true;
+
+            var feedSuggestedPresentation = {
+                template: 'div This is your feed\'s template. Modify it!',
+                cssStyle: '/* This is your feed\'s css style. Modify it! */',
+                dataSchema: '{}'
+            };
+
+            feedSuggestedTemplateModifier.updateFeedSuggestedPresentation(feed, feedSuggestedPresentation);
+            feedSuggestedTemplateModifier.initFeedWithTemplate(feed);
+            persistence.subscribeToFeed(feed);
+            persistence.fetchFeedItem(feed,
+                _.assign({feedId: feed.feedId, itemIndex: 1}, configFetchParams),
+                false);
         };
 
         //Setup persistence

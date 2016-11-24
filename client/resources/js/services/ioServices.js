@@ -97,7 +97,7 @@ angular.module('noScaffold.ioAngularServices', [])
             };
 
             this.fetchFeedItem = function(feed, fetchParams, successCallback, errorCallback) {
-                if (thisConnection.isConnected) {
+                if (thisConnection.isConnected && !feed.directFetchMode) {
                     emitEvent('fetchFeedItem', fetchParams, function(response) {
                         if (response.status == 200) {
                             (successCallback || _.noop)(response.feedId, response.itemIndex, response.feedItem);

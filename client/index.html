@@ -22,11 +22,15 @@
 </head>
 <body ng-app="noScaffold" ng-controller="NoScaffoldController">
     <h1>No Scaffold!</h1>
-    <div class="generalActions"><button class="generalAction clearAllAction" ng-click="clearAllFeeds()">Clear all</button></div>
+    <div class="generalActions">
+        <button class="generalAction addFeedAction" ng-click="displayAddFeedDialog()">Add feed</button>
+        <button class="generalAction clearAllAction" ng-click="clearAllFeeds()">Clear all</button>
+    </div>
     <div class="clearer">&nbsp;</div>
     <no-scaffold-feed-collection collection-name="feeds" collection-title="Subscribed feeds"></no-scaffold-feed-collection>
     <no-scaffold-feed-collection collection-name="suggestedFeeds" collection-title="Suggested feeds"></no-scaffold-feed-collection>
     <no-scaffold-feed-suggested-presentation-edition-dialog selected-feed="selectedFeedForSuggestedPresentationEdit" update-callback="updateFeedSuggestedPresentation(feedSuggestedPresentation)"></no-scaffold-feed-suggested-presentation-edition-dialog>
+    <no-scaffold-feed-add-dialog add-callback="addFeed(feed)" display-dialog="showAddFeedDialog"></no-scaffold-feed-add-dialog>
 
     <script type="text/ng-template" id="feedSuggestedPresentationEditionDialogTemplate">
         <div class="feedSuggestedPresentationEditionDialog" ng-show="selectedFeed">
@@ -47,6 +51,27 @@
                 <div class="generalUpdateControls">
                     <button class="feedSuggestedPresentationEditionDialogCancelButton" ng-click="closeDialog()">Cancel</button>
                     <button class="feedSuggestedPresentationEditionDialogSaveButton" ng-click="saveChanges()">Save</button>
+                </div>
+            </div>
+        </div>
+    </script>
+    <script type="text/ng-template" id="addFeedDialogTemplate">
+        <div class="addFeedDialog" ng-show="displayDialog">
+            Add feed:
+            <div class="addControls">
+                <div class="editTemplateTab">
+                    <label for="feedId">Feed Id:</label><br/>
+                    <input type="text" id="feedId" name="feedId" ng-model="feed.feedId" /><br/>
+                    <label for="feedName">Feed Name:</label><br/>
+                    <input type="text" id="feedName" name="feedName" ng-model="feed.feedName" /><br/>
+                    <label for="feedTemplateUrl">Feed template URL:</label><br/>
+                    <input type="text" id="feedTemplateUrl" name="feedTemplateUrl" ng-model="feed.templateUrl" /><br/>
+                    <label for="feedFetchParams">Feed fetch params:</label><br/>
+                    <textarea id="feedFetchParams" name="feedFetchParams" ng-model="feed.feedFetchParams" rows="20" cols="100"></textarea>
+                </div>
+                <div class="generalAddControls">
+                    <button class="addFeedDialogCancelButton" ng-click="closeDialog()">Cancel</button>
+                    <button class="addFeedDialogSaveButton" ng-click="saveChanges()">Save</button>
                 </div>
             </div>
         </div>

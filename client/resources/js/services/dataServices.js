@@ -152,7 +152,7 @@ angular.module('noScaffold.dataAngularServices', [])
             feed.suggestedPresentation.template = feedSuggestedPresentation.template;
             feed.tagArray = extractTagsFromTemplateString(feed.suggestedPresentation.template);
             feed.suggestedPresentation.cssStyle = feedSuggestedPresentation.cssStyle;
-            feed.suggestedPresentation.dataSchema = JSON.parse(feedSuggestedPresentation.dataSchema);
+            feed.suggestedPresentation.dataSchema = JSON.parse(feedSuggestedPresentation.dataSchema || '{}');
             return feed;
         };
     })
