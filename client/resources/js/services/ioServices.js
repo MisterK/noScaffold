@@ -3,7 +3,7 @@
 /**** Common angular services ****/
 
 angular.module('noScaffold.ioAngularServices', [])
-    .service('serverCommunicationService', function($window, logService) {
+    .service('serverCommunicationService', function($window, directQueryService, logService) {
         this.getServerConnection = function() {
             return new ServerConnection();
         };
@@ -86,14 +86,18 @@ angular.module('noScaffold.ioAngularServices', [])
                 });
             };
 
-            this.fetchFeedItem = function(fetchParams, successCallback, errorCallback) {
-                emitEvent('fetchFeedItem', fetchParams, function(response) {
-                    if (response.status == 200) {
-                        (successCallback || _.noop)(response.feedId, response.itemIndex, response.feedItem);
-                    } else {
-                        (errorCallback || _.noop)(response.status, response.message);
-                    }
-                });
+            this.fetchFeedItem = function(feed, fetchParams, successCallback, errorCallback) {
+                if (thisConnection.isConnected) {
+                    emitEvent('fetchFeedItem', fetchParams, function(response) {
+                        if (response.status == 200) {
+                            (successCallback || _.noop)(response.feedId, response.itemIndex, response.feedItem);
+                        } else {
+                            (errorCallback || _.noop)(response.status, response.message);
+                        }
+                    });
+                } else {
+                    directQueryService.queryJsonApi(feed, fetchParams, successCallback, errorCallback);
+                }
             };
 
             this.savePageElement = function(pageElement, successCallback, errorCallback) {
@@ -106,4 +110,31 @@ angular.module('noScaffold.ioAngularServices', [])
                 });
             };
         }
+    })
+    .service('directQueryService', function($http, logService) {
+        this.queryJsonApi = function(feed, fetchParams, successCallback, errorCallback) {
+            if (!angular.isObject(feed)) {
+                logService.logError('Feed is mandatory');
+                return;
+            }
+            var url = _.reduce(_.keys(fetchParams), function(url, fetchParamKey) {
+                return url.replace('#' + fetchParamKey + '#', fetchParams[fetchParamKey]);
+            }, feed.templateUrl);
+            if (/#[a-zA-Z]+#/.test(url)) {
+                return errorCallback(400,
+                    'Some fetch params are missing: [' + getMatches(url, /(#[a-zA-Z]+#)/g).join(', ') + ']');
+            }
+            var req = {
+                method: 'GET',
+                url: url,
+                headers: {
+                    'Accept': 'application/json'
+                }
+            };
+            return $http(req).then(function(response) {
+                (successCallback || _.noop)(fetchParams.feedId, fetchParams.itemIndex, response.data);
+            }, function(response) {
+                (errorCallback || _.noop)(response.status, response.statusText + '-' + response.data);
+            });
+        };
     });

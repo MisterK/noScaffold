@@ -77,7 +77,8 @@ angular.module('noScaffold.persistenceServices', [])
         this.subscribeToFeed = function(feed, callback) {
             return addFeedInCollection('subscribedFeeds',
                 _.pick(feed,
-                    ['feedId', 'itemIndex', 'suggestedPresentation', 'originalSuggestedPresentation']),
+                    ['feedId', 'feedName', 'templateUrl', 'itemIndex',
+                        'suggestedPresentation', 'originalSuggestedPresentation']),
                     callback);
         };
 
@@ -316,25 +317,23 @@ angular.module('noScaffold.persistenceServices', [])
             };
 
             this.fetchFeedItem = function(feed, fetchParams, persistChange) {
-                if (connection.isConnected) {
-                    connection.fetchFeedItem(fetchParams,
-                        function(feedId, itemIndex, feedItem) {
-                            if (persistChange) {
-                                logService.logDebug('Persistence: Fetched "' + fetchParams.itemIndex +
-                                    ' item from feed "' + fetchParams.feedId + ' -> persisting in local storage');
-                                localStorageService.updateFeedItemIndex({feedId: feedId, itemIndex: itemIndex},
-                                    function() {
-                                        registerEventHandlerDescriptors['feedItemFetched'](feedId, itemIndex, feedItem);
-                                    });
-                            } else {
-                                registerEventHandlerDescriptors['feedItemFetched'](feedId, itemIndex, feedItem);
-                            }
-                        },
-                        function (status, message) {
-                            logService.logDebug('Persistence: Fetching "' + fetchParams.itemIndex +
-                                ' item from feed "' + fetchParams.feedId + ' has failed: ' + message);
-                        });
-                }
+                connection.fetchFeedItem(feed, fetchParams,
+                    function(feedId, itemIndex, feedItem) {
+                        if (persistChange) {
+                            logService.logDebug('Persistence: Fetched "' + fetchParams.itemIndex +
+                                ' item from feed "' + fetchParams.feedId + ' -> persisting in local storage');
+                            localStorageService.updateFeedItemIndex({feedId: feedId, itemIndex: itemIndex},
+                                function() {
+                                    registerEventHandlerDescriptors['feedItemFetched'](feedId, itemIndex, feedItem);
+                                });
+                        } else {
+                            registerEventHandlerDescriptors['feedItemFetched'](feedId, itemIndex, feedItem);
+                        }
+                    },
+                    function (status, message) {
+                        logService.logDebug('Persistence: Fetching "' + fetchParams.itemIndex +
+                            ' item from feed "' + fetchParams.feedId + ' has failed: ' + message);
+                    });
             };
 
             var feedCallbackWrapper = function(callback, data) {
