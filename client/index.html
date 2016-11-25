@@ -58,42 +58,46 @@
     </script>
     <script type="text/ng-template" id="addFeedDialogTemplate">
         <div class="addFeedDialog" ng-show="displayDialog">
-            Add feed:
+            === Add feed ===
             <div class="addControls">
-                <div class="editTemplateTab">
-                    <label for="addFeedId">Feed Id:</label><br/>
-                    <input type="text" id="addFeedId" name="feedId" ng-model="feed.feedId" /><br/>
-                    <label for="addFeedName">Feed Name:</label><br/>
-                    <input type="text" id="addFeedName" name="feedName" ng-model="feed.feedDetails.feedName" /><br/>
-                    <label for="addFeedTemplateUrl">Feed template URL:</label><br/>
-                    <input type="text" id="addFeedTemplateUrl" name="feedTemplateUrl" ng-model="feed.feedDetails.templateUrl" /><br/>
-                    <label for="addFeedFetchParams">Feed fetch params:</label><br/>
-                    <textarea id="addFeedFetchParams" name="feedFetchParams" ng-model="feed.feedDetails.fetchParams" rows="20" cols="100"></textarea>
-                </div>
+                <form name="addFeedForm">
+                    <div class="editTemplateTab">
+                        <label for="addFeedId">Feed Id:</label><br/>
+                        <input type="text" id="addFeedId" name="feedId" ng-model="feed.feedId" required="required" size="100" /><br/>
+                        <label for="addFeedName">Feed Name:</label><br/>
+                        <input type="text" id="addFeedName" name="feedName" ng-model="feed.feedDetails.feedName" required="required" size="100" /><br/>
+                        <label for="addFeedTemplateUrl">Feed template URL:</label><br/>
+                        <input type="url" id="addFeedTemplateUrl" name="feedTemplateUrl" ng-model="feed.feedDetails.templateUrl" required="required" size="150" /><br/>
+                        <label for="addFeedFetchParams">Feed fetch params:</label><br/>
+                        <textarea id="addFeedFetchParams" name="feedFetchParams" ng-model="feed.feedDetails.fetchParams" rows="20" cols="100"></textarea>
+                    </div>
+                </form>
                 <div class="generalAddControls">
-                    <button class="addFeedDialogCancelButton" ng-click="closeDialog()">Cancel</button>
-                    <button class="addFeedDialogSaveButton" ng-click="saveChanges()">Save</button>
+                    <button class="addFeedDialogButton addFeedDialogCancelButton" ng-click="closeDialog()">Cancel</button>
+                    <button class="addFeedDialogButton addFeedDialogSaveButton" ng-click="saveChanges()" ng-disabled="!addFeedForm.$valid">Save</button>
                 </div>
             </div>
         </div>
     </script>
     <script type="text/ng-template" id="editFeedDialogTemplate">
         <div class="editFeedDialog" ng-show="selectedFeed">
-            Edit feed:
+            === Edit feed ===
             <div class="editControls">
-                <div class="editTemplateTab">
-                    <label for="editFeedId">Feed Id:</label><br/>
-                    <input type="text" id="editFeedId" name="feedId" disabled="disabled" value="{{feedDetails.feedId}}" /><br/>
-                    <label for="editFeedName">Feed Name:</label><br/>
-                    <input type="text" id="editFeedName" name="feedName" ng-model="feedDetails.feedName" /><br/>
-                    <label for="editFeedTemplateUrl">Feed template URL:</label><br/>
-                    <input type="text" id="editFeedTemplateUrl" name="feedTemplateUrl" ng-model="feedDetails.templateUrl" /><br/>
-                    <label for="editFeedFetchParams">Feed fetch params:</label><br/>
-                    <textarea id="editFeedFetchParams" name="feedFetchParams" ng-model="feedDetails.fetchParams" rows="20" cols="100"></textarea>
-                </div>
+                <form name="editFormDetails">
+                    <div class="editTemplateTab">
+                        <label for="editFeedId">Feed Id:</label><br/>
+                        <input type="text" id="editFeedId" name="feedId" disabled="disabled" value="{{feedDetails.feedId}}" size="100" /><br/>
+                        <label for="editFeedName">Feed Name:</label><br/>
+                        <input type="text" id="editFeedName" name="feedName" ng-model="feedDetails.feedName" required="required" size="100" /><br/>
+                        <label for="editFeedTemplateUrl">Feed template URL:</label><br/>
+                        <input type="url" id="editFeedTemplateUrl" name="feedTemplateUrl" ng-model="feedDetails.templateUrl" required="required" size="150" /><br/>
+                        <label for="editFeedFetchParams">Feed fetch params:</label><br/>
+                        <textarea id="editFeedFetchParams" name="feedFetchParams" ng-model="feedDetails.fetchParams" rows="20" cols="100"></textarea>
+                    </div>
+                </form>
                 <div class="generalEditControls">
-                    <button class="editFeedDialogCancelButton" ng-click="closeDialog()">Cancel</button>
-                    <button class="editFeedDialogSaveButton" ng-click="saveChanges()">Save</button>
+                    <button class="editFeedDialogButton editFeedDialogCancelButton" ng-click="closeDialog()">Cancel</button>
+                    <button class="editFeedDialogButton editFeedDialogSaveButton" ng-click="saveChanges()" ng-disabled="!editFormDetails.$valid">Save</button>
                 </div>
             </div>
         </div>

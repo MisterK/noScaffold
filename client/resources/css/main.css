@@ -130,7 +130,11 @@ h1 {
     text-align: center;
     padding: 3px;
     top: 25%;
-    left: 40%;
+    left: 25%;
+}
+
+.addFeedDialogButton {
+    font-size: 14px;
 }
 
 .editFeedDialog {
@@ -141,5 +145,9 @@ h1 {
     text-align: center;
     padding: 3px;
     top: 25%;
-    left: 40%;
+    left: 25%;
+}
+
+.editFeedDialogButton {
+    font-size: 14px;
 }
