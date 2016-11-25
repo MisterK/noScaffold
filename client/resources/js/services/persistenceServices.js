@@ -219,7 +219,17 @@ angular.module('noScaffold.persistenceServices', [])
                             feedSuggestedTemplateModifier.initFeedWithTemplate(feed);
                             return result;
                         }, [[],[]]);
-                        //TODO add manual subscribed feeds to collection
+
+                        var localStorageOnlySubscribedFeeds = _.filter(subscribedToFeeds, function(subscribedFeed) {
+                            return !angular.isDefined(
+                                _.find(partition[0], _.curry(doFeedsIdsMatch, 2)(subscribedFeed.feedId)));
+                        });
+                        _.forEach(localStorageOnlySubscribedFeeds, function(subscribedFeed) {
+                            subscribedFeed.directFetchMode = true;
+                            feedSuggestedTemplateModifier.initFeedWithTemplate(subscribedFeed);
+                        });
+                        partition[0] = _.concat(partition[0], localStorageOnlySubscribedFeeds);
+
                         var transform = _.curryRight(_.keyBy, 2)(_.curryRight(_.get, 2)('feedId'));
                         (callback || _.noop)(
                             {feeds: transform(partition[0]), suggestedFeeds: transform(partition[1])});
