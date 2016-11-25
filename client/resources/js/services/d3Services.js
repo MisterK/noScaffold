@@ -47,6 +47,25 @@ angular.module('noScaffold.d3AngularServices', [])
                     .text('♥')
                     .on('click', (callbacks['feedSubscribeButtonClicked'] || _.noop));
             }
+            if (angular.isFunction(callbacks['feedEditButtonClicked'])) {
+                resultingD3Element
+                    .append('div')
+                    .attr('class', 'feedButton feedEditButton')
+                    .text('E')
+                    .on('click', (callbacks['feedEditButtonClicked'] || _.noop));
+            }
+
+            resultingD3Element
+                .append('div')
+                .attr('class', 'feedButton feedResetSuggestedPresentationButton')
+                .text('↻')
+                .on('click', (callbacks['feedResetSuggestedPresentationButtonClicked'] || _.noop));
+            resultingD3Element
+                .append('div')
+                .attr('class', 'feedButton feedEditSuggestedPresentationButton')
+                .text('Ⓢ')
+                .on('click', (callbacks['feedEditSuggestedPresentationButtonClicked'] || _.noop));
+
             resultingD3Element
                 .append('div')
                 .attr('class', 'feedButton feedNextItemButton')
@@ -62,23 +81,6 @@ angular.module('noScaffold.d3AngularServices', [])
                 .attr('class', 'feedButton feedFirstItemButton')
                 .text('⇐⇐')
                 .on('click', (callbacks['feedFirstItemButtonClicked'] || _.noop));
-            resultingD3Element
-                .append('div')
-                .attr('class', 'feedButton feedResetSuggestedPresentationButton')
-                .text('↻')
-                .on('click', (callbacks['feedResetSuggestedPresentationButtonClicked'] || _.noop));
-            resultingD3Element
-                .append('div')
-                .attr('class', 'feedButton feedEditSuggestedPresentationButton')
-                .text('Ⓢ')
-                .on('click', (callbacks['feedEditSuggestedPresentationButtonClicked'] || _.noop));
-            if (angular.isFunction(callbacks['feedEditButtonClicked'])) {
-                resultingD3Element
-                    .append('div')
-                    .attr('class', 'feedButton feedEditButton')
-                    .text('E')
-                    .on('click', (callbacks['feedEditButtonClicked'] || _.noop));
-            }
 
             //TODO Other feed buttons?
 
