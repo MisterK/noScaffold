@@ -64,11 +64,11 @@
                     <label for="addFeedId">Feed Id:</label><br/>
                     <input type="text" id="addFeedId" name="feedId" ng-model="feed.feedId" /><br/>
                     <label for="addFeedName">Feed Name:</label><br/>
-                    <input type="text" id="addFeedName" name="feedName" ng-model="feed.feedName" /><br/>
+                    <input type="text" id="addFeedName" name="feedName" ng-model="feed.feedDetails.feedName" /><br/>
                     <label for="addFeedTemplateUrl">Feed template URL:</label><br/>
-                    <input type="text" id="addFeedTemplateUrl" name="feedTemplateUrl" ng-model="feed.templateUrl" /><br/>
+                    <input type="text" id="addFeedTemplateUrl" name="feedTemplateUrl" ng-model="feed.feedDetails.templateUrl" /><br/>
                     <label for="addFeedFetchParams">Feed fetch params:</label><br/>
-                    <textarea id="addFeedFetchParams" name="feedFetchParams" ng-model="feed.feedFetchParams" rows="20" cols="100"></textarea>
+                    <textarea id="addFeedFetchParams" name="feedFetchParams" ng-model="feed.feedDetails.fetchParams" rows="20" cols="100"></textarea>
                 </div>
                 <div class="generalAddControls">
                     <button class="addFeedDialogCancelButton" ng-click="closeDialog()">Cancel</button>
@@ -89,7 +89,7 @@
                     <label for="editFeedTemplateUrl">Feed template URL:</label><br/>
                     <input type="text" id="editFeedTemplateUrl" name="feedTemplateUrl" ng-model="feedDetails.templateUrl" /><br/>
                     <label for="editFeedFetchParams">Feed fetch params:</label><br/>
-                    <textarea id="editFeedFetchParams" name="feedFetchParams" ng-model="feedDetails.feedFetchParams" rows="20" cols="100"></textarea>
+                    <textarea id="editFeedFetchParams" name="feedFetchParams" ng-model="feedDetails.fetchParams" rows="20" cols="100"></textarea>
                 </div>
                 <div class="generalEditControls">
                     <button class="editFeedDialogCancelButton" ng-click="closeDialog()">Cancel</button>

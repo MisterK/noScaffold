@@ -129,7 +129,7 @@ angular.module('noScaffold.ioAngularServices', [])
             }
             var url = _.reduce(_.keys(fetchParams), function(url, fetchParamKey) {
                 return url.replace('#' + fetchParamKey + '#', fetchParams[fetchParamKey]);
-            }, feed.templateUrl);
+            }, feed.feedDetails.templateUrl);
             if (/#[a-zA-Z]+#/.test(url)) {
                 return errorCallback(400,
                     'Some fetch params are missing: [' + getMatches(url, /(#[a-zA-Z]+#)/g).join(', ') + ']');

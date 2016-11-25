@@ -233,9 +233,11 @@ angular.module('noScaffold.directives', [])
                 scope.initFeed = function() {
                     scope.feed = {
                         feedId: '',
-                        feedName: '',
-                        templateUrl: '',
-                        fetchParams: ''
+                        feedDetails: {
+                            feedName: '',
+                            templateUrl: '',
+                            fetchParams: '{}'
+                        }
                     };
                 };
                 scope.initFeed();
@@ -276,8 +278,9 @@ angular.module('noScaffold.directives', [])
 
                 scope.$watch('selectedFeed', function(newValue, oldValue) {
                     if (angular.isObject(newValue) && newValue !== oldValue) {
+                        _.assign(scope.feedDetails, _.pick(newValue, ['feedId']));
                         _.assignWith(scope.feedDetails,
-                            _.pick(newValue, ['feedId', 'feedName', 'templateUrl', 'fetchParams']),
+                            _.pick(newValue.feedDetails, ['feedName', 'templateUrl', 'fetchParams']),
                             function(objValue, srcValue) {
                                 return angular.isObject(srcValue) ?
                                     JSON.stringify(srcValue, null, 2) : srcValue; });

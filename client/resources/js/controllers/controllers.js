@@ -91,7 +91,7 @@ angular.module('noScaffold.controllers', [])
             logService.logDebug('Resetting template for feed ' + feed.feedId);
             persistence.updateFeedSuggestedPresentation(
                 feedSuggestedTemplateModifier.resetFeedSuggestedPresentation(feed));
-            if (skipVisualRefresh != true) {
+            if (!_.isBoolean(skipVisualRefresh) || skipVisualRefresh != true) {
                 feed.previousItem = feed.currentItem;
                 requireFeedItemRefresh(feed);
             }
@@ -140,7 +140,7 @@ angular.module('noScaffold.controllers', [])
 
             var feed = {};
             _.assign(feed, feedTemplate);
-            feed.fetchParams = JSON.parse(feed.fetchParams || '{}');
+            feed.feedDetails.fetchParams = JSON.parse(feed.feedDetails.fetchParams || '{}');
             feed.itemIndex = 1;
             feed.suggestedPresentation = {};
             feed.directFetchMode = true;
@@ -166,10 +166,13 @@ angular.module('noScaffold.controllers', [])
         $scope.updateFeedDetails = function(feedDetails) {
             if (angular.isObject($scope.selectedFeedForEdit)) {
                 logService.logDebug('Setting details for feed ' + $scope.selectedFeedForEdit.feedId);
-                if ($scope.selectedFeedForEdit.templateUrl != feedDetails.templateUrl) {
+                if ($scope.selectedFeedForEdit.feedDetails.templateUrl != feedDetails.templateUrl) {
                     $scope.selectedFeedForEdit.directFetchMode = true;
                 }
-                _.assign($scope.selectedFeedForEdit, _.pick(feedDetails, ['feedName', 'templateUrl', 'fetchParams']));
+                _.assign($scope.selectedFeedForEdit.feedDetails,
+                    _.pick(feedDetails, ['feedName', 'templateUrl', 'fetchParams']));
+                $scope.selectedFeedForEdit.feedDetails.fetchParams =
+                    JSON.parse($scope.selectedFeedForEdit.feedDetails.fetchParams || '{}');
                 persistence.updateFeedDetails($scope.selectedFeedForEdit);
                 persistence.fetchFeedItem($scope.selectedFeedForEdit,
                     _.assign(

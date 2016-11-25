@@ -34,7 +34,7 @@ angular.module('noScaffold.d3AngularServices', [])
             resultingD3Element
                 .append('div')
                     .attr('class', 'feedTitle')
-                    .text(getter('feedName'));
+                    .text(getter('feedDetails.feedName'));
             resultingD3Element
                 .append('div')
                     .attr('class', 'feedButton feedRemoveButton')
@@ -210,7 +210,7 @@ angular.module('noScaffold.d3AngularServices', [])
         };
 
         var getter = function(propertyName) {
-            return function(element) { return element[propertyName]; }
+            return function(element) { return _.get(element, propertyName); }
         };
     })
     /* Service to animate the adding and removing of D3 elements */

@@ -90,7 +90,7 @@ angular.module('noScaffold.persistenceServices', [])
         this.subscribeToFeed = function(feed, callback) {
             return addFeedInCollection('subscribedFeeds',
                 _.pick(feed,
-                    ['feedId', 'feedName', 'templateUrl', 'fetchParams', 'itemIndex', 'directFetchMode',
+                    ['feedId', 'feedDetails', 'itemIndex', 'directFetchMode',
                         'suggestedPresentation', 'originalSuggestedPresentation']),
                     callback);
         };
@@ -123,7 +123,7 @@ angular.module('noScaffold.persistenceServices', [])
 
         this.updateFeedDetails = function(feed, callback) {
             return updateFeed(feed, callback, function (feed, feedElement) {
-                _.assign(feedElement, _.pick(feed, ['feedName', 'templateUrl', 'fetchParams', 'directFetchMode']));
+                _.assign(feedElement, _.pick(feed, ['feedDetails', 'directFetchMode']));
             });
         };
     })
