@@ -40,7 +40,7 @@ angular.module('noScaffold.d3AngularServices', [])
                     .attr('class', 'feedButton feedRemoveButton')
                     .text('X')
                     .on('click', (callbacks['feedUnsubscribeButtonClicked'] || _.noop));
-            if (callbacks['feedSubscribeButtonClicked']) {
+            if (angular.isFunction(callbacks['feedSubscribeButtonClicked'])) {
                 resultingD3Element
                     .append('div')
                     .attr('class', 'feedButton feedSubscribeButton')
@@ -72,6 +72,13 @@ angular.module('noScaffold.d3AngularServices', [])
                 .attr('class', 'feedButton feedEditSuggestedPresentationButton')
                 .text('Ⓢ')
                 .on('click', (callbacks['feedEditSuggestedPresentationButtonClicked'] || _.noop));
+            if (angular.isFunction(callbacks['feedEditButtonClicked'])) {
+                resultingD3Element
+                    .append('div')
+                    .attr('class', 'feedButton feedEditButton')
+                    .text('E')
+                    .on('click', (callbacks['feedEditButtonClicked'] || _.noop));
+            }
 
             //TODO Other feed buttons?
 

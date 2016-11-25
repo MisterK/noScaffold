@@ -55,8 +55,7 @@ var fetchFeedItem = function(fetchParams, callback, errorCallback) {
         'url': url,
         'method': 'GET',
         'headers': {
-            'Accept': 'application/json',
-            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.116 Safari/537.36'
+            'Accept': 'application/json'
         },
         json: true
     }).then(function(feedItem){

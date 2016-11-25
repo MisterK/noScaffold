@@ -54,7 +54,8 @@ angular.module('noScaffold.directives', [])
                     return scope.firstFeedItem(feed, collection.isSubscribedFeeds);
                 }),
                 'feedResetSuggestedPresentationButtonClicked': scopeApply(scope, scope.resetFeedSuggestedPresentation),
-                'feedEditSuggestedPresentationButtonClicked': scopeApply(scope, scope.editFeedSuggestedPresentation),
+                'feedEditSuggestedPresentationButtonClicked': scopeApply(scope,
+                    scope.displayEditFeedSuggestedPresentationDialog),
                 'feedItemLineRemoveButtonClicked': collection.isSubscribedFeeds ?
                     scopeApply(scope, function (feed, lineIndex) {
                         return scope.updateFeedSuggestedTemplate(
@@ -64,8 +65,10 @@ angular.module('noScaffold.directives', [])
                         return feedSuggestedTemplateModifier.feedItemLineRemoved(feed, lineIndex);
                     }
             };
-            if (!collection.isSubscribedFeeds) {
-                callbacks['feedSubscribeButtonClicked'] = scopeApply(scope, scope.subscribeToFeed)
+            if (collection.isSubscribedFeeds) {
+                callbacks['feedEditButtonClicked'] = scopeApply(scope, scope.displayEditFeedDialog);
+            } else {
+                callbacks['feedSubscribeButtonClicked'] = scopeApply(scope, scope.subscribeToFeed);
             }
             return d3TransitionsService.fadeIn(
                 d3ComponentFactoryService.appendFeeds(feedElements, callbacks, feedItemWiringFn(scope))
@@ -108,7 +111,7 @@ angular.module('noScaffold.directives', [])
         var removeFeed = function(scope, collection, parentElement, cssSelection, data) {
             var feeds = selectFeeds(parentElement, cssSelection, data).exit();
             d3TransitionsService.fadeOutAndRemove(feeds, presentationCfg.animations.feeds,
-                presentationCfg.animations.veryLongDuration);
+                presentationCfg.animations.longDuration);
         };
 
         return {
@@ -152,6 +155,16 @@ angular.module('noScaffold.directives', [])
                     }
                     var cssSelection = getFeedCssSelection({feed: feed});
                     removeFeed(scope, collection, rootElement, cssSelection, feed);
+                });
+
+                scope.$on('feedRedraw', function(event, feed) {
+                    if (angular.isObject(feed) && !angular.isObject(scope[collection.name][feed.feedId])) {
+                        return;
+                    }
+                    var cssSelection = getFeedCssSelection({feed: feed});
+                    removeFeed(scope, collection, rootElement, cssSelection, feed);
+                    setTimeout(function() { drawFeeds(scope, collection, rootElement, cssSelection, [feed]); },
+                        presentationCfg.animations.longDuration + presentationCfg.animations.shortDuration);
                 });
             }
         }
@@ -201,10 +214,10 @@ angular.module('noScaffold.directives', [])
     })
     /* Directive: noScaffoldFeedAddDialog
      * Goal: Creates the noScaffold add feed dialog
-     * Usage: <no-scaffold-feed-add-dialog add-callback="addFeed(feed)"></no-scaffold-feed-add-dialog>
+     * Usage: <no-scaffold-feed-add-dialog add-callback="addFeed(feed)" display-dialog="showAddFeedDialog"></no-scaffold-feed-add-dialog>
      * Params:
-     * 		- selected-feed (required): the selectedFeed to update.
-     * 		- update-callback (required): the callback to call when the selectedFeed is to be updated.
+     * 		- add-callback (required): the callback to call when the feed is to be added.
+     * 		- display-dialog (required): the boolean flag to show/hide the dialog.
      * Description: Creates the noScaffold feed edition dialog
      */
     .directive('noScaffoldFeedAddDialog', function() {
@@ -235,6 +248,49 @@ angular.module('noScaffold.directives', [])
                 scope.saveChanges = function() {
                     if (angular.isFunction(scope.addCallback)) {
                         scope.addCallback({feed: scope.feed});
+                        scope.closeDialog();
+                    }
+                };
+            }
+        };
+    })
+    /* Directive: noScaffoldFeedEditDialog
+     * Goal: Creates the noScaffold edit feed dialog
+     * Usage: <no-scaffold-feed-edit-dialog selected-feed="selectedFeedForEdit" update-callback="updateFeedDetails(feedDetails)"></no-scaffold-feed-edit-dialog>
+     * Params:
+     * 		- selected-feed (required): the selectedFeed to update.
+     * 		- update-callback (required): the callback to call when the selectedFeed is to be updated.
+     * Description: Creates the noScaffold feed edition dialog
+     */
+    .directive('noScaffoldFeedEditDialog', function() {
+        return {
+            restrict: 'E',
+            templateUrl: 'editFeedDialogTemplate',
+            replace: true,
+            scope: {
+                'selectedFeed': '=',
+                'updateCallback': '&'
+            },
+            link: function(scope) {
+                scope.feedDetails = {};
+
+                scope.$watch('selectedFeed', function(newValue, oldValue) {
+                    if (angular.isObject(newValue) && newValue !== oldValue) {
+                        _.assignWith(scope.feedDetails,
+                            _.pick(newValue, ['feedId', 'feedName', 'templateUrl', 'fetchParams']),
+                            function(objValue, srcValue) {
+                                return angular.isObject(srcValue) ?
+                                    JSON.stringify(srcValue, null, 2) : srcValue; });
+                    }
+                });
+
+                scope.closeDialog = function() {
+                    scope.selectedFeed = undefined;
+                };
+
+                scope.saveChanges = function() {
+                    if (angular.isFunction(scope.updateCallback)) {
+                        scope.updateCallback({feedDetails: scope.feedDetails});
                         scope.closeDialog();
                     }
                 };

@@ -9,6 +9,7 @@ angular.module('noScaffold.controllers', [])
         $scope.suggestedFeeds = {};
         $scope.selectedFeed = undefined;
         $scope.selectedFeedForSuggestedPresentationEdit = undefined;
+        $scope.selectedFeedForEdit = undefined;
         $scope.showAddFeedDialog = false;
         var configFetchParams = {
             'suburb': 'Richmond',
@@ -96,7 +97,7 @@ angular.module('noScaffold.controllers', [])
             }
         };
 
-        $scope.editFeedSuggestedPresentation = function(feed) {
+        $scope.displayEditFeedSuggestedPresentationDialog = function(feed) {
             $scope.selectedFeedForSuggestedPresentationEdit = feed;
         };
 
@@ -158,6 +159,27 @@ angular.module('noScaffold.controllers', [])
                 false);
         };
 
+        $scope.displayEditFeedDialog = function(feed) {
+            $scope.selectedFeedForEdit = feed;
+        };
+
+        $scope.updateFeedDetails = function(feedDetails) {
+            if (angular.isObject($scope.selectedFeedForEdit)) {
+                logService.logDebug('Setting details for feed ' + $scope.selectedFeedForEdit.feedId);
+                if ($scope.selectedFeedForEdit.templateUrl != feedDetails.templateUrl) {
+                    $scope.selectedFeedForEdit.directFetchMode = true;
+                }
+                _.assign($scope.selectedFeedForEdit, _.pick(feedDetails, ['feedName', 'templateUrl', 'fetchParams']));
+                persistence.updateFeedDetails($scope.selectedFeedForEdit);
+                persistence.fetchFeedItem($scope.selectedFeedForEdit,
+                    _.assign(
+                        {feedId: $scope.selectedFeedForEdit.feedId, itemIndex: $scope.selectedFeedForEdit.itemIndex},
+                        configFetchParams),
+                    false, false);
+                requireFeedRedraw($scope.selectedFeedForEdit);
+            }
+        };
+
         //Setup persistence
         var pageElementSavedEventHandler = function(savedPageElement) {
             pageElementsFactory.augmentPageElement(savedPageElement);
@@ -202,7 +224,7 @@ angular.module('noScaffold.controllers', [])
         var findFeed = function(feedId) {
             return $scope.feeds[feedId] || $scope.suggestedFeeds[feedId];
         };
-        var feedItemFetchedEventHandler = function(feedId, itemIndex, feedItem) {
+        var feedItemFetchedEventHandler = function(feedId, itemIndex, feedItem, refreshDisplay) {
             var feed = findFeed(feedId);
             if (_.isUndefined(feed)) {
                 logService.logDebug('Feed ' + feedId + ' not found!');
@@ -213,7 +235,9 @@ angular.module('noScaffold.controllers', [])
             feed.itemIndex = itemIndex;
             feed.previousItem = feed.currentItem;
             feed.currentItem = feedItem;
-            requireFeedItemRefresh(feed);
+            if (refreshDisplay !== false) {
+                requireFeedItemRefresh(feed);
+            }
             logService.logDebug('Item ' + itemIndex + ' from feed "' + feedId + '" fetched!')
         };
         var feedSubscribedEventHandler = function(feed) {
@@ -272,5 +296,9 @@ angular.module('noScaffold.controllers', [])
 
         var requireFeedRemoval = function(feedToRemove) {
             $scope.$broadcast('feedRemove', feedToRemove);
+        };
+
+        var requireFeedRedraw = function(feedToRedraw) {
+            $scope.$broadcast('feedRedraw', feedToRedraw);
         };
     });

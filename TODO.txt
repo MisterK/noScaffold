@@ -2,7 +2,6 @@
 
 == NEW FUNCTIONALITIES ==
 - Handle fetch params
-- Feed edition dialog
 
 == FIXES / IMPROVEMENTS ==
 - Single floating edition box for feed contents?
@@ -14,5 +13,4 @@
     - will allow children nodes in Pug template
 
 == BUGS ==
-- Render saved feeds not coming from server (Make them direct query then)
 - Double rendering

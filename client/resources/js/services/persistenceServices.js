@@ -90,7 +90,7 @@ angular.module('noScaffold.persistenceServices', [])
         this.subscribeToFeed = function(feed, callback) {
             return addFeedInCollection('subscribedFeeds',
                 _.pick(feed,
-                    ['feedId', 'feedName', 'templateUrl', 'itemIndex', 'directFetchMode',
+                    ['feedId', 'feedName', 'templateUrl', 'fetchParams', 'itemIndex', 'directFetchMode',
                         'suggestedPresentation', 'originalSuggestedPresentation']),
                     callback);
         };
@@ -111,13 +111,19 @@ angular.module('noScaffold.persistenceServices', [])
 
         this.updateFeedItemIndex = function(feed, callback) {
             return updateFeed(feed, callback, function(feed, feedElement) {
-                feedElement.itemIndex = feed.itemIndex;
+                _.assign(feedElement, _.pick(feed, ['itemIndex']));
             });
         };
 
         this.updateFeedSuggestedPresentation = function(feed, callback) {
             return updateFeed(feed, callback, function(feed, feedElement) {
-                feedElement.suggestedPresentation = feed.suggestedPresentation;
+                _.assign(feedElement, _.pick(feed, ['suggestedPresentation']));
+            });
+        };
+
+        this.updateFeedDetails = function(feed, callback) {
+            return updateFeed(feed, callback, function (feed, feedElement) {
+                _.assign(feedElement, _.pick(feed, ['feedName', 'templateUrl', 'fetchParams', 'directFetchMode']));
             });
         };
     })
@@ -352,7 +358,7 @@ angular.module('noScaffold.persistenceServices', [])
                 });
             };
 
-            this.fetchFeedItem = function(feed, fetchParams, persistChange) {
+            this.fetchFeedItem = function(feed, fetchParams, persistChange, refreshDisplay) {
                 connection.fetchFeedItem(feed, fetchParams,
                     function(feedId, itemIndex, feedItem) {
                         if (persistChange) {
@@ -360,10 +366,12 @@ angular.module('noScaffold.persistenceServices', [])
                                 ' item from feed "' + fetchParams.feedId + ' -> persisting in local storage');
                             localStorageService.updateFeedItemIndex({feedId: feedId, itemIndex: itemIndex},
                                 function() {
-                                    registerEventHandlerDescriptors['feedItemFetched'](feedId, itemIndex, feedItem);
+                                    registerEventHandlerDescriptors['feedItemFetched'](
+                                        feedId, itemIndex, feedItem, refreshDisplay);
                                 });
                         } else {
-                            registerEventHandlerDescriptors['feedItemFetched'](feedId, itemIndex, feedItem);
+                            registerEventHandlerDescriptors['feedItemFetched'](
+                                feedId, itemIndex, feedItem, refreshDisplay);
                         }
                     },
                     function (status, message) {
@@ -408,6 +416,12 @@ angular.module('noScaffold.persistenceServices', [])
                     ' suggestedPresentation in local storage');
                 localStorageService.updateFeedSuggestedPresentation(feed,
                     feedCallbackWrapper(registerEventHandlerDescriptors['feedSuggestedPresentationUpdated'], feed));
+            };
+
+            this.updateFeedDetails = function(feed) {
+                logService.logDebug('Persistence: Updating feed ' + feed.feedId + ' details in local storage');
+                localStorageService.updateFeedDetails(feed,
+                    feedCallbackWrapper(registerEventHandlerDescriptors['feedDetailsUpdated'], feed));
             };
         }
 
