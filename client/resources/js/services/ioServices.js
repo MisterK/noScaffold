@@ -51,7 +51,8 @@ angular.module('noScaffold.ioAngularServices', [])
                 socket.on('reconnect', function(attempt) {
                     logService.log('Re-connected to server after ' + attempt + ' attempts');
                     thisConnection.isConnected = true;
-                    triggerConnectedToServerCallback();
+                    //TODO Question: seems triggered as well as 'connect' on reconnection, so creates double refresh, remove?
+                    //triggerConnectedToServerCallback();
                 });
                 socket.on('reconnect_failed', function() {
                     logService.logError('Could not re-connect to server, will retry soon');

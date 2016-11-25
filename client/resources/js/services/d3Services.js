@@ -82,7 +82,7 @@ angular.module('noScaffold.d3AngularServices', [])
                 .text('⇐⇐')
                 .on('click', (callbacks['feedFirstItemButtonClicked'] || _.noop));
 
-            //TODO Other feed buttons?
+            //TODO NewFunc: Other feed buttons?
 
             thisService.updateFeeds(resultingD3Element, callbacks);
             return thisService.updateFeedItem(d3Elements, feedItemWiringFn, callbacks);
@@ -92,7 +92,7 @@ angular.module('noScaffold.d3AngularServices', [])
             return d3Elements.each(function(feed) {
                 var thisElement = d3.select(this);
 
-                //TODO Other refresh action?
+                //TODO NewFunc: Other refresh actions?
 
                 return thisElement.select('.feedTitle').style('background-color', function(feed) {
                     return (callbacks['isSelected'] || _.noop)(feed) ?
@@ -101,12 +101,12 @@ angular.module('noScaffold.d3AngularServices', [])
             });
         };
 
-        this.updateFeedItem = function(d3Elements, wiringFn, callbacks) { //TODO make callbacks part of wiringFn instead?
+        this.updateFeedItem = function(d3Elements, wiringFn, callbacks) { //TODO Question: make callbacks part of wiringFn instead?
             var thisService = this;
             return d3Elements.each(function(feed) {
                 var thisElement = d3.select(this);
 
-                //TODO Other display actions?
+                //TODO NewFunc: Other display actions?
                 if (angular.isObject(feed.previousItem)) {
                     d3TransitionsService.fadeOutAndRemove(
                         thisElement.select("[id='" + feed.feedId + '-feedItem' + feed.previousItem.itemIndex + "']"),
@@ -119,7 +119,7 @@ angular.module('noScaffold.d3AngularServices', [])
                 }
                 if (angular.isObject(feed.currentItem)) {
                     if (!angular.isObject(feed.previousItem)) { // To avoid double refresh
-                        feed.previousItem = feed.currentItem; //TODO find a better mechanism to avoid double refresh
+                        feed.previousItem = feed.currentItem; //TODO Beurk: find a better mechanism to avoid double refresh
                     }
                     if (angular.isString(feed.suggestedPresentation.cssStyle)) {
                         thisElement
@@ -202,7 +202,7 @@ angular.module('noScaffold.d3AngularServices', [])
                                 undefined, false);
                         });
                 });
-                feedItemElement //TODO fix CSS and remove this
+                feedItemElement//TODO Beurk: fix CSS and remove this
                     .append('div')
                     .attr('class', 'clearer')
                     .text(' ');

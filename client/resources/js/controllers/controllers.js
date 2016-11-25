@@ -210,19 +210,22 @@ angular.module('noScaffold.controllers', [])
                 logService.logDebug('No feeds received from server');
                 return;
             }
-            //TODO merge (and do not refresh) instead of replace if feed already exist, otherwise double item display
-            _.assign($scope.feeds, feedCollections['feeds']);
-            _.assign($scope.suggestedFeeds, feedCollections['suggestedFeeds']);
-            logService.logDebug('Fetching first item of each ' + (_.keys(feedCollections['feeds']).length +
-                _.keys(feedCollections['suggestedFeeds']).length) + ' feed received from server');
-            _.values(feedCollections).forEach(function(feedCollection) {
-                _.forEach(feedCollection, function(feed) {
+            _.keys(feedCollections).forEach(function(collectionKey) {
+                var splitKnownFeeds = _.partition(feedCollections[collectionKey], function(feed) {
+                    return !angular.isObject($scope[collectionKey][feed.feedId]);
+                });
+                logService.logDebug(_.keys(feedCollections[collectionKey]).length + ' ' +
+                    collectionKey + ' retrieved, ' + splitKnownFeeds[0].length + ' of which are new.');
+                _.forEach(splitKnownFeeds[0], function(feed) {
+                    $scope[collectionKey][feed.feedId] = feed;
+                    requireFeedDisplayAdding(feed);
+                    logService.logDebug('Fetching first item of feed ' + feed.feedId + ' received from server');
                     persistence.fetchFeedItem(feed,
                         _.assign({feedId: feed.feedId, itemIndex: feed.itemIndex || 1}, configFetchParams),
                         false);
                 });
+                //TODO Question: is there anything to do with the known feeds (splitKnownFeeds[1])?
             });
-            requireAllFeedsDisplayAdding();
         };
         var findFeed = function(feedId) {
             return $scope.feeds[feedId] || $scope.suggestedFeeds[feedId];
@@ -285,10 +288,6 @@ angular.module('noScaffold.controllers', [])
             $scope.$broadcast('feedAdded', feedToAdd);
         };
 
-        var requireAllFeedsDisplayAdding = function() {
-            requireFeedDisplayAdding();
-        };
-
         var requireFeedItemRefresh = function(feedToRefresh) {
             $scope.$broadcast('feedItemRefresh', feedToRefresh);
         };
@@ -302,6 +301,6 @@ angular.module('noScaffold.controllers', [])
         };
 
         var requireFeedRedraw = function(feedToRedraw) {
-            $scope.$broadcast('feedRedraw', feedToRedraw);
+            $scope.$broadcast('feedRedraw', feedToRedraw); //TODO Beurk: feed display update instead of full redraw?
         };
     });
