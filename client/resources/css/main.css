@@ -122,6 +122,19 @@ h1 {
     left: 40%;
 }
 
+.editCSSTab, .editDataSchemaTab {
+    margin-top: 20px;
+}
+
+.instructionInsertAtCaret {
+    color: darkgrey;
+    font-size: x-small;
+}
+
+.instructionSpecialKey {
+    font-style: italic;
+}
+
 .findFieldToAddToTemplateDialog {
     position: absolute;
     z-index: 2000;

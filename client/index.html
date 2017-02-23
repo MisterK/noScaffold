@@ -37,17 +37,16 @@
         <div class="feedSuggestedPresentationEditionDialog" ng-show="selectedFeed">
             === Modify selected feed's source: ===
             <div class="updateControls">
-                <div class="findFieldToAddToTemplateTab">
-                    <button class="findFieldToAddToTemplateButton" ng-click="showFindFieldToAddToTemplateDialog()">Find field to add</button>
-                </div>
                 <div class="editTemplateTab">
-                    <label for="editTemplateTextArea">Feed's template:</label><br/>
-                    <textarea id="editTemplateTextArea" name="editTemplateTextArea" ng-model="feedSuggestedPresentation.template" rows="20" cols="100"></textarea>
+                    <label for="templateEditTextArea">Feed's template:</label>&nbsp;<button class="findFieldToAddToTemplateButton" ng-click="showFindFieldToAddToTemplateDialog('template')">Find field to add to template</button><br/>
+                    <textarea id="templateEditTextArea" name="templateEditTextArea" ng-model="feedSuggestedPresentation.template" ng-keypress="handleSpecialKeys('template', $event)" rows="20" cols="100"></textarea>
                 </div>
+                <div class="instructionInsertAtCaret">Press <span class="instructionSpecialKey">Alt + F</span>  to insert a field at the current caret position.</div>
                 <div class="editCSSTab">
-                    <label for="editCSSTextArea">Feed's Style:</label><br/>
-                    <textarea id="editCSSTextArea" name="editCSSTextArea" ng-model="feedSuggestedPresentation.cssStyle" rows="20" cols="100"></textarea>
+                    <label for="cssStyleEditTextArea">Feed's Style:</label>&nbsp;<button class="findFieldToAddToTemplateButton" ng-click="showFindFieldToAddToTemplateDialog('cssStyle')">Find field to add to cssStyle</button><br/>
+                    <textarea id="cssStyleEditTextArea" name="cssStyleEditTextArea" ng-model="feedSuggestedPresentation.cssStyle" ng-keypress="handleSpecialKeys('cssStyle', $event)" rows="20" cols="100"></textarea>
                 </div>
+                <div class="instructionInsertAtCaret">Press <span class="instructionSpecialKey">Alt + F</span>  to insert a field at the current caret position.</div>
                 <div class="editDataSchemaTab">
                     <label for="editDataSchemaTextArea">Feed's data schema:</label><br/>
                     <textarea id="editDataSchemaTextArea" name="editDataSchemaTextArea" ng-model="feedSuggestedPresentation.dataSchema" rows="20" cols="100"></textarea>

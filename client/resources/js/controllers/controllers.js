@@ -146,9 +146,9 @@ angular.module('noScaffold.controllers', [])
             feed.directFetchMode = true;
 
             var feedSuggestedPresentation = {
-                template: dataCfg.feedSuggestedPresentation.placeholderTemplateValue,
-                cssStyle: dataCfg.feedSuggestedPresentation.placeholderCSSStyleValue,
-                dataSchema: dataCfg.feedSuggestedPresentation.placeholderDataSchemaValue
+                template: dataCfg.feedSuggestedPresentation.placeholderValues.template,
+                cssStyle: dataCfg.feedSuggestedPresentation.placeholderValues.cssStyle,
+                dataSchema: dataCfg.feedSuggestedPresentation.placeholderValues.dataSchema
             };
 
             feedSuggestedTemplateModifier.updateFeedSuggestedPresentation(feed, feedSuggestedPresentation);

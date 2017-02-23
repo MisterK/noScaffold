@@ -198,6 +198,14 @@ angular.module('noScaffold.directives', [])
                     }
                 });
 
+                scope.handleSpecialKeys = function(target, event) {
+                    if (event.altKey && event.keyCode == 402) {
+                        event.preventDefault();
+                        scope.caretPosition = event.target.selectionStart;
+                        scope.showFindFieldToAddToTemplateDialog(target);
+                    }
+                };
+
                 scope.closeDialog = function() {
                     scope.selectedFeed = undefined;
                 };
@@ -209,7 +217,8 @@ angular.module('noScaffold.directives', [])
                     }
                 };
 
-                scope.showFindFieldToAddToTemplateDialog = function() {
+                scope.showFindFieldToAddToTemplateDialog = function(target) {
+                    scope.targetForFieldToAddToTemplate = target;
                     var configFetchParams = { //TODO replace by feed's fetch params
                         'suburb': 'Richmond',
                         'suburbId': '8ece3e33-d411-4ae8-b479-f6bd6c0f403f'
@@ -217,7 +226,6 @@ angular.module('noScaffold.directives', [])
                     var fetchParams = _.assign({feedId: scope.selectedFeed.feedId, itemIndex: 1}, configFetchParams);
                     directQueryService.queryJsonApi(scope.selectedFeed, fetchParams,
                         function(feedId, itemIndex, feedItem) {
-                            logService.logDebug(JSON.stringify(feedItem));
                             d3ComponentFactoryService.displayJSONStructure(
                                 rootElement, feedItem, scopeApply(scope, scope.addFieldToTemplate));
                             scope.findFieldToAddToTemplateDialogShown = true;
@@ -238,30 +246,45 @@ angular.module('noScaffold.directives', [])
                 scope.hideFindFieldToAddToTemplateDialog = function() {
                     scope.findFieldToAddToTemplateDialogShown = false;
                     scope.fieldPathToAddToTemplate = [];
+                    scope.targetForFieldToAddToTemplate = '';
+                    scope.caretPosition = null;
                 };
 
                 scope.showPickFieldNameToAddToTemplateDialog = function() {
                     scope.pickFieldNameToAddToTemplateDialogShown = true;
                 };
 
+                var stringInsert = function(string, startPosition, insert) {
+                    return string.slice(0, startPosition) + insert + string.slice(startPosition);
+                };
+
                 scope.pickFieldNameToAddToTemplate = function() {
                     var fieldName = (scope.fieldNameToAddToTemplate || '').trim();
-                    logService.logDebug(fieldName + ' ' + JSON.stringify(scope.fieldPathToAddToTemplate));
+                    var target = scope.targetForFieldToAddToTemplate;
+                    if (target != 'template' && target != 'cssStyle') {
+                        return;
+                    }
 
                     var feedDataSchema = JSON.parse(scope.feedSuggestedPresentation.dataSchema);
                     if (_.has(feedDataSchema, fieldName)) {
                         scope.showNameAlreadyTakenErrorMessage = true;
                         return;
                     }
-
                     feedDataSchema[scope.fieldNameToAddToTemplate] = scope.fieldPathToAddToTemplate;
-                    var isDefaultTemplateValue = scope.feedSuggestedPresentation.template.trim().length == 0
-                        || scope.feedSuggestedPresentation.template.trim() ==
-                            dataCfg.feedSuggestedPresentation.placeholderTemplateValue;
-                    scope.feedSuggestedPresentation.template =
-                        (isDefaultTemplateValue ? '' : scope.feedSuggestedPresentation.template + '\n') +
-                        'div #{' + fieldName + '}';
                     scope.feedSuggestedPresentation.dataSchema = JSON.stringify(feedDataSchema, null, 2);
+
+                    var currentValue = scope.feedSuggestedPresentation[target].trim();
+                    var isDefaultValue = currentValue.length == 0
+                        || currentValue == dataCfg.feedSuggestedPresentation.placeholderValues[target];
+                    if (!isDefaultValue && _.isNumber(scope.caretPosition)) {
+                        scope.feedSuggestedPresentation[target] = stringInsert(
+                            scope.feedSuggestedPresentation[target], scope.caretPosition, '#{' + fieldName + '}');
+                    } else {
+                        var addedValue = (target == 'template' ?
+                            'div #{' + fieldName + '}' : '\n.newClass {\n cssProperty: #{' + fieldName + '};\n}\n');
+                        scope.feedSuggestedPresentation[target] =
+                            (isDefaultValue ? '' : scope.feedSuggestedPresentation[target] + '\n') + addedValue;
+                    }
 
                     scope.resetModalDialogs();
                 };

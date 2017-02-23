@@ -11,9 +11,11 @@ angular.module('noScaffold.dataAngularServices', [])
             "templateStringVarFallbackValue": ' '
         },
         'feedSuggestedPresentation': {
-            'placeholderTemplateValue': 'div This is your feed\'s template. Modify it!',
-            'placeholderCSSStyleValue': '/* This is your feed\'s css style. Modify it! */',
-            'placeholderDataSchemaValue': '{}'
+            'placeholderValues': {
+                'template': 'div This is your feed\'s template. Modify it!',
+                'cssStyle': '/* This is your feed\'s css style. Modify it! */',
+                'dataSchema': '{}'
+            }
         },
         'pageElements': {
             'defaultFill': 'black',
