@@ -4,7 +4,7 @@
 
 angular.module('noScaffold.controllers', [])
     .controller('NoScaffoldController', function($scope, persistenceService, logService, doFeedsIdsMatch,
-                                                 feedSuggestedTemplateModifier) {
+                                                 feedSuggestedTemplateModifier, dataCfg) {
         $scope.feeds = {};
         $scope.suggestedFeeds = {};
         $scope.selectedFeed = undefined;
@@ -146,9 +146,9 @@ angular.module('noScaffold.controllers', [])
             feed.directFetchMode = true;
 
             var feedSuggestedPresentation = {
-                template: 'div This is your feed\'s template. Modify it!',
-                cssStyle: '/* This is your feed\'s css style. Modify it! */',
-                dataSchema: '{}'
+                template: dataCfg.feedSuggestedPresentation.placeholderTemplateValue,
+                cssStyle: dataCfg.feedSuggestedPresentation.placeholderCSSStyleValue,
+                dataSchema: dataCfg.feedSuggestedPresentation.placeholderDataSchemaValue
             };
 
             feedSuggestedTemplateModifier.updateFeedSuggestedPresentation(feed, feedSuggestedPresentation);

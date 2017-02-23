@@ -10,6 +10,11 @@ angular.module('noScaffold.dataAngularServices', [])
             'templateStringVarExtractionRegexp': '#\{([^\{\}]*)\}',
             "templateStringVarFallbackValue": ' '
         },
+        'feedSuggestedPresentation': {
+            'placeholderTemplateValue': 'div This is your feed\'s template. Modify it!',
+            'placeholderCSSStyleValue': '/* This is your feed\'s css style. Modify it! */',
+            'placeholderDataSchemaValue': '{}'
+        },
         'pageElements': {
             'defaultFill': 'black',
             'propertiesEnums': {
@@ -152,7 +157,7 @@ angular.module('noScaffold.dataAngularServices', [])
             feed.suggestedPresentation.template = feedSuggestedPresentation.template;
             feed.tagArray = extractTagsFromTemplateString(feed.suggestedPresentation.template);
             feed.suggestedPresentation.cssStyle = feedSuggestedPresentation.cssStyle;
-            feed.suggestedPresentation.dataSchema = JSON.parse(feedSuggestedPresentation.dataSchema || '{}');
+            feed.suggestedPresentation.dataSchema = JSON.parse(feedSuggestedPresentation.dataSchema || '{}'); //TODO validate
             return feed;
         };
     })

@@ -211,8 +211,62 @@ angular.module('noScaffold.d3AngularServices', [])
             }
         };
 
+        this.displayJSONStructure = function(d3RootElement, jsonRootObject, clickCallback) {
+            d3RootElement.select('div').remove();
+            displayJSONElement(d3RootElement, "", jsonRootObject, [], clickCallback);
+        };
+
         var getter = function(propertyName) {
             return function(element) { return _.get(element, propertyName); }
+        };
+
+        var displayJSONElement = function(d3Element, jsonElementKey, jsonElement, pathStack, clickCallback) {
+            var jsonObjectDivElement = d3Element
+                .append('div')
+                .attr('class', 'jsonObjectDiv');
+
+            var jsonObjectKeyLabel = (jsonElementKey || '').trim();
+            var newPathStack = pathStack;
+            if (jsonObjectKeyLabel.length > 0) {
+                newPathStack = _.concat(pathStack, jsonObjectKeyLabel);
+            }
+
+            var valueIsNativeType = !_.isArray(jsonElement) && !_.isObject(jsonElement);
+
+            if (isNaN(jsonObjectKeyLabel) && jsonObjectKeyLabel.length > 0) {
+                var objectKeySpanElement = jsonObjectDivElement
+                    .append('span')
+                    .attr('class',
+                        'jsonObjectKeyLabelSpan' + (valueIsNativeType? ' selectableJsonObjectKeyLabelSpan' : ''))
+                    .text('"' + jsonObjectKeyLabel + '": ');
+                if (valueIsNativeType) {
+                    objectKeySpanElement
+                        .on('click', function () {
+                            (clickCallback || _.noop)(newPathStack);
+                        });
+                }
+            }
+
+            if (!valueIsNativeType) {
+                jsonObjectDivElement
+                    .append('span')
+                    .attr('class', 'jsonObjectStartingSpan')
+                    .text(_.isArray(jsonElement) ? '[' : '{');
+
+                _.forEach(jsonElement, function(childValue, childKey) {
+                    displayJSONElement(jsonObjectDivElement, '' + childKey, childValue, newPathStack, clickCallback);
+                });
+
+                jsonObjectDivElement
+                    .append('span')
+                    .attr('class', 'jsonObjectEndingSpan')
+                    .text((_.isArray(jsonElement) ? ']' : '}'));
+            } else {
+                jsonObjectDivElement
+                    .append('span')
+                    .attr('class', 'jsonObjectKeyValueSpan')
+                    .text('"' + jsonElement + '"');
+            }
         };
     })
     /* Service to animate the adding and removing of D3 elements */

@@ -10,7 +10,7 @@ angular.module('noScaffold.directives', [])
      *  - d3Service: to access the d3 library object
      * Description: Creates the main noScaffoldFeedCollection with D3
      */
-    .directive('noScaffoldFeedCollection', function(presentationCfg, dataCfg, d3Service,
+    .directive('noScaffoldFeedCollection', function(presentationCfg, d3Service,
                                         d3ComponentFactoryService, d3TransitionsService,
                                                     feedSuggestedTemplateModifier) {
         var getFeedCssSelection = function(feedSelection) {
@@ -27,15 +27,6 @@ angular.module('noScaffold.directives', [])
             return parentElement.selectAll(cssSelection)
                 .data(data, function(d) { return d.feedId; });
         }
-
-        var scopeApply = function(scope, fn) {
-            return function() {
-                var args = arguments;
-                scope.$apply(function() {
-                    fn.apply(this, args);
-                });
-            }
-        };
 
         var drawFeeds = function(scope, collection, parentElement, cssSelection, data) {
             var feedElements = selectFeeds(parentElement, cssSelection, data);
@@ -173,11 +164,11 @@ angular.module('noScaffold.directives', [])
      * Goal: Creates the noScaffold feed edition dialog
      * Usage: <no-scaffold-feed-suggested-presentation-edition-dialog selected-feed="selectedFeed" update-callback="updateFeed(feed)"></no-scaffold-feed-suggested-presentation-edition-dialog>
      * Params:
-     * 		- selected-feed (required): the selectedFeed to update.
-     * 		- update-callback (required): the callback to call when the selectedFeed is to be updated.
+     * 		- directQueryService: to get an example of the feed's JSON input
      * Description: Creates the noScaffold feed edition dialog
      */
-    .directive('noScaffoldFeedSuggestedPresentationEditionDialog', function() {
+    .directive('noScaffoldFeedSuggestedPresentationEditionDialog', function(directQueryService, logService, d3Service,
+                                                                            d3ComponentFactoryService, dataCfg) {
         return {
             restrict: 'E',
             templateUrl: 'feedSuggestedPresentationEditionDialogTemplate',
@@ -186,8 +177,15 @@ angular.module('noScaffold.directives', [])
                 'selectedFeed': '=',
                 'updateCallback': '&'
             },
-            link: function(scope) {
+            link: function(scope, element) {
                 scope.feedSuggestedPresentation = {};
+                var d3 = d3Service.d3;
+                var rootElement = d3.select(element[0]).select('#showFeedJsonExampleTab');
+
+                scope.resetModalDialogs = function() {
+                    scope.hideFindFieldToAddToTemplateDialog();
+                    scope.hidePickFieldNameToAddToTemplateDialog();
+                };
 
                 scope.$watch('selectedFeed', function(newValue, oldValue) {
                     if (angular.isObject(newValue) && newValue !== oldValue) {
@@ -196,6 +194,7 @@ angular.module('noScaffold.directives', [])
                             function(objValue, srcValue) {
                                 return angular.isObject(srcValue) ?
                                     JSON.stringify(srcValue, null, 2) : srcValue; });
+                        scope.resetModalDialogs();
                     }
                 });
 
@@ -209,6 +208,71 @@ angular.module('noScaffold.directives', [])
                         scope.closeDialog();
                     }
                 };
+
+                scope.showFindFieldToAddToTemplateDialog = function() {
+                    var configFetchParams = { //TODO replace by feed's fetch params
+                        'suburb': 'Richmond',
+                        'suburbId': '8ece3e33-d411-4ae8-b479-f6bd6c0f403f'
+                    };
+                    var fetchParams = _.assign({feedId: scope.selectedFeed.feedId, itemIndex: 1}, configFetchParams);
+                    directQueryService.queryJsonApi(scope.selectedFeed, fetchParams,
+                        function(feedId, itemIndex, feedItem) {
+                            logService.logDebug(JSON.stringify(feedItem));
+                            d3ComponentFactoryService.displayJSONStructure(
+                                rootElement, feedItem, scopeApply(scope, scope.addFieldToTemplate));
+                            scope.findFieldToAddToTemplateDialogShown = true;
+                        },
+                        function (status, message) {
+                            logService.logDebug('noScaffoldFeedSuggestedPresentationEditionDialog: Fetching "' +
+                                fetchParams.itemIndex + ' item from feed "' + fetchParams.feedId +
+                                ' has failed: ' + message);
+                        }
+                    );
+                };
+
+                scope.addFieldToTemplate = function(fieldPath) {
+                    scope.fieldPathToAddToTemplate = fieldPath;
+                    scope.showPickFieldNameToAddToTemplateDialog();
+                };
+
+                scope.hideFindFieldToAddToTemplateDialog = function() {
+                    scope.findFieldToAddToTemplateDialogShown = false;
+                    scope.fieldPathToAddToTemplate = [];
+                };
+
+                scope.showPickFieldNameToAddToTemplateDialog = function() {
+                    scope.pickFieldNameToAddToTemplateDialogShown = true;
+                };
+
+                scope.pickFieldNameToAddToTemplate = function() {
+                    var fieldName = (scope.fieldNameToAddToTemplate || '').trim();
+                    logService.logDebug(fieldName + ' ' + JSON.stringify(scope.fieldPathToAddToTemplate));
+
+                    var feedDataSchema = JSON.parse(scope.feedSuggestedPresentation.dataSchema);
+                    if (_.has(feedDataSchema, fieldName)) {
+                        scope.showNameAlreadyTakenErrorMessage = true;
+                        return;
+                    }
+
+                    feedDataSchema[scope.fieldNameToAddToTemplate] = scope.fieldPathToAddToTemplate;
+                    var isDefaultTemplateValue = scope.feedSuggestedPresentation.template.trim().length == 0
+                        || scope.feedSuggestedPresentation.template.trim() ==
+                            dataCfg.feedSuggestedPresentation.placeholderTemplateValue;
+                    scope.feedSuggestedPresentation.template =
+                        (isDefaultTemplateValue ? '' : scope.feedSuggestedPresentation.template + '\n') +
+                        'div #{' + fieldName + '}';
+                    scope.feedSuggestedPresentation.dataSchema = JSON.stringify(feedDataSchema, null, 2);
+
+                    scope.resetModalDialogs();
+                };
+
+                scope.hidePickFieldNameToAddToTemplateDialog = function() {
+                    scope.pickFieldNameToAddToTemplateDialogShown = false;
+                    scope.showNameAlreadyTakenErrorMessage = false;
+                    scope.fieldNameToAddToTemplate = '';
+                };
+
+                scope.resetModalDialogs();
             }
         };
     })
@@ -300,3 +364,12 @@ angular.module('noScaffold.directives', [])
             }
         };
     });
+
+var scopeApply = function(scope, fn) {
+    return function() {
+        var args = arguments;
+        scope.$apply(function() {
+            fn.apply(this, args);
+        });
+    }
+};

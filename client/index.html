@@ -35,8 +35,11 @@
 
     <script type="text/ng-template" id="feedSuggestedPresentationEditionDialogTemplate">
         <div class="feedSuggestedPresentationEditionDialog" ng-show="selectedFeed">
-            Modify selected feed's source:
+            === Modify selected feed's source: ===
             <div class="updateControls">
+                <div class="findFieldToAddToTemplateTab">
+                    <button class="findFieldToAddToTemplateButton" ng-click="showFindFieldToAddToTemplateDialog()">Find field to add</button>
+                </div>
                 <div class="editTemplateTab">
                     <label for="editTemplateTextArea">Feed's template:</label><br/>
                     <textarea id="editTemplateTextArea" name="editTemplateTextArea" ng-model="feedSuggestedPresentation.template" rows="20" cols="100"></textarea>
@@ -52,6 +55,26 @@
                 <div class="generalUpdateControls">
                     <button class="feedSuggestedPresentationEditionDialogCancelButton" ng-click="closeDialog()">Cancel</button>
                     <button class="feedSuggestedPresentationEditionDialogSaveButton" ng-click="saveChanges()">Save</button>
+                </div>
+            </div>
+            <div class="findFieldToAddToTemplateDialog" ng-show="findFieldToAddToTemplateDialogShown">
+                === Find a field in the feed's input JSON example to add to the template: ===
+                <div class="updateControls">
+                    <label for="showFeedJsonExampleTab">This is an example of what the feed will return:</label><br/>
+                    <div id="showFeedJsonExampleTab" class="showFeedJsonExampleTab">
+                    </div>
+                    <div class="generalUpdateControls">
+                        <button class="findFieldToAddToTemplateDialogCancelButton" ng-click="hideFindFieldToAddToTemplateDialog()">Cancel</button>
+                    </div>
+                </div>
+                <div class="pickFieldNameToAddToTemplateDialog" ng-show="pickFieldNameToAddToTemplateDialogShown">
+                    <label for="fieldNameToAddToTemplate">Field Name:</label><br/>
+                    <div class="fieldNameToAddToTemplateAlreadyTakenErrorMessage" ng-show="showNameAlreadyTakenErrorMessage">Field name is already taken in the data schema!</div>
+                    <input type="text" id="fieldNameToAddToTemplate" name="fieldNameToAddToTemplate" ng-model="fieldNameToAddToTemplate" required="required" size="100" /><br/>
+                    <div class="generalUpdateControls">
+                        <button class="pickFieldNameToAddToTemplateDialogAddFieldButton" ng-click="pickFieldNameToAddToTemplate()">Add</button>
+                        <button class="pickFieldNameToAddToTemplateDialogCancelButton" ng-click="hidePickFieldNameToAddToTemplateDialog()">Cancel</button>
+                    </div>
                 </div>
             </div>
         </div>

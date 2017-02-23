@@ -12,6 +12,7 @@
     - delete by index should then be by node unique Id
     - will allow children nodes in Pug template
 - Better double rendering protection
+- Select feed on action buttons click
 - Single floating edition box for feed contents?
 
 == BUGS ==
