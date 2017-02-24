@@ -47,6 +47,13 @@ angular.module('noScaffold.d3AngularServices', [])
                     .text('♥')
                     .on('click', (callbacks['feedSubscribeButtonClicked'] || _.noop));
             }
+            if (angular.isFunction(callbacks['feedCloneButtonClicked'])) {
+                resultingD3Element
+                    .append('div')
+                    .attr('class', 'feedButton feedCloneButton')
+                    .text('©')
+                    .on('click', (callbacks['feedCloneButtonClicked'] || _.noop));
+            }
             if (angular.isFunction(callbacks['feedEditButtonClicked'])) {
                 resultingD3Element
                     .append('div')

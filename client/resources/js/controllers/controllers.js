@@ -151,7 +151,7 @@ angular.module('noScaffold.controllers', [])
             feedSuggestedTemplateModifier.initFeedWithTemplate(feed);
             persistence.subscribeToFeed(feed);
             persistence.fetchFeedItem(feed,
-                _.assign({itemIndex: 1}, feed.feedDetails.fetchParams),
+                _.assign({itemIndex: feed.itemIndex}, feed.feedDetails.fetchParams),
                 false);
         };
 
@@ -176,6 +176,18 @@ angular.module('noScaffold.controllers', [])
                     false, false);
                 requireFeedRedraw($scope.selectedFeedForEdit);
             }
+        };
+
+        $scope.cloneFeed = function(feed) {
+            var newFeed = _.cloneDeep(feed);
+            newFeed.feedId = feedSuggestedTemplateModifier.getNewUUID();
+            newFeed.itemIndex = 1;
+            newFeed.feedDetails.feedName += " - Clone";
+            newFeed.directFetchMode = true;
+            persistence.subscribeToFeed(newFeed);
+            persistence.fetchFeedItem(newFeed,
+                _.assign({itemIndex: newFeed.itemIndex}, newFeed.feedDetails.fetchParams),
+                false);
         };
 
         //Setup persistence

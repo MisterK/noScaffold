@@ -58,6 +58,7 @@ angular.module('noScaffold.directives', [])
             };
             if (collection.isSubscribedFeeds) {
                 callbacks['feedEditButtonClicked'] = scopeApply(scope, scope.displayEditFeedDialog);
+                callbacks['feedCloneButtonClicked'] = scopeApply(scope, scope.cloneFeed);
             } else {
                 callbacks['feedSubscribeButtonClicked'] = scopeApply(scope, scope.subscribeToFeed);
             }
