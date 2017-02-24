@@ -66,7 +66,7 @@ angular.module('noScaffold.controllers', [])
             if (angular.isNumber(itemIndex)) {
                 persistence.fetchFeedItem(feed,
                     _.assign({itemIndex: itemIndex}, feed.feedDetails.fetchParams),
-                    persistChange);
+                    persistChange, true);
             }
         };
 
@@ -152,7 +152,7 @@ angular.module('noScaffold.controllers', [])
             persistence.subscribeToFeed(feed);
             persistence.fetchFeedItem(feed,
                 _.assign({itemIndex: feed.itemIndex}, feed.feedDetails.fetchParams),
-                false);
+                false, true);
         };
 
         $scope.displayEditFeedDialog = function(feed) {
@@ -187,7 +187,7 @@ angular.module('noScaffold.controllers', [])
             persistence.subscribeToFeed(newFeed);
             persistence.fetchFeedItem(newFeed,
                 _.assign({itemIndex: newFeed.itemIndex}, newFeed.feedDetails.fetchParams),
-                false);
+                false, false);
         };
 
         //Setup persistence
@@ -229,7 +229,7 @@ angular.module('noScaffold.controllers', [])
                     logService.logDebug('Fetching first item of feed ' + feed.feedId + ' received from server');
                     persistence.fetchFeedItem(feed,
                         _.assign({itemIndex: feed.itemIndex || 1}, feed.feedDetails.fetchParams),
-                        false);
+                        false, true);
                 });
                 //TODO Question: is there anything to do with the known feeds (splitKnownFeeds[1])?
             });
