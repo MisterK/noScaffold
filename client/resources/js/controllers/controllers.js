@@ -11,10 +11,6 @@ angular.module('noScaffold.controllers', [])
         $scope.selectedFeedForSuggestedPresentationEdit = undefined;
         $scope.selectedFeedForEdit = undefined;
         $scope.showAddFeedDialog = false;
-        var configFetchParams = {
-            'suburb': 'Richmond',
-            'suburbId': '8ece3e33-d411-4ae8-b479-f6bd6c0f403f'
-        };
 
         var clearPageElementSelection = function() {
             var previouslySelectedFeed = angular.isObject($scope.selectedFeed) ?
@@ -69,7 +65,7 @@ angular.module('noScaffold.controllers', [])
             var itemIndex = itemIndexFn(feed);
             if (angular.isNumber(itemIndex)) {
                 persistence.fetchFeedItem(feed,
-                    _.assign({feedId: feed.feedId, itemIndex: itemIndex}, configFetchParams),
+                    _.assign({itemIndex: itemIndex}, feed.feedDetails.fetchParams),
                     persistChange);
             }
         };
@@ -155,7 +151,7 @@ angular.module('noScaffold.controllers', [])
             feedSuggestedTemplateModifier.initFeedWithTemplate(feed);
             persistence.subscribeToFeed(feed);
             persistence.fetchFeedItem(feed,
-                _.assign({feedId: feed.feedId, itemIndex: 1}, configFetchParams),
+                _.assign({itemIndex: 1}, feed.feedDetails.fetchParams),
                 false);
         };
 
@@ -175,9 +171,8 @@ angular.module('noScaffold.controllers', [])
                     JSON.parse($scope.selectedFeedForEdit.feedDetails.fetchParams || '{}');
                 persistence.updateFeedDetails($scope.selectedFeedForEdit);
                 persistence.fetchFeedItem($scope.selectedFeedForEdit,
-                    _.assign(
-                        {feedId: $scope.selectedFeedForEdit.feedId, itemIndex: $scope.selectedFeedForEdit.itemIndex},
-                        configFetchParams),
+                    _.assign({itemIndex: $scope.selectedFeedForEdit.itemIndex},
+                        $scope.selectedFeedForEdit.feedDetails.fetchParams),
                     false, false);
                 requireFeedRedraw($scope.selectedFeedForEdit);
             }
@@ -221,7 +216,7 @@ angular.module('noScaffold.controllers', [])
                     requireFeedDisplayAdding(feed);
                     logService.logDebug('Fetching first item of feed ' + feed.feedId + ' received from server');
                     persistence.fetchFeedItem(feed,
-                        _.assign({feedId: feed.feedId, itemIndex: feed.itemIndex || 1}, configFetchParams),
+                        _.assign({itemIndex: feed.itemIndex || 1}, feed.feedDetails.fetchParams),
                         false);
                 });
                 //TODO Question: is there anything to do with the known feeds (splitKnownFeeds[1])?

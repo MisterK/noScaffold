@@ -36,13 +36,13 @@ var discoverFeeds = function(feedExclusions) {
     });
 };
 
-var fetchFeedItem = function(fetchParams, callback, errorCallback) {
-    if (_.isUndefined(fetchParams.feedId)) {
+var fetchFeedItem = function(feedId, fetchParams, callback, errorCallback) {
+    if (_.isUndefined(feedId)) {
         return errorCallback('FeedId param is mandatory');
     }
-    var feed = feeds[fetchParams.feedId];
+    var feed = feeds[feedId];
     if ( _.isUndefined(feed)) {
-        return errorCallback('Could not find feed ' + fetchParams.feedId);
+        return errorCallback('Could not find feed ' + feedId);
     }
     var url = _.reduce(_.keys(fetchParams), function(url, fetchParamKey) {
         return url.replace('#' + fetchParamKey + '#', fetchParams[fetchParamKey]);
@@ -143,14 +143,14 @@ io.sockets.on('connection', function (socket) {
         if (callback) {
             callback({status: 200, feeds: _.pick(feeds, feedIds)});
         }
-    }).on('fetchFeedItem', function (fetchParams, callback) {
-        log(logPrefix + 'Fetching ' + fetchParams.itemIndex + ' item from feed "' + fetchParams.feedId + '"');
-        fetchFeedItem(fetchParams, function(feedItem) {
+    }).on('fetchFeedItem', function (feedId, fetchParams, callback) {
+        log(logPrefix + 'Fetching ' + fetchParams.itemIndex + ' item from feed "' + feedId + '"');
+        fetchFeedItem(feedId, fetchParams, function(feedItem) {
             if (callback) {
-                callback({status: 200, feedId: fetchParams.feedId, itemIndex: fetchParams.itemIndex, feedItem: feedItem});
+                callback({status: 200, feedId: feedId, itemIndex: fetchParams.itemIndex, feedItem: feedItem});
             }
         }, function(err) {
-            logError('Item "' + fetchParams.itemIndex + ' item from feed "' + fetchParams.feedId + ' could not be fetched: ' + err);
+            logError('Item "' + fetchParams.itemIndex + ' item from feed "' + feedId + ' could not be fetched: ' + err);
             callback({status: 500, message: 'Feed item could not be fetched: ' + err});
         });
 	})
@@ -165,7 +165,10 @@ addFeed({
     feedDetails: {
         feedName: 'resiAgentAPI: Agents',
         templateUrl: 'http://resi-agent-api.resi-lob-dev.realestate.com.au/agents?location=#suburbId#&page=#itemIndex#&size=1',
-        fetchParams: {}
+        fetchParams: {
+            'suburb': 'Richmond',
+            'suburbId': '8ece3e33-d411-4ae8-b479-f6bd6c0f403f'
+        }
     }
 });
 
@@ -174,7 +177,10 @@ addFeed({
     feedDetails: {
         feedName: 'listingServicesAPI: Listings - Buy',
         templateUrl: 'http://services.realestate.com.au/services/listings/search?query={%22channel%22:%22buy%22,%22localities%22:[{%22locality%22:%22#suburb#%22}],%22pageSize%22:%221%22,%22page%22:%22#itemIndex#%22}',
-        fetchParams: {}
+        fetchParams: {
+            'suburb': 'Richmond',
+            'suburbId': '8ece3e33-d411-4ae8-b479-f6bd6c0f403f'
+        }
     }
 });
 
@@ -183,7 +189,10 @@ var soldListingsFeed = {
     feedDetails: {
         feedName: 'listingServicesAPI: Listings - Sold',
         templateUrl: 'http://services.realestate.com.au/services/listings/search?query={%22channel%22:%22sold%22,%22localities%22:[{%22locality%22:%22#suburb#%22}],%22pageSize%22:%221%22,%22page%22:%22#itemIndex#%22}',
-        fetchParams: {}
+        fetchParams: {
+            'suburb': 'Richmond',
+            'suburbId': '8ece3e33-d411-4ae8-b479-f6bd6c0f403f'
+        }
     }
 };
 

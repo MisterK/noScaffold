@@ -99,7 +99,7 @@ angular.module('noScaffold.ioAngularServices', [])
 
             this.fetchFeedItem = function(feed, fetchParams, successCallback, errorCallback) {
                 if (thisConnection.isConnected && !feed.directFetchMode) {
-                    emitEvent('fetchFeedItem', fetchParams, function(response) {
+                    socket.emit('fetchFeedItem', feed.feedId, fetchParams, function(response) {
                         if (response.status == 200) {
                             (successCallback || _.noop)(response.feedId, response.itemIndex, response.feedItem);
                         } else {
@@ -143,7 +143,7 @@ angular.module('noScaffold.ioAngularServices', [])
                 }
             };
             return $http(req).then(function(response) {
-                (successCallback || _.noop)(fetchParams.feedId, fetchParams.itemIndex, response.data);
+                (successCallback || _.noop)(feed.feedId, fetchParams.itemIndex, response.data);
             }, function(response) {
                 (errorCallback || _.noop)(response.status, response.statusText + '-' + response.data);
             });

@@ -219,11 +219,7 @@ angular.module('noScaffold.directives', [])
 
                 scope.showFindFieldToAddToTemplateDialog = function(target) {
                     scope.targetForFieldToAddToTemplate = target;
-                    var configFetchParams = { //TODO replace by feed's fetch params
-                        'suburb': 'Richmond',
-                        'suburbId': '8ece3e33-d411-4ae8-b479-f6bd6c0f403f'
-                    };
-                    var fetchParams = _.assign({feedId: scope.selectedFeed.feedId, itemIndex: 1}, configFetchParams);
+                    var fetchParams = _.assign({itemIndex: 1}, scope.selectedFeed.feedDetails.fetchParams);
                     directQueryService.queryJsonApi(scope.selectedFeed, fetchParams,
                         function(feedId, itemIndex, feedItem) {
                             d3ComponentFactoryService.displayJSONStructure(
@@ -232,7 +228,7 @@ angular.module('noScaffold.directives', [])
                         },
                         function (status, message) {
                             logService.logDebug('noScaffoldFeedSuggestedPresentationEditionDialog: Fetching "' +
-                                fetchParams.itemIndex + ' item from feed "' + fetchParams.feedId +
+                                fetchParams.itemIndex + ' item from feed "' + scope.selectedFeed.feedId +
                                 ' has failed: ' + message);
                         }
                     );

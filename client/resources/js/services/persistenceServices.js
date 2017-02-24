@@ -363,7 +363,7 @@ angular.module('noScaffold.persistenceServices', [])
                     function(feedId, itemIndex, feedItem) {
                         if (persistChange) {
                             logService.logDebug('Persistence: Fetched "' + fetchParams.itemIndex +
-                                ' item from feed "' + fetchParams.feedId + ' -> persisting in local storage');
+                                ' item from feed "' + feed.feedId + ' -> persisting in local storage');
                             localStorageService.updateFeedItemIndex({feedId: feedId, itemIndex: itemIndex},
                                 function() {
                                     registerEventHandlerDescriptors['feedItemFetched'](
@@ -376,7 +376,7 @@ angular.module('noScaffold.persistenceServices', [])
                     },
                     function (status, message) {
                         logService.logDebug('Persistence: Fetching "' + fetchParams.itemIndex +
-                            ' item from feed "' + fetchParams.feedId + ' has failed: ' + message);
+                            ' item from feed "' + feed.feedId + ' has failed: ' + message);
                     });
             };
 
