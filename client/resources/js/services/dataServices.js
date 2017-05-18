@@ -6,9 +6,8 @@ angular.module('noScaffold.dataAngularServices', [])
     /* Return the data management configuration */
     .constant('dataCfg', {
         'feedItems': {
-            'templateStringTagExtractionRegexp': '^\s*([a-z]+)?(#[a-zA-Z0-9]+)?(\\.[a-zA-Z0-9]+)?(\\([^\)]*\\))?\s?(.*)$',
             'templateStringVarExtractionRegexp': '#\{([^\{\}]*)\}',
-            "templateStringVarFallbackValue": ' '
+            'templateStringVarFallbackValue': ' '
         },
         'feedSuggestedPresentation': {
             'placeholderValues': {
@@ -50,33 +49,14 @@ angular.module('noScaffold.dataAngularServices', [])
         var feedId2 = angular.isObject(feedOrId2) ? feedOrId2.feedId : feedOrId2;
         return feedId1 === feedId2;
     })
-    .service('feedSuggestedTemplateModifier', function(dataCfg) {
-        this.feedItemLineRemoved = function(feed, lineIndex) {
-            if (angular.isArray(feed.tagArray)) {
-                feed.tagArray.splice(lineIndex, 1);
-                feed.suggestedPresentation.template = this.convertTagArrayToTemplateString(feed.tagArray);
+    .service('feedSuggestedTemplateModifier', function(dataCfg, tagTreeBuilderFactory,
+                                                       templateStringBuilder, tagTreeHandler) {
+        this.feedItemTagRemoved = function(feed, tagPath) {
+            if (angular.isObject(feed.tagTree)) {
+                tagTreeHandler.removeNodeByPath(feed.tagTree, tagPath);
+                feed.suggestedPresentation.template = templateStringBuilder.convertTagTreeToTemplateString(feed.tagTree);
             }
             return feed;
-        };
-
-        this.convertTagArrayToTemplateString = function(tagArray) {
-            return _.map(tagArray, function(tag) {
-                var tagTemplateString = tag.tagName +
-                    (tag.tagAttributes['id'] ? '#' + tag.tagAttributes['id'] : '') +
-                    (tag.tagAttributes['class'] ? '.' + tag.tagAttributes['class'] : '');
-                var attributesString =_(tag.tagAttributes).map(function(value, key) {
-                    if (['id', 'class'].indexOf(key) < 0) {
-                        return key + '=' + '\'' + value + '\'';
-                    }
-                }).filter(angular.isString).value().join(', ');
-                if (attributesString.length > 0) {
-                    tagTemplateString += '(' + attributesString + ')';
-                }
-                if (tag.tagContents.length > 0) {
-                    tagTemplateString += ' ' + tag.tagContents;
-                }
-                return tagTemplateString;
-            }).join('\n');
         };
 
         this.extrapolateTemplateStringVariables = function(dataSchema, templateString, dataItem) {
@@ -88,50 +68,19 @@ angular.module('noScaffold.dataAngularServices', [])
                 });
         };
 
-        var extractTagsFromTemplateString = function(templateString) {
-            return _.map(templateString.split(/\n/), extractTagFromTemplateStringLine);
-        };
-
-        var extractTagFromTemplateStringLine = function(templateStringLine) {
-            var groups = new RegExp(dataCfg.feedItems.templateStringTagExtractionRegexp, 'g').exec(templateStringLine);
-            var tagAttributes = {
-                'class': ''
-            };
-            if (!angular.isArray(groups) || groups.length < 6) {
-                console.error('Groups pb for templateStringLine |' + templateStringLine + '|');
-                return {
-                    tagName: 'div',
-                    tagAttributes: tagAttributes,
-                    tagContents: templateStringLine
-                };
-            }
-            if (angular.isString(groups[2])) {
-                tagAttributes['id'] = groups[2].substring(1, groups[2].length);
-            }
-            if (angular.isString(groups[3])) {
-                tagAttributes['class'] = groups[3].substring(1, groups[3].length);
-            }
-            if (angular.isString(groups[4])) {
-                var attrGroups = new RegExp('([a-z-]+)\s*=\s*\'([^\']+)+\'').exec(groups[4]);
-                if (angular.isArray(attrGroups) && attrGroups.length == 3
-                    && angular.isString(attrGroups[1]) && angular.isString(attrGroups[2])) {
-                    tagAttributes[attrGroups[1]] = attrGroups[2];
-                }
-            }
-            var tagContents = '';
-            if (angular.isString(groups[5])) {
-                tagContents = groups[5].substring(1, groups[5].length);
-            }
-            return {
-                tagName: groups[1] || 'div',
-                tagAttributes: tagAttributes,
-                tagContents: tagContents
-            }
+        var extractTagTreeFromTemplateString = function(templateString) {
+            return _.reduce(
+                    templateString.split(/\n/),
+                    function(tagTreeBuilder, templateLine, templateLineIndex) {
+                        return tagTreeBuilder.handleNewTemplateLine(templateLine, templateLineIndex);
+                    },
+                    tagTreeBuilderFactory.createTagTreeBuilder())
+                .build();
         };
 
         this.initFeedWithTemplate = function(feed) {
-            if (angular.isString(feed.suggestedPresentation.template) && !angular.isArray(feed.tagArray)) {
-                feed.tagArray = extractTagsFromTemplateString(feed.suggestedPresentation.template);
+            if (angular.isString(feed.suggestedPresentation.template) && !angular.isObject(feed.tagTree)) {
+                feed.tagTree = extractTagTreeFromTemplateString(feed.suggestedPresentation.template);
             }
             if (!angular.isObject(feed.originalSuggestedPresentation)) {
                 feed.originalSuggestedPresentation = {};
@@ -149,7 +98,7 @@ angular.module('noScaffold.dataAngularServices', [])
 
         this.resetFeedSuggestedPresentation = function(feed) {
             feed.suggestedPresentation.template = feed.originalSuggestedPresentation.template;
-            feed.tagArray = extractTagsFromTemplateString(feed.suggestedPresentation.template);
+            feed.tagTree = extractTagTreeFromTemplateString(feed.suggestedPresentation.template);
             feed.suggestedPresentation.cssStyle = feed.originalSuggestedPresentation.cssStyle;
             feed.suggestedPresentation.dataSchema = feed.originalSuggestedPresentation.dataSchema;
             return feed;
@@ -157,9 +106,9 @@ angular.module('noScaffold.dataAngularServices', [])
 
         this.updateFeedSuggestedPresentation = function(feed, feedSuggestedPresentation) {
             feed.suggestedPresentation.template = feedSuggestedPresentation.template;
-            feed.tagArray = extractTagsFromTemplateString(feed.suggestedPresentation.template);
+            feed.tagTree = extractTagTreeFromTemplateString(feed.suggestedPresentation.template);
             feed.suggestedPresentation.cssStyle = feedSuggestedPresentation.cssStyle;
-            feed.suggestedPresentation.dataSchema = JSON.parse(feedSuggestedPresentation.dataSchema || '{}'); //TODO validate
+            feed.suggestedPresentation.dataSchema = JSON.parse(feedSuggestedPresentation.dataSchema || '{}'); //TODO Later: validate
             return feed;
         };
 

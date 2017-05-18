@@ -1,16 +1,12 @@
 == IN PROGRESS ==
 
 == NEW FUNCTIONALITIES ==
-- Handle fetch params
-- Clone feed
+- Modify data schema field path, using Alt + F
 
 == FIXES / IMPROVEMENTS ==
-- tagArray should be a tree structure
-    - assign unique Id to each node
-        - prefix to given node Ids, to avoid conflicts
-        - prefix to given node CSS classes, to avoid conflicts
-    - delete by index should then be by node unique Id
-    - will allow children nodes in Pug template
+- assign unique Id to each node
+    - prefix to given node Ids, to avoid conflicts
+    - prefix to given node CSS classes, to avoid conflicts
 - Better double rendering protection
 - Select feed on action buttons click
 - Single floating edition box for feed contents?

@@ -164,7 +164,7 @@ addFeed({
     feedId: 'resiAgentApi_Agents',
     feedDetails: {
         feedName: 'resiAgentAPI: Agents',
-        templateUrl: 'http://resi-agent-api.resi-lob-dev.realestate.com.au/agents?location=#suburbId#&page=#itemIndex#&size=1',
+        templateUrl: 'http://resi-agent-api.resi-lob-dev.realestate.com.au/agents/suburb/#suburbId#?order=primaryCount&page=#itemIndex#&size=1',
         fetchParams: {
             'suburb': 'Richmond',
             'suburbId': '8ece3e33-d411-4ae8-b479-f6bd6c0f403f'

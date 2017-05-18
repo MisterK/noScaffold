@@ -47,13 +47,13 @@ angular.module('noScaffold.directives', [])
                 'feedResetSuggestedPresentationButtonClicked': scopeApply(scope, scope.resetFeedSuggestedPresentation),
                 'feedEditSuggestedPresentationButtonClicked': scopeApply(scope,
                     scope.displayEditFeedSuggestedPresentationDialog),
-                'feedItemLineRemoveButtonClicked': collection.isSubscribedFeeds ?
-                    scopeApply(scope, function (feed, lineIndex) {
+                'feedItemTagRemoveButtonClicked': collection.isSubscribedFeeds ?
+                    scopeApply(scope, function (feed, tagPath) {
                         return scope.updateFeedSuggestedTemplate(
-                            feedSuggestedTemplateModifier.feedItemLineRemoved(feed, lineIndex));
+                            feedSuggestedTemplateModifier.feedItemTagRemoved(feed, tagPath));
                     }) :
-                    function (feed, lineIndex) {
-                        return feedSuggestedTemplateModifier.feedItemLineRemoved(feed, lineIndex);
+                    function (feed, tagPath) {
+                        return feedSuggestedTemplateModifier.feedItemTagRemoved(feed, tagPath);
                     }
             };
             if (collection.isSubscribedFeeds) {
@@ -88,13 +88,13 @@ angular.module('noScaffold.directives', [])
         var drawFeedItem = function(scope, collection, parentElement, cssSelection, data) {
             var feedElements = parentElement.selectAll(cssSelection);
             var callbacks = {
-                'feedItemLineRemoveButtonClicked': collection.isSubscribedFeeds ?
-                    scopeApply(scope, function (feed, lineIndex) {
+                'feedItemTagRemoveButtonClicked': collection.isSubscribedFeeds ?
+                    scopeApply(scope, function (feed, tagPath) {
                         return scope.updateFeedSuggestedTemplate(
-                            feedSuggestedTemplateModifier.feedItemLineRemoved(feed, lineIndex));
+                            feedSuggestedTemplateModifier.feedItemTagRemoved(feed, tagPath));
                     }) :
-                    function (feed, lineIndex) {
-                        return feedSuggestedTemplateModifier.feedItemLineRemoved(feed, lineIndex);
+                    function (feed, tagPath) {
+                        return feedSuggestedTemplateModifier.feedItemTagRemoved(feed, tagPath);
                     }
             };
             return d3ComponentFactoryService.updateFeedItem(feedElements, feedItemWiringFn(scope), callbacks);

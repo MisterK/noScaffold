@@ -161,54 +161,64 @@ angular.module('noScaffold.d3AngularServices', [])
             });
         };
 
-        this.displayFeedItemContents = function(feedItemElement, feed, callbacks) {
-            if (angular.isArray(feed.tagArray)) {
-                _.forEach(feed.tagArray, function(tag, tagIndex) {
-                    var feedItemLine = feedItemElement
-                        .append('div')
-                        .attr('class', 'feedItemLine');
-                    var feedItemLineContents = feedItemLine
-                        .append('div')
-                        .attr('class', 'feedItemLineContents');
-                    var tagContents = feedSuggestedTemplateModifier.extrapolateTemplateStringVariables(
-                            feed.suggestedPresentation.dataSchema, tag.tagContents, feed.currentItem);
-                    var tagElement = feedItemLineContents
-                        .append(tag.tagName)
-                        .text(tagContents);
-                    _.each(tag.tagAttributes, function(attrValue, attrName) {
-                        var attributeValue = feedSuggestedTemplateModifier.extrapolateTemplateStringVariables(
-                            feed.suggestedPresentation.dataSchema, attrValue, feed.currentItem);
-                        if (attrName == 'class') {
-                            attributeValue = 'feedItemLineContent ' + attributeValue;
-                        }
-                        tagElement.attr(attrName, attributeValue);
-                    });
+        var displayFeedTagChildrenNodes = function(childrenNodes, feedItemElement, feed, callbacks) {
+            _.forEach(childrenNodes, function(childNode) {
+                displayFeedTag(childNode, feedItemElement, feed, callbacks);
+            });
+        };
 
+        var displayFeedTag = function(tag, feedItemElement, feed, callbacks) {
+            var feedItemTag = feedItemElement
+                .append('div')
+                .attr('class', 'feedItemTag feedItemTagIndentation-' + (tag.tagPath.length - 1));
 
-                    var feedItemLineActions = feedItemLine
-                        .append('div')
-                        .attr('class', 'feedItemLineActions');
-                    var removeButton = feedItemLineActions
-                        .append('div')
-                        .attr('class', 'feedItemLineButton feedItemLineRemoveButton')
-                        .style("opacity", 0)
-                        .text('x')
-                        .on('click', function (d) {
-                            d3TransitionsService.fadeOutAndRemove(feedItemLine,
-                                presentationCfg.animations.feeds, presentationCfg.animations.shortDuration);
-                            (callbacks['feedItemLineRemoveButtonClicked'] || _.noop)(d, tagIndex);
-                        });
-                    feedItemLine.on('mouseover', function(d) {
-                            d3TransitionsService.fadeIn(
-                                removeButton,
-                                presentationCfg.animations.feeds, presentationCfg.animations.shortDuration);
-                        })
-                        .on("mouseout", function(d) {
-                            d3TransitionsService.fadeOutAndRemove(removeButton,
-                                presentationCfg.animations.feeds, presentationCfg.animations.shortDuration,
-                                undefined, false);
-                        });
+            var feedItemTagContents = feedItemTag
+                .append('div')
+                .attr('class', 'feedItemTagContents');
+            var tagContents = feedSuggestedTemplateModifier.extrapolateTemplateStringVariables(
+                feed.suggestedPresentation.dataSchema, tag.tagContents, feed.currentItem);
+            var tagElement = feedItemTagContents
+                .append(tag.tagName)
+                .text(tagContents);
+            _.forEach(tag.tagAttributes, function(attrValue, attrName) {
+                var attributeValue = feedSuggestedTemplateModifier.extrapolateTemplateStringVariables(
+                    feed.suggestedPresentation.dataSchema, attrValue, feed.currentItem);
+                if (attrName == 'class') {
+                    attributeValue = 'feedItemTagContent ' + attributeValue;
+                }
+                tagElement.attr(attrName, attributeValue);
+            });
+
+            var feedItemTagActions = feedItemTag
+                .append('div')
+                .attr('class', 'feedItemTagActions');
+            var removeButton = feedItemTagActions
+                .append('div')
+                .attr('class', 'feedItemTagButton feedItemTagRemoveButton')
+                .style("opacity", 0)
+                .text('x')
+                .on('click', function (d) {
+                    d3TransitionsService.fadeOutAndRemove(feedItemTag,
+                        presentationCfg.animations.feeds, presentationCfg.animations.shortDuration);
+                    (callbacks['feedItemTagRemoveButtonClicked'] || _.noop)(d, tag.tagPath);
                 });
+            feedItemTag.on('mouseover', function() {
+                    d3TransitionsService.fadeIn(
+                        removeButton,
+                        presentationCfg.animations.feeds, presentationCfg.animations.shortDuration);
+                })
+                .on("mouseout", function() {
+                    d3TransitionsService.fadeOutAndRemove(removeButton,
+                        presentationCfg.animations.feeds, presentationCfg.animations.shortDuration,
+                        undefined, false);
+                });
+
+            displayFeedTagChildrenNodes(tag.childrenNodes, feedItemTagContents, feed, callbacks);
+        };
+
+        this.displayFeedItemContents = function(feedItemElement, feed, callbacks) {
+            if (angular.isObject(feed.tagTree)) {
+                displayFeedTagChildrenNodes(feed.tagTree.childrenNodes, feedItemElement, feed, callbacks);
                 feedItemElement//TODO Beurk: fix CSS and remove this
                     .append('div')
                     .attr('class', 'clearer')

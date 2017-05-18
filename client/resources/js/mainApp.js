@@ -5,6 +5,7 @@
  */
 angular.module('noScaffold', ['noScaffold.persistenceServices',
                                 'noScaffold.dataAngularServices',
+                                'noScaffold.pugAngularServices',
                                 'noScaffold.ioAngularServices',
                                 'noScaffold.d3AngularServices',
                                 'noScaffold.logServices',
