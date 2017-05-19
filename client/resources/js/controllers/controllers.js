@@ -12,7 +12,7 @@ angular.module('noScaffold.controllers', [])
         $scope.selectedFeedForEdit = undefined;
         $scope.showAddFeedDialog = false;
 
-        var clearPageElementSelection = function() {
+        var clearFeedSelection = function() {
             var previouslySelectedFeed = angular.isObject($scope.selectedFeed) ?
                 $scope.selectedFeed : undefined;
             $scope.selectedFeed = undefined;
@@ -20,7 +20,7 @@ angular.module('noScaffold.controllers', [])
         };
 
         var clearFeedSelectionAndRefresh = function() {
-            var previouslySelectedFeed = clearPageElementSelection();
+            var previouslySelectedFeed = clearFeedSelection();
             if (angular.isObject(previouslySelectedFeed)) {
                 requireFeedDisplayRefresh(previouslySelectedFeed);
             }
@@ -191,24 +191,6 @@ angular.module('noScaffold.controllers', [])
         };
 
         //Setup persistence
-        var pageElementSavedEventHandler = function(savedPageElement) {
-            pageElementsFactory.augmentPageElement(savedPageElement);
-            var matchSavedElementId = _.partial(doPageElementsIdsMatch, savedPageElement);
-            var indexOfSavedPageElement = _.findIndex($scope.pageElements[savedPageElement.pageElementType],
-                matchSavedElementId);
-            if (indexOfSavedPageElement < 0) {
-                logService.logDebug('Adding element "' + savedPageElement.pageElementId +
-                    '" of type ' + savedPageElement.pageElementType + ' received from server');
-                $scope.pageElements[savedPageElement.pageElementType].push(savedPageElement);
-            } else {
-                logService.logDebug('Updating element "' + savedPageElement.pageElementId +
-                    '" of type ' + savedPageElement.pageElementType + ' received from server');
-                $scope.pageElements[savedPageElement.pageElementType][indexOfSavedPageElement] = savedPageElement;
-                if ($scope.isPageElementSelected(savedPageElement)) {
-                    $scope.selectPageElement(savedPageElement); //Re-select it to update edit dialog
-                }
-            }
-        };
         var feedsDiscoveredEventHandler = function(feedCollections) {
             if (!angular.isObject(feedCollections)
                 || ((!angular.isObject(feedCollections['feeds']) || _.keys(feedCollections['feeds']).length == 0)
@@ -283,8 +265,7 @@ angular.module('noScaffold.controllers', [])
           return eventHandlerCallback;
         };
         var persistence = persistenceService.getPersistence(
-            {'pageElementSaved': augmentWithScopeApplyWrapper(pageElementSavedEventHandler),
-                'allFeedsDiscovered': augmentWithScopeApplyWrapper(feedsDiscoveredEventHandler),
+            {'allFeedsDiscovered': augmentWithScopeApplyWrapper(feedsDiscoveredEventHandler),
                 'feedsSuggested': augmentWithScopeApplyWrapper(feedsDiscoveredEventHandler),
                 'feedItemFetched': augmentWithScopeApplyWrapper(feedItemFetchedEventHandler),
                 'feedSubscribed': augmentWithScopeApplyWrapper(feedSubscribedEventHandler),

@@ -17,7 +17,7 @@ angular.module('noScaffold.d3AngularServices', [])
     /* Wrapper to the D3 singleton */
     .factory('d3Service', function($window) {
         if (!angular.isDefined($window.d3)) {
-            throw "D3 library doesn't seem included in page"
+            throw "D3 library doesn't seem included in page";
         }
         return {d3: $window.d3};
     })
