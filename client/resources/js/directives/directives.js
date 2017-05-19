@@ -255,6 +255,17 @@ angular.module('noScaffold.directives', [])
                     return string.slice(0, startPosition) + insert + string.slice(startPosition);
                 };
 
+                var convertArrayTagPathToStringRepresentation = function(tagPath) {
+                    return _.reduce(tagPath, function(result, tagPathItem) {
+                           if (_.isNaN(parseInt(tagPathItem))) {
+                               result += (result.length > 0 ? '.' : '') + tagPathItem;
+                           } else {
+                               result += '[' + tagPathItem + ']';
+                           }
+                            return result;
+                        }, '');
+                };
+
                 scope.pickFieldNameToAddToTemplate = function() {
                     var fieldName = (scope.fieldNameToAddToTemplate || '').trim();
                     var target = scope.targetForFieldToAddToTemplate;
@@ -267,7 +278,8 @@ angular.module('noScaffold.directives', [])
                         scope.showNameAlreadyTakenErrorMessage = true;
                         return;
                     }
-                    feedDataSchema[scope.fieldNameToAddToTemplate] = scope.fieldPathToAddToTemplate;
+                    feedDataSchema[scope.fieldNameToAddToTemplate] =
+                        convertArrayTagPathToStringRepresentation(scope.fieldPathToAddToTemplate);
                     scope.feedSuggestedPresentation.dataSchema = JSON.stringify(feedDataSchema, null, 2);
 
                     var currentValue = scope.feedSuggestedPresentation[target].trim();
@@ -275,10 +287,10 @@ angular.module('noScaffold.directives', [])
                         || currentValue == dataCfg.feedSuggestedPresentation.placeholderValues[target];
                     if (!isDefaultValue && _.isNumber(scope.caretPosition)) {
                         scope.feedSuggestedPresentation[target] = stringInsert(
-                            scope.feedSuggestedPresentation[target], scope.caretPosition, '#{' + fieldName + '}');
+                            scope.feedSuggestedPresentation[target], scope.caretPosition, ' #{' + fieldName + '}');
                     } else {
                         var addedValue = (target == 'template' ?
-                            'div #{' + fieldName + '}' : '\n.newClass {\n cssProperty: #{' + fieldName + '};\n}\n');
+                            'div #{' + fieldName + '}' : '\n.#newClass# {\n #cssProperty#: #{' + fieldName + '};\n}\n');
                         scope.feedSuggestedPresentation[target] =
                             (isDefaultValue ? '' : scope.feedSuggestedPresentation[target] + '\n') + addedValue;
                     }
