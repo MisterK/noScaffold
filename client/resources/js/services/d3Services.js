@@ -108,6 +108,10 @@ angular.module('noScaffold.d3AngularServices', [])
             });
         };
 
+        var getFeedItemDOMNodeId = function(feedItem, suffix) {
+            return feedItem.feedId + '-item' + feedItem.itemIndex + '-' + feedItem.itemId + (suffix ? '-' + suffix : '');
+        };
+
         this.updateFeedItem = function(d3Elements, wiringFn, callbacks) { //TODO Question: make callbacks part of wiringFn instead?
             var thisService = this;
             return d3Elements.each(function(feed) {
@@ -116,37 +120,47 @@ angular.module('noScaffold.d3AngularServices', [])
                 //TODO NewFunc: Other display actions?
                 if (angular.isObject(feed.previousItem)) {
                     d3TransitionsService.fadeOutAndRemove(
-                        thisElement.select("[id='" + feed.feedId + '-feedItem' + feed.previousItem.itemIndex + "']"),
+                        thisElement.select("[id='" + getFeedItemDOMNodeId(feed.previousItem) + "']"),
                         presentationCfg.animations.feeds, presentationCfg.animations.longDuration);
                     d3TransitionsService.fadeOutAndRemove(
-                        thisElement.select("[id='" + feed.feedId + '-feedItem' + feed.previousItem.itemIndex + "-title']"),
+                        thisElement.select("[id='" + getFeedItemDOMNodeId(feed.previousItem, 'title') + "']"),
                         presentationCfg.animations.feeds, presentationCfg.animations.longDuration);
-                    thisElement.select("[id='" + feed.feedId + '-feedItem' + feed.previousItem.itemIndex + "-style']")
-                        .remove();
+                    d3TransitionsService.fadeOutAndRemove(
+                        thisElement.select("[id='" + getFeedItemDOMNodeId(feed.previousItem, 'style') + "']"),
+                        presentationCfg.animations.feeds, presentationCfg.animations.longDuration);
                 }
                 if (angular.isObject(feed.currentItem)) {
                     if (!angular.isObject(feed.previousItem)) { // To avoid double refresh
                         feed.previousItem = feed.currentItem; //TODO Beurk: find a better mechanism to avoid double refresh
                     }
                     if (angular.isString(feed.suggestedPresentation.cssStyle)) {
+                        var cssStyle = feedSuggestedTemplateModifier.extrapolateTemplateStringVariables(
+                            feed.suggestedPresentation.dataSchema, feed.suggestedPresentation.cssStyle,
+                            feed.currentItem);
+                        //Prefix CSS classes with feedItem's Id, to avoid conflicts
+                        cssStyle = _.map(cssStyle.split('\n'), function(cssLine) {
+                                if (/^.*\{\s*$/.test(cssLine)) {
+                                    return '#' + getFeedItemDOMNodeId(feed.currentItem) + ' ' + cssLine;
+                                } else {
+                                    return cssLine;
+                                }
+                            }).join('\n');
                         thisElement
                             .append('style')
-                            .attr('id', feed.feedId + '-feedItem' + feed.itemIndex + '-style')
+                            .attr('id', getFeedItemDOMNodeId(feed.currentItem, 'style'))
                             .attr('type', 'text/css')
-                            .text(feedSuggestedTemplateModifier.extrapolateTemplateStringVariables(
-                                feed.suggestedPresentation.dataSchema, feed.suggestedPresentation.cssStyle,
-                                feed.currentItem));
+                            .text(cssStyle);
                     }
                     thisElement
                         .append('div')
-                        .attr('id', feed.feedId + '-feedItem' + feed.itemIndex + '-title')
+                        .attr('id', getFeedItemDOMNodeId(feed.currentItem, 'title'))
                         .attr('class', 'feedItemTitle')
                         .text(function(feed) {
                             return 'Item ' + feed.itemIndex;
                         });
                     var feedItemElement = thisElement
                         .append('div')
-                        .attr('id', feed.feedId + '-feedItem' + feed.itemIndex)
+                        .attr('id', getFeedItemDOMNodeId(feed.currentItem))
                         .attr('class', 'feedItem');
                     thisService.displayFeedItemContents(feedItemElement, feed, callbacks);
                     if (angular.isFunction(wiringFn)) {
@@ -185,6 +199,9 @@ angular.module('noScaffold.d3AngularServices', [])
                     feed.suggestedPresentation.dataSchema, attrValue, feed.currentItem);
                 if (attrName == 'class') {
                     attributeValue = 'feedItemTagContent ' + attributeValue;
+                } else if (attrName == 'id') {
+                    //Prefix tag's Id with feedItem's Id, to avoid conflicts
+                    attributeValue = feed.currentItem.itemId + '-' + attributeValue;
                 }
                 tagElement.attr(attrName, attributeValue);
             });

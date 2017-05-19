@@ -4,9 +4,7 @@
 - Modify data schema field path, using Alt + F
 
 == FIXES / IMPROVEMENTS ==
-- assign unique Id to each node
-    - prefix to given node Ids, to avoid conflicts
-    - prefix to given node CSS classes, to avoid conflicts
+- assign unique Id to each tag node as well?
 - Better double rendering protection
 - Select feed on action buttons click
 - Single floating edition box for feed contents?

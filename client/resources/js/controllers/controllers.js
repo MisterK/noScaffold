@@ -245,6 +245,7 @@ angular.module('noScaffold.controllers', [])
             }
             feedItem.itemIndex = itemIndex;
             feedItem.feedId = feedId;
+            feedItem.itemId = feedSuggestedTemplateModifier.getNewUUID();
             feed.itemIndex = itemIndex;
             feed.previousItem = feed.currentItem;
             feed.currentItem = feedItem;

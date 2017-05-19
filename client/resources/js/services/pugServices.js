@@ -6,7 +6,8 @@ angular.module('noScaffold.pugAngularServices', [])
     /* Return the data management configuration */
     .constant('pugCfg', {
         'feedItems': {
-            'templateStringTagExtractionRegexp': '^(\\s*)?([a-z]+)?(#[a-zA-Z0-9]+)?(\\.[a-zA-Z0-9]+)?(\\([^\\)]*\\))?\\s?(.*)$'
+            'templateStringTagExtractionRegexp': '^(\\s*)?([a-z]+)?(#[a-zA-Z0-9]+)?(\\.[a-zA-Z0-9]+)?(\\([^\\)]*\\))?\\s?(.*)$',
+            'templateStringTagAttributesExtractionRegexp': '([a-z-]+)\s*=\s*\'([^\']+)+\''
         }
     })
     .service('tagTreeBuilderFactory', function(pugCfg) {
@@ -34,7 +35,8 @@ angular.module('noScaffold.pugAngularServices', [])
             }
             var attributesValue = groups[5];
             if (angular.isString(attributesValue)) {
-                var attrGroups = new RegExp('([a-z-]+)\s*=\s*\'([^\']+)+\'').exec(attributesValue);
+                var attrGroups =
+                    new RegExp(pugCfg.feedItems.templateStringTagAttributesExtractionRegexp).exec(attributesValue);
                 if (angular.isArray(attrGroups) && attrGroups.length == 3
                     && angular.isString(attrGroups[1]) && angular.isString(attrGroups[2])) {
                     tagAttributes[attrGroups[1]] = attrGroups[2];
