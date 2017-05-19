@@ -169,7 +169,9 @@ angular.module('noScaffold.directives', [])
      * Description: Creates the noScaffold feed edition dialog
      */
     .directive('noScaffoldFeedSuggestedPresentationEditionDialog', function(directQueryService, logService, d3Service,
-                                                                            d3ComponentFactoryService, dataCfg) {
+                                                                            d3ComponentFactoryService, feedSuggestedTemplateModifier) {
+        var TARGET_TEMPLATE = 'template';
+        var TARGET_CSS_STYLE = 'cssStyle';
         return {
             restrict: 'E',
             templateUrl: 'feedSuggestedPresentationEditionDialogTemplate',
@@ -186,6 +188,7 @@ angular.module('noScaffold.directives', [])
                 scope.resetModalDialogs = function() {
                     scope.hideFindFieldToAddToTemplateDialog();
                     scope.hidePickFieldNameToAddToTemplateDialog();
+                    scope.hidePickCSSClassNameToAddDialog();
                 };
 
                 scope.$watch('selectedFeed', function(newValue, oldValue) {
@@ -204,6 +207,10 @@ angular.module('noScaffold.directives', [])
                         event.preventDefault();
                         scope.caretPosition = event.target.selectionStart;
                         scope.showFindFieldToAddToTemplateDialog(target);
+                    } else if (event.altKey && event.keyCode == 231 && target == TARGET_TEMPLATE) {
+                        event.preventDefault();
+                        scope.caretPosition = event.target.selectionStart;
+                        scope.showPickCSSClassNameToAddDialog();
                     }
                 };
 
@@ -249,51 +256,57 @@ angular.module('noScaffold.directives', [])
 
                 scope.showPickFieldNameToAddToTemplateDialog = function() {
                     scope.pickFieldNameToAddToTemplateDialogShown = true;
+                    focusOnField('fieldNameToAddToTemplate');
                 };
 
-                var stringInsert = function(string, startPosition, insert) {
-                    return string.slice(0, startPosition) + insert + string.slice(startPosition);
+                var setCaretPositionInEditTextArea = function(target, caretPosition) {
+                    setTimeout(function() {
+                        var targetTextArea = document.getElementById(target + 'EditTextArea');
+                        if (targetTextArea) {
+                            targetTextArea.focus();
+                            targetTextArea.setSelectionRange(caretPosition, caretPosition);
+                        }
+                    }, 500);
                 };
 
-                var convertArrayTagPathToStringRepresentation = function(tagPath) {
-                    return _.reduce(tagPath, function(result, tagPathItem) {
-                           if (_.isNaN(parseInt(tagPathItem))) {
-                               result += (result.length > 0 ? '.' : '') + tagPathItem;
-                           } else {
-                               result += '[' + tagPathItem + ']';
-                           }
-                            return result;
-                        }, '');
+                var focusOnField = function(fieldId) {
+                    setTimeout(function() {
+                        var targetField = document.getElementById(fieldId);
+                        if (targetField) {
+                            targetField.focus();
+                        }
+                    }, 500);
                 };
 
                 scope.pickFieldNameToAddToTemplate = function() {
                     var fieldName = (scope.fieldNameToAddToTemplate || '').trim();
                     var target = scope.targetForFieldToAddToTemplate;
-                    if (target != 'template' && target != 'cssStyle') {
+                    if ((target != TARGET_TEMPLATE && target != TARGET_CSS_STYLE)
+                        || fieldName.length == 0
+                        || !angular.isArray(scope.fieldPathToAddToTemplate)) {
                         return;
                     }
 
-                    var feedDataSchema = JSON.parse(scope.feedSuggestedPresentation.dataSchema);
-                    if (_.has(feedDataSchema, fieldName)) {
-                        scope.showNameAlreadyTakenErrorMessage = true;
-                        return;
+                    //Add field to data schema
+                    try {
+                        scope.feedSuggestedPresentation.dataSchema =
+                            feedSuggestedTemplateModifier.addFieldToDataSchema(
+                                scope.feedSuggestedPresentation.dataSchema, fieldName, scope.fieldPathToAddToTemplate);
+                    } catch (err) {
+                        if (err == 'showNameAlreadyTakenErrorMessage') {
+                            scope.showNameAlreadyTakenErrorMessage = true;
+                            return;
+                        }
+                        throw err;
                     }
-                    feedDataSchema[scope.fieldNameToAddToTemplate] =
-                        convertArrayTagPathToStringRepresentation(scope.fieldPathToAddToTemplate);
-                    scope.feedSuggestedPresentation.dataSchema = JSON.stringify(feedDataSchema, null, 2);
 
-                    var currentValue = scope.feedSuggestedPresentation[target].trim();
-                    var isDefaultValue = currentValue.length == 0
-                        || currentValue == dataCfg.feedSuggestedPresentation.placeholderValues[target];
-                    if (!isDefaultValue && _.isNumber(scope.caretPosition)) {
-                        scope.feedSuggestedPresentation[target] = stringInsert(
-                            scope.feedSuggestedPresentation[target], scope.caretPosition, ' #{' + fieldName + '}');
-                    } else {
-                        var addedValue = (target == 'template' ?
-                            'div #{' + fieldName + '}' : '\n.#newClass# {\n #cssProperty#: #{' + fieldName + '};\n}\n');
-                        scope.feedSuggestedPresentation[target] =
-                            (isDefaultValue ? '' : scope.feedSuggestedPresentation[target] + '\n') + addedValue;
-                    }
+                    //Add field reference into template, at caret position
+                    var resultFieldReference = feedSuggestedTemplateModifier.addFieldReferenceToTargetField(
+                        scope.feedSuggestedPresentation[target], target, scope.caretPosition, fieldName);
+                    scope.feedSuggestedPresentation[target] = resultFieldReference.newValue;
+
+                    //Position cursor where field reference was added in target field
+                    setCaretPositionInEditTextArea(target, resultFieldReference.caretPosition);
 
                     scope.resetModalDialogs();
                 };
@@ -302,6 +315,48 @@ angular.module('noScaffold.directives', [])
                     scope.pickFieldNameToAddToTemplateDialogShown = false;
                     scope.showNameAlreadyTakenErrorMessage = false;
                     scope.fieldNameToAddToTemplate = '';
+                };
+
+                scope.showPickCSSClassNameToAddDialog = function() {
+                    scope.pickCSSClassNameToAddDialogShown = true;
+                    focusOnField('cssClassNameToAdd');
+                };
+
+                scope.hidePickCSSClassNameToAddDialog = function() {
+                    scope.pickCSSClassNameToAddDialogShown = false;
+                    scope.showCSSClassNameAlreadyTakenErrorMessage = false;
+                    scope.cssClassNameToAdd = '';
+                    scope.caretPosition = null;
+                };
+
+                scope.pickCSSClassNameToAdd = function() {
+                    if (!angular.isString(scope.cssClassNameToAdd)) {
+                        return;
+                    }
+
+                    //Add class to style
+                    try {
+                        scope.feedSuggestedPresentation.cssStyle =
+                            feedSuggestedTemplateModifier.addCSSClassToStyle(
+                                scope.feedSuggestedPresentation.cssStyle, scope.cssClassNameToAdd);
+                    } catch (err) {
+                        if (err == 'showCSSClassNameAlreadyTakenErrorMessage') {
+                            scope.showCSSClassNameAlreadyTakenErrorMessage = true;
+                            return;
+                        }
+                        throw err;
+                    }
+
+                    //Add class reference into template, at caret position
+                    scope.feedSuggestedPresentation.template =
+                        feedSuggestedTemplateModifier.addCSSClassReferenceToTemplate(
+                            scope.feedSuggestedPresentation.template, scope.caretPosition, scope.cssClassNameToAdd);
+
+                    //Position cursor where class was added in cssStyle
+                    setCaretPositionInEditTextArea(TARGET_CSS_STYLE,
+                        scope.feedSuggestedPresentation.cssStyle.length - 2);
+
+                    scope.resetModalDialogs();
                 };
 
                 scope.resetModalDialogs();

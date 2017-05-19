@@ -43,6 +43,7 @@
                     <textarea id="templateEditTextArea" name="templateEditTextArea" ng-model="feedSuggestedPresentation.template" ng-keypress="handleSpecialKeys('template', $event)" rows="20" cols="100"></textarea>
                 </div>
                 <div class="instructionInsertAtCaret">Press "<span class="instructionSpecialKey">Alt + F</span>&nbsp;" to insert a field at the current caret position.</div>
+                <div class="instructionInsertAtCaret">Press "<span class="instructionSpecialKey">Alt + C</span>&nbsp;" to insert a CSS class at the current caret position.</div>
                 <div class="editCSSTab">
                     <label for="cssStyleEditTextArea">Feed's Style:</label>&nbsp;<button class="findFieldToAddToTemplateButton" ng-click="showFindFieldToAddToTemplateDialog('cssStyle')">Find field to add to cssStyle</button><br/>
                     <textarea id="cssStyleEditTextArea" name="cssStyleEditTextArea" ng-model="feedSuggestedPresentation.cssStyle" ng-keypress="handleSpecialKeys('cssStyle', $event)" rows="20" cols="100"></textarea>
@@ -75,6 +76,15 @@
                         <button class="pickFieldNameToAddToTemplateDialogAddFieldButton" ng-click="pickFieldNameToAddToTemplate()">Add</button>
                         <button class="pickFieldNameToAddToTemplateDialogCancelButton" ng-click="hidePickFieldNameToAddToTemplateDialog()">Cancel</button>
                     </div>
+                </div>
+            </div>
+            <div class="pickCSSClassNameToAddDialog" ng-show="pickCSSClassNameToAddDialogShown">
+                <label for="cssClassNameToAdd">CSS Class Name:</label><br/>
+                <div class="cssClassNameToAddAlreadyTakenErrorMessage" ng-show="showCSSClassNameAlreadyTakenErrorMessage">CSS class name is already used in the style!</div>
+                <input type="text" id="cssClassNameToAdd" name="cssClassNameToAdd" ng-model="cssClassNameToAdd" required="required" size="100" /><br/>
+                <div class="generalUpdateControls">
+                    <button class="pickCSSClassNameToAddDialogAddFieldButton" ng-click="pickCSSClassNameToAdd()">Add</button>
+                    <button class="pickCSSClassNameToAddDialogCancelButton" ng-click="hidePickCSSClassNameToAddDialog()">Cancel</button>
                 </div>
             </div>
         </div>

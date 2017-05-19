@@ -91,4 +91,84 @@ angular.module('noScaffold.dataAngularServices', [])
         this.getNewUUID = function () {
             return (s4()+s4()+"-"+s4()+"-"+s4()+"-"+s4()+"-"+s4()+s4()+s4());
         };
+
+        var stringInsert = function(string, startPosition, insert) {
+            return string.slice(0, startPosition) + insert + string.slice(startPosition);
+        };
+
+        var convertArrayTagPathToStringRepresentation = function(tagPath) {
+            if (_.find(tagPath, function(tagPathItem) { return !/^[a-zA-Z0-9_-]*$/.test(tagPathItem); })) {
+                //If any tagPath has some special characters, fall back to array representation
+                return tagPath;
+            }
+            return _.reduce(tagPath, function(result, tagPathItem) {
+                if (_.isNaN(parseInt(tagPathItem))) {
+                    result += (result.length > 0 ? '.' : '') + tagPathItem;
+                } else {
+                    result += '[' + tagPathItem + ']';
+                }
+                return result;
+            }, '');
+        };
+
+        var TARGET_TEMPLATE = 'template';
+        var TARGET_CSS_STYLE = 'cssStyle';
+
+        this.addFieldToDataSchema = function(dataSchema, fieldName, fieldPath) {
+            var feedDataSchema = JSON.parse(dataSchema);
+            if (_.has(feedDataSchema, fieldName)) {
+                throw 'showNameAlreadyTakenErrorMessage';
+            }
+            feedDataSchema[fieldName] = convertArrayTagPathToStringRepresentation(fieldPath);
+            return JSON.stringify(feedDataSchema, null, 2);
+        };
+
+        this.addFieldReferenceToTargetField = function(targetField, target, caretPosition, fieldName) {
+            var currentValue = targetField.trim();
+            var isDefaultValue = currentValue.length == 0
+                || currentValue == dataCfg.feedSuggestedPresentation.placeholderValues[target];
+            if (!isDefaultValue && _.isNumber(caretPosition)) {
+                var appendix =
+                    (targetField.charAt(caretPosition - 1) != ' ' ? ' ' : '') +
+                    '#{' + fieldName + '}';
+                return {
+                    newValue: stringInsert(targetField, caretPosition, appendix),
+                    caretPosition: caretPosition + appendix.length
+                };
+            } else {
+                var addedValue = (!isDefaultValue ? '\n' : '') +
+                    (target == TARGET_TEMPLATE ?
+                    'div #{' + fieldName + '}' :
+                    '.#newClass# {\n #cssProperty#: #{' + fieldName + '};\n}\n');
+                var replacementValue = (isDefaultValue ? '' : targetField + '\n');
+                return {
+                    newValue: replacementValue + addedValue,
+                    caretPosition: replacementValue.length + (target == TARGET_TEMPLATE ? addedValue.length : 1)
+                };
+            }
+        };
+
+        this.addCSSClassToStyle = function(cssStyle, cssClassNameToAdd) {
+            if (cssStyle.indexOf('.' + cssClassNameToAdd + ' ') >= 0) {
+                throw 'showCSSClassNameAlreadyTakenErrorMessage';
+            }
+            var currentCSSStyleValue = cssStyle.trim();
+            var cssStyleIsDefaultValue = currentCSSStyleValue.length == 0
+                || currentCSSStyleValue == dataCfg.feedSuggestedPresentation.placeholderValues.cssStyle;
+            return (cssStyleIsDefaultValue ? '' : currentCSSStyleValue + '\n\n') +
+                '.' + cssClassNameToAdd + ' {\n    \n}';
+        };
+
+        this.addCSSClassReferenceToTemplate = function(template, caretPosition, cssClassNameToAdd) {
+            var currentTemplateValue = template.trim();
+            var templateIsDefaultValue = currentTemplateValue.length == 0
+                || currentTemplateValue == dataCfg.feedSuggestedPresentation.placeholderValues.template;
+            var resultingTemplate;
+            if (!templateIsDefaultValue && _.isNumber(caretPosition)) {
+                return stringInsert(template, caretPosition,
+                    (template.charAt(caretPosition - 1) != '.' ? '.' : '') + cssClassNameToAdd);
+            } else {
+                return (templateIsDefaultValue ? '' : template + '\n') + 'div.' + cssClassNameToAdd;
+            }
+        };
     });

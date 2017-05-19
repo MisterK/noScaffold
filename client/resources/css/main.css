@@ -194,6 +194,21 @@ h1 {
     color: red;
 }
 
+.pickCSSClassNameToAddDialog {
+    position: absolute;
+    z-index: 2000;
+    border: 1px solid black;
+    background-color: greenyellow;
+    text-align: center;
+    padding: 3px;
+    top: 5%;
+    left: 5%;
+}
+
+.cssClassNameToAddAlreadyTakenErrorMessage {
+    color: red;
+}
+
 .addFeedDialog {
     position: absolute;
     z-index: 1000;
